@@ -1,27 +1,9 @@
-table(wl_test$user_name)
-table(wl$user_name)
 
-useful <- function(x) {
-  allNA <- all(is.na(x))
-  if (!allNA) {
-    oneValue <- length(unique(x)) == 1
-  }
-  useful <- !allNA && !oneValue
-  return(useful)
-}
 
 results_test <- sapply(wl_test, FUN = function(x) !all(is.na(x)))
-results_train <- sapply(wl, FUN = useful)
-diff <- results_train[results_train != results_test]
-diff
 
 goodNames <- names(results_test[results_test])
 keepNames <- goodNames[-c(1,3,4,5,60)]
-keepNames
-
-
-library(lattice)
-library(tigerstats)
 
 
 wl2 <- wl[,keepNames]
@@ -39,43 +21,44 @@ for ( name in names(wl2) ) {
 }  
   
 
-wlt2 <- wl_test[, keepNames]
+# wlt2 <- wl_test[, keepNames]
 
-library(randomForest)
 
 wl3$classe <- factor(wl$classe)
 wl3$user_name <- factor(wl3$user_name)
 wl3$new_window <- factor(wl3$new_window)
-trainNumber <- ceiling(nrow(wl3)*0.60)
-testNumber <- nrow(wl3) - trainNumber
-temp <- c(rep(TRUE, trainNumber), rep(FALSE, testNumber))
-selected <- sample(temp, replace = FALSE)
-wlTrain <- subset(wl3, selected)
-wlTest <- subset(wl3, !selected)
 
+library(caret)
+
+set.seed(3030)
+trainIndex <- createDataPartition(y = wl3$classe, p = 0.6, list = FALSE, times = 1)
+
+wlTrain <- wl3[trainIndex, ]
+wlTest <- wl3[-trainIndex, ]
+
+names(wl2)
+wl.pr <- prcomp(wl2[, -c(1,2)], scale. = TRUE)
+
+# do a quick random forest to see how many trees are needed
+# for error rates to settle down
+library(randomForest)
 rf <- randomForest(x = wlTrain[,1:55], y = wlTrain$classe,
-                   xtest = wlTest[, 1:55], ytest = wlTest$classe, 
                    do.trace = 50, importance = TRUE)
-rf$confusion
+rf
 
-importance(rf)
-varImpPlot(rf, n.var = 10)
+# looks like 300 trees will do
 
-wlTrainSS <- split(wlTrain, f = wlTrain$user_name)
-wlTestSS <- split(wlTest, f = wlTest$user_name)
 
-forests <- list()
-for ( i in 1:6 ) {
-  print(unique(wlTrainSS[[i]]$user_name))
-  forests[[i]] <- randomForest(x = wlTrainSS[[i]][,1:55], 
-                               y = wlTrainSS[[i]]$classe,
-                               xtest = wlTestSS[[i]][, 1:55], 
-                               ytest = wlTestSS[[i]]$classe, 
-                               do.trace = 50)
-}
 
-confusion <- forests[[1]]$confusion + forests[[2]]$confusion + 
-             forests[[3]]$confusion + forests[[4]]$confusion +
-             forests[[5]]$confusion + forests[[6]]$confusion
-confusion
-table(wl_test$user_name)
+set.seed(2020)
+rf <- train(x = wlTrain[,1:55], y = wlTrain$classe, method = "rf", 
+             trControl = trainControl(method = "oob"),
+             allowParallel = TRUE, do.trace = 50, ntree = 250, 
+             importance = TRUE, tuneLength = 10)
+preds <- predict(rf2, newdata = wlTest[,1:55])
+confusionMatrix(preds, wlTest$classe)
+
+rf.imp <- varImp(rf, scale = FALSE, type = 1)
+plot(rf.imp, top = 10, main = "Variable-Importance Plot",
+     xlab = "Importance (Mean Decrease in Accuracy)")
+
