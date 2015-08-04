@@ -1,0 +1,32 @@
+---
+title: "Predicting Lift-Types"
+author: "Homer White"
+date: "August 3, 2015"
+output: html_document
+---
+
+```{r eval = FALSE}
+wl <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv",
+                  stringsAsFactors = FALSE)
+wl_test <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv",
+                    stringsAsFactors = FALSE)
+save(wl, file = "data/wl.rda")
+save(wl_test, file = "data/wl_test.rda")
+rm(wl); rm(wl_test)
+```
+
+```{r echo = FALSE}
+load(file = "data/wl.rda")
+load(file = "data/wl_test.rda")
+```
+
+```{r}
+
+```
+
+
+
+Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H.: *Qualitative Activity Recognition of Weight Lifting Exercises.* **Proceedings of 4th International Conference in Cooperation with SIGCHI** (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
+
+The link:  <a href = "http://groupware.les.inf.puc-rio.br/har" target = "_blank">http://groupware.les.inf.puc-rio.br/har</a>.
