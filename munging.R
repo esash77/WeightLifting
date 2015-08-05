@@ -62,3 +62,11 @@ rf.imp <- varImp(rf, scale = FALSE, type = 1)
 plot(rf.imp, top = 10, main = "Variable-Importance Plot",
      xlab = "Importance (Mean Decrease in Accuracy)")
 
+
+## consider relationship between num_window and classe
+espl <- with(wl, split(num_window, f = classe))
+for ( i in 1:4) {
+  for ( j in (i+1):5) {
+    print(intersect(espl[[i]], espl[[j]]))
+  }
+}

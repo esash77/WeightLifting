@@ -202,8 +202,8 @@ cloud(Comp.1 ~ Comp.2 * Comp.3, groups = wlTrain$user_name,
 
 From the above plots we see that different subjects have distinct movement profiles---sometimes strikingly so.  From this I take two things:
 
-1.  `user_name` may turn out to be a reasonably good useful predictor.
-2.  If we have to predict activity for new subjects (i.e., people who were not in the study), then we cannot expect to do nearly as well as we would if we were to predict future activity for the only for the six subjects upon whom our model will be built.
+1.  `user_name` *may* turn out to be a reasonably useful predictor.
+2.  On the other hand, if we have to predict activity for new subjects (i.e., people who were not in the study), then we cannot expect to do nearly as well as we would if we were to predict future activity for the only for the six subjects upon whom our model will be built.
 
 ## Model-Fitting
 
