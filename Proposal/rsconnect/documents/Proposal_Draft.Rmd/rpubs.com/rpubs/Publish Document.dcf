@@ -1,0 +1,9 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+appId:
+        https://api.rpubs.com/api/v1/document/114530/3e9bdede54ba46419ef249abf6f1fa36
+bundleId:
+        https://api.rpubs.com/api/v1/document/114530/3e9bdede54ba46419ef249abf6f1fa36
+url: http://rpubs.com/esash77/114530
+when: 1444534761.18649

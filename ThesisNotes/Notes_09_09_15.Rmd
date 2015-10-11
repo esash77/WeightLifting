@@ -1,0 +1,27 @@
+---
+title: "Notes_9_09_15"
+output: pdf_document
+---
+
+
+* Keep up with Coursera quizzes 
+* Reproducible Research -> R Markdown including slides
+  + don't worry about anything else
+* Read research article
+* Read Dr. White's article again
+* Remind Dr. White (in an email) to bring statistical learning book (primary reference)
+* Other ref
+  + R.R. **done**
+  + Document Formats**done**
+  + 6.1 Inline Output **done**
+  + Show/Hide Output **done**
+  + Cache **done**
+  + Publishing Reports- RStudio (but this section is outdated)
+* Update R **done**
+* Update RStudio **done**
+
+
+Thesis:
+* Plan to have all research to be reproducible -> go to GitHub to get recipe to reproduce what I got
+* Build an honest predictive model- one to use in real life
+* This report is always publicly available on (URL for GitHub)
