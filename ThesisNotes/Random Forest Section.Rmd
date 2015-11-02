@@ -1,0 +1,43 @@
+---
+title: "Random Forest Section"
+output: html_document
+---
+
+What is a classification tree and how do you put them together to make a random forest?
+can you make a "toy classification bagging routine"? Explain how RF is different
+
+### Classification Trees
+
+Classification trees are a tree-based model and are used to predict a qualitative response. The variables that go into these classification trees can be numerical or categorical. We predict that each observation belongs to the most commonly occuring class (or category) of training observations in the region to which it belongs (James, 2013). They are useful because they provide predictors in situations where there are many variables that interact in complicated, non-linear ways. In interpreting these classification trees, we are often interested in both the class prediction corresponding to a particular terminal node region, and in the class proportions among the training observations that fall into that region. 
+
+Shall we look at an example of a classification tree?
+
+We are using a data set from a survey taken in the MAT 111 class (Elementary Probability and Statistics). This data set has 71 rows and 12 variables. The survey includes variables such as sex, height, ideal height, GPA, and the fastest speed ever driven.
+
+```{r, include=FALSE}
+library(tree)
+library(tigerstats)
+library(fastR)
+
+```
+
+```{r}
+m111s.tr <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
+                 data=m111survey)
+
+summary(m111s.tr)
+
+```
+
+
+This tree is used to predict the sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight. The summary given shows the variables actually used in constructing the classification tree, the number of terminal nodes, the residual mean deviance, and the misclassification error rate.
+
+```{r}
+plot(m111s.tr)
+text(m111s.tr)
+```
+
+Looking at this tree, we can see that the first division is set when height is less than 69.5 inches. If the height of an observation is less than 69.5 inches they are put into the left region and those with a height equal to or above 69.5 inches are put into the right region. Those in the left hand region are divided by GPA. If the GPA is greater than or equal to 3.225, the prediction is female. If the GPA is less than 3.225, then a further division by height is made. If the height is less than 66.875 inches, then female is predicted. Otherwise, the sex is predicted as male. Those in the right region are divided by how they feel about their weight, although looking at the two terminal nodes, it appears that it doesn't matter how they feel about their weight; the prediction will still be male. 
+
+As you can see from this example, classification trees are easy to interpret and fairly good predictions can be made from them. In this example the misclassification error rate is about 11.4%, or 8 out of 70 observations were misclassified.
+
