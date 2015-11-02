@@ -1,9 +1,10 @@
 ---
-title: "Predicting Movement-Types:  Quick Model-Making with Random Forests"
+title: 'Predicting Movement-Types:  Quick Model-Making with Random Forests'
 author: "Homer White"
 date: "August 4, 2015"
-output: 
-  html_document: 
+output:
+  pdf_document: default
+  html_document:
     fig_caption: yes
     keep_md: yes
     self_contained: yes
