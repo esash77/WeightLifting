@@ -1,0 +1,76 @@
+---
+title: "Bagging"
+output: html_document
+---
+
+### Bagging
+
+Classification trees suffer from high variance. Variance is the error from sensitivity to small fluctuations in the training set. So, when we say classification trees have high variance, this means that if we split the training data set into two parts at random, and fit a tree to both halves, the results we could get may be very different. On the other hand, a procedure with low variance will yield similar results if applied repeatedly to different data sets (James, 2013). Therefore, classification trees generally do not have the same level of accuracy in predicition as procedures with low variance. However, if we put together many decision trees using the method of bootsrap aggregating (referred to as bagging), then the predictive accuracy can be substantially improved.
+
+Bagging is a "general purpose procedure for reducing the variance of a statistical learning method" (James, 2013). The method uses multiple versions of a training set by sampling with replacement. A random sample of the sample size is taken for each data set. Each of these data sets is used to train a different model. The outputs of the models are combined by voting (in case of classification) to create a single output. 
+
+Below is a small example of a bagging routine:
+
+Let's use the same data set that we used for the classification tree, **m111survey**. Recall that the classification tree predicted the sex of an individual based on the fastest speed ever driven, GPA, height, amount of sleep, how they feel about their weight, and if they believe in true love. 
+
+Now, we are going to construct 3 new trees. The training set used to build these trees are made by sampling with replacement from the data set. Think of this as putting 71 marbles into a bag; each marble represents each of the 71 participants (rows) of the survey. We grab one marble from the bag and that becomes our first row. The marble is replaced and then another marble is grabbed. This becomes the second row. The marble is replaced and then another marble is grabbed. This process is repeated until 71 marbles (rows) have been chosen. Now we have a random sample of the sample size of the original training data set.
+
+Decision Tree 1:
+
+```{r}
+
+set.seed(1010)
+resamp1 <- sample(1:71,size = 71, replace = T)
+resampData1 <- m111survey[resamp1,]
+resamp.tr.1 <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
+                    data = resampData1)
+
+resamp.tr.1
+
+summary(resamp.tr.1)
+plot(resamp.tr.1)
+text(resamp.tr.1)
+
+```
+
+
+Decision Tree 2:
+
+```{r}
+
+set.seed(2020)
+resamp2 <- sample(1:71,size = 71, replace = T)
+resampData2 <- m111survey[resamp2,]
+resamp.tr.2 <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first, data = resampData2)
+
+resamp.tr.2
+
+summary(resamp.tr.2)
+plot(resamp.tr.2)
+text(resamp.tr.2)
+
+```
+
+
+Decision Tree 3:
+
+```{r}
+
+set.seed(3030)
+resamp3 <- sample(1:71,size = 71, replace = T)
+resampData3 <- m111survey[resamp3,]
+resamp.tr.3 <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first, data = resampData3)
+
+resamp.tr.3
+
+summary(resamp.tr.3)
+plot(resamp.tr.3)
+text(resamp.tr.3)
+
+```
+
+
+Notice that each of the decision trees is different from the others. 
+
+
+Decision trees with many levels have high variance and low bias, which means they tend to overfit. In order to reduce variance, and make decision trees more powerful, they are usually combined into random forests.

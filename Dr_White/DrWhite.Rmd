@@ -1,0 +1,323 @@
+---
+title: 'Predicting Movement-Types:  Quick Model-Making with Random Forests'
+author: "Homer White"
+date: "August 4, 2015"
+output:
+  pdf_document: default
+  html_document:
+    fig_caption: yes
+    keep_md: yes
+    self_contained: yes
+---
+
+```{r include = FALSE}
+library(FactoMineR)
+library(randomForest)
+library(caret)
+library(knitr)
+```
+
+
+## Overview
+
+The project data is associated with the following study:
+
+>Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H.: *Qualitative Activity Recognition of Weight Lifting Exercises.* **Proceedings of 4th International Conference in Cooperation with SIGCHI** (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013.
+
+Among other things, researchers were interested in using inertial measurement units (IMUs) to classify types of movement in human subjects.
+
+The article describes a study involving six male subjects, all in their twenties..  Each subject was taught how to lift a dumb-bell correctly, and was also taught how to perform that same movement in four incorrect ways.  The five resulting categories were:
+
+* A:  correct procedure;
+* B:  throwing the elbows to the front;
+* C:  lifting the dumbbell only halfway;
+* D:  lowering the dumbbell only halfway;
+* E:  throwing the hips to the front.
+
+Each subject then performed ten repetitions of the lifting movement, in each of the five possible ways.  During each lift, the researchers recorded a number of inertial measurements:
+
+>"For data recording we used four 9 degrees of freedom Razor inertial measurement units (IMU), which provide three-axes acceleration, gyroscope and magnetometer data at a joint sampling rate of 45 Hz. Each IMU also featured a Bluetooth module to stream the recorded data to a notebook running the Context Recognition Network Toolbox. We mounted the sensors in the users’ glove, armband, lumbar belt and dumbbell ... . We designed the tracking system to be as unobtrusive as possible, as these are all equipment commonly used by weight lifters."
+
+
+Since there are six subjects, we have a total of 300 lifts.  However, during each lift the IMU measurements were gathered over a rolling series of time-windows, which over-lapped somewhat and which varied in length from 0.5 to 2.5 seconds.  This results in quite a few actual observations:  apparently a single observation in the data set corresponds to a specific time-window for a specific subject performing a lift in one of the specified ways.
+
+The aim of this report is to devise a random forest model to predict activity-type from other variables in the data set.
+
+## Data Processing
+
+### Downloading
+
+We download the main data. along with the examination data, from the web:
+
+```{r eval = FALSE}
+wl <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv",
+                  stringsAsFactors = FALSE)
+wl_test <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv",
+                    stringsAsFactors = FALSE)
+save(wl, file = "data/wl.rda")
+save(wl_test, file = "data/wl_test.rda")
+```
+
+```{r echo = FALSE}
+load(file = "data/wl.rda")
+load(file = "data/wl_test.rda")
+```
+
+### A First Glance
+
+The main data set consists of 19622 observations on 160 variables, including:
+
+* a spurious row-number variable `X`;
+* `user_name` (the name of the subject);
+* three time-stamp variables;
+* two variables, `new_window` and `num_window` related to time-windows;
+* 152 numerical measurements derived from the IMUs;
+* the variable `classe` that records the activity-type.
+
+
+The examination set has 20 observations on the same first 159 variables as the main data, with the variable `problem_id` replacing `classe`.
+
+### Elimination of Variables
+
+A preliminary look at the 20 examination observations indicates that for many of the variables the values are altogether missing.  Although missing-ness may have predictive value, it is difficult to see how to take advantage of this fact, so we will simply exclude all such variables from our training data.  We will also exclude all variables that record time-stamps, and the useless row-number variable `X`.
+
+Let us now consider the mysterious variables `new_window` and `num_window`.  Their nature is not clarified in the original article, so it is unclear whether they bear any material relationship to activity-type.  In fact, it appears that `num_window` is some sort of book-keeping variable.  For one thing, it consists entirely of integer values.  Secondly, if you split `num_window` by the values of `classe` and checks the resulting five vectors for intersections, you will see that they are mutually disjoint.  The following code confirms this:
+
+```{r}
+espl <- with(wl, split(num_window, f = classe))
+for ( i in 1:4 ) {
+  for ( j in (i+1):5) {
+    set1 <- paste0("(window numbers for activity ", LETTERS[i],")")
+    set2 <- paste0("(window numbers for activity ", LETTERS[j],")")
+    result <- ifelse(length(intersect(espl[[i]], espl[[j]])) == 0, "empty", "nonempty")
+    cat(paste0(set1, " intersect ", set2, " is ", result,"\n"))
+  }
+}
+```
+
+Hence it appears that `window_num` serves the researchers as some sort of conventional marker---perhaps for the lift that was being performed.  Any predictive value that is has---and it may have a lot, since `num_wondw` appears in the examination data---will be due to human convention only.  That value would evaporate in predictions for new data in which a different conventional book-marking scheme is used.
+
+On similar grounds we exclude `new_window`.  We can't tell what it is, and it may very well be some other conventional marker.
+
+We are ready to eliminate the spurious variables from our data frame.  The code for this is as follows:
+
+```{r}
+results_test <- sapply(wl_test, FUN = function(x) !all(is.na(x)))
+goodNames <- names(results_test[results_test])
+keepNames <- goodNames[-c(1,3,4,5,6,7,60)]
+wl2 <- wl[,keepNames]
+```
+
+### The Issue of user_name
+
+Note that we elected to retain `user_name`.  We offer two reasons for this choice:
+
+1. The examination data consists of observations of the same six human subjects.  If the goal of the assignment were to predict well on new subjects, then the examination data would have been on new subjects.  Using the same subjects would make the examination artificially easy, even if the our model made no use of the `user_name` variable.
+2. In practical applications it may very be the intention to train up a model on each new subject that one encounters, then let it predict future activities of *that same subject*.
+
+### Conversion to Factors
+
+We originally imported the data frame with the option `stingsAsFactors` set to `FALSE`.  For the sake of model-building later on, we now convert `classe` to a factor:
+
+```{r}
+wl2$user_name <- factor(wl2$user_name)
+wl2$classe <- factor(wl$classe)
+```
+
+### Training and Test
+
+Before we look into our training data, we need to divide it into a training set and a test set.  Since we do not intend to fit multiple models, we simply make a 60/40 split (training/test) using a command from the `caret` package, as follows:
+
+```{r}
+set.seed(3030)
+trainIndex <- createDataPartition(y = wl2$classe, 
+                                  p = 0.6, list = FALSE, times = 1)
+wlTrain <- wl2[trainIndex, ]
+wlTest <- wl2[-trainIndex, ]
+```
+
+
+## Descriptive Work
+
+Now we delve a bit into the training set.  We begin by looking at the principal components (using commands from the excellent `FactoMineR` package):
+
+```{r cache = TRUE}
+wl.pc <- PCA(wlTrain[, -c(1,2,54)], graph = FALSE)
+kable(wl.pc$eig[1:10, 2:3])
+```
+
+Apparently the first five principal components account for a bit more than half of the variance in our numerical predictors.
+
+The next plot shows some of the most important variables plotted against the first two principal components.  These variables would be the ones that are best at spreading out the data.  We would not be surprised later on to see some of them rated as important predictors of activity-type.
+
+```{r fig.cap = "Figure 1 Caption:  The plotting dimensions are determined by the first two principal compnents.  The labeled variables are the five that are 'closest' to the plane of the these components:  that is, they are the most helpful in 'spreading out' the cloud of numerical predictors."}
+plot(wl.pc, choix = "var", select = "cos2 5")
+```
+
+
+In the pre-processing stage we made the choice to retain `user_name` as a predictor variable.  The following two graphs (made with function `cloud()` from the `lattice` package) show two views of the cloud of training observations, plotted in terms of the first three principal components and color-coded by name of subject.
+
+```{r cache = TRUE, fig.cap = "Figure 2 Caption:  View of the training observations, plotted in the first three principal components.  Observations are colored according to which subject was being observed.  Obviously the six subjects have rather distinct movement profiles."}
+Comp.1 <- wl.pc$ind$coord[,1]
+Comp.2 <- wl.pc$ind$coord[,2]
+Comp.3 <- wl.pc$ind$coord[,3]
+cloud(Comp.1 ~ Comp.2 * Comp.3, groups = wlTrain$user_name,
+      screen = list(x = 0, y = 0, z = 0),
+      auto.key = list(space = "right"),
+      main = "PC-Plot of Training Data,\nby Subject")
+```
+
+```{r fig.cap = "Fgiure 3 Caption:  The same plot, rotated by 90 degrees."}
+cloud(Comp.1 ~ Comp.2 * Comp.3, groups = wlTrain$user_name,
+      screen = list(x = 0, y = 90, z = 0),
+      auto.key = list(space = "right"),
+      main = "PC-Plot of Training Data,\nby Subject")
+```
+
+
+From the above plots we see that different subjects have distinct movement profiles---sometimes strikingly so.  From this I take two things:
+
+1.  `user_name` *may* turn out to be a reasonably useful predictor.
+2.  On the other hand, if we have to predict activity for new subjects (i.e., people who were not in the study), then we cannot expect to do nearly as well as we would if we were to predict future activity for the only for the six subjects upon whom our model will be built.
+
+## Model-Fitting
+
+We will build a random forest prediction-model, and our intent will be to tune a particular parameter:  namely, the number of variables that the model chooses randomly when it has to decide how to split at any node in the construction of any one of its trees.  (In the `randomForest` package this number is known as `mtry`.)  We don't want our fitting-process to take too long, so we want to make our model using the smallest number of trees we can get away with.  Hence we build a "quickie" random forest with 500 trees, and `mtry` left at its default value (`floor(sqrt(55))`, or 7, in our case):
+
+```{r cache = TRUE}
+set.seed(1010)
+(rf.prelim <- randomForest(x = wlTrain[,1:53], y = wlTrain$classe,
+                   do.trace = 50))
+```
+
+
+Good---that didn't take too long!  We note from the output that the random forest approach is liable to be impressive (our OOB error rate is only 0.68%), but our primary concern here is with the tree-building process itself.  We see that the OOB error estimates have pretty much stabilized by the time 300 trees are made, so in our actual model we will set `ntree` to 300.
+
+
+The command below is from the `caret` package.  A few notes:
+
+* for each of 10 values of `mtry` (as determined by the argument `tuneLength = 10`), we will construct a 300-tree random forest.
+* For each forest, the prediction will be estimated in the usual "out-of-bag" way (setting `method = "oob"` in `trainControl()`).
+* `allowParallel = TRUE` may make a difference on some machines.  (You must first install the `doParallel` package and choose the number of cores you plan to use.  Experiments with the aforementioned default random forest routine indicate that on my machine, a high-end Mac Book Pro, it makes no difference.)
+* `importance = TRUE` permits us to make an importance plot later on.
+
+>**Note to Evaluators:**  Although the assignment rubrics call for cross-validation to estimate error rates, out-of-bag estimates are perfectly fine for random forest models, and can be obtained much more quickly.  If that's a problem for you, then hang on to the end of the report.  I'll bring in some cross-validation then, when it makes sense to do so.
+
+```{r, cache = TRUE}
+set.seed(2020)
+rf <- train(x = wlTrain[,1:53], y = wlTrain$classe, method = "rf", 
+             trControl = trainControl(method = "oob"),
+             allowParallel = TRUE, ntree = 300, 
+             importance = TRUE, tuneLength = 10)
+```
+
+The routine took less than nine minutes to run.  Here are the results:
+
+```{r}
+rf
+```
+
+It appears that we'll be going with the model where the trees sampled 13 variables randomly at each node.  Let's see how well we do on the test set:
+
+```{r}
+preds <- predict(rf, newdata = wlTest[,1:53])
+confusionMatrix(preds, wlTest$classe)
+```
+
+
+Only 47 misses in 7846 observations:  not too shabby.  (But remember that we are testing on the same subjects for which the model was trained.)
+
+Let's now have  quick look at which predictor variables were judged to be the most important:
+
+```{r fig.cap = "Figure 4 Caption:  Importance plot for the ten most important predictors in the final random forest model.  Importance is determined by the mean decrease in prediction accuracy that results when the predictor is removed from a tree in the model."}
+rf.imp <- varImp(rf, scale = FALSE, type = 1)
+plot(rf.imp, top = 10, main = "Variable-Importance Plot",
+     xlab = "Importance (Mean Decrease in Accuracy)")
+```
+
+i don't know enough physics to know whether these results are surprising.  I am a bit surprised, though, that `user_name` did not make an appearance in the Top Ten.
+
+## Final Testing
+
+So our final model is estimated to be correct about 99.7% of the time, a good bit better than than than the 98% rate the authors reported for their own model.  If the model were used to predict the activity of *new* subjects, however, then I would not expect it to do nearly as well.  (In fact the article authors employed a leave-one-subject-out routine to estimate an accuracy-rate of only 78% for new subjects.)
+
+The examination data is for the same six subjects, so I am hopeful that my model is good will earn a perfect score.
+
+Let's see what happens.  First, we need to make the examination data have the same form as our training set:
+
+```{r}
+wl_test2 <- wl_test[, keepNames]
+wl_test2$user_name <- factor(wl_test2$user_name)
+```
+
+Now we predict:
+
+```{r}
+examPreds <- predict(rf, newdata = wl_test2)
+results <- matrix(examPreds, nrow = 1)
+colnames(results) <- wl_test$problem_id
+kable(results)
+```
+
+Then we format our answers for submission:
+
+```{r}
+pml_write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0("answers/problem_id_",i,".txt")
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+
+pml_write_files(examPreds)
+```
+
+
+Finally, we submit.  Not surprisingly, all of my predictions turned out to be correct.
+
+## New Subjects
+
+But there is still a nagging question:
+
+>How well would the model do if we had to predict on *new* subjects?
+
+It's possible to get some purchase on this question if we use a special kind of cross-validation.  Here's our plan:
+
+* Use all of our data (training and test combined).
+* Divide it into six folds.  Each fold will contains all of the observations pertaining to a particular subject.
+* For each subject, build a 300-tree random forest on the *other* five subjects, then test it on the fold for the subject.
+* We will NOT use `user_name` to build our forests.
+* We'll get six sets of error-rates.  These will give us some idea of how a model built on our six subjects might do for a new subject.
+
+These are just intended to be rough estimates, so we won't invest the additional time to tune the `mtry` parameter in each tree.  (As we saw from the model results above, accuracies don't vary much with differing values of `mtry`.)
+
+OK, let's implement the plan:
+
+```{r cache = TRUE}
+set.seed(4040)
+accuracies <- numeric(6)
+subjects <- levels(wl2$user_name)
+wl2$classe <- factor(wl2$classe)
+for ( i in 1:6) {
+  oneSubject <-wl2[wl2$user_name == subjects[i], ]
+  otherSubjects <- wl2[wl2$user_name != subjects[i], ]
+  forest <- randomForest(x = otherSubjects[, 2:53], y = otherSubjects$classe,
+                               ntree = 300)
+  preds <- predict(forest, newdata = oneSubject[, 2:53], type = "response")
+  actuals <- oneSubject$classe
+  accuracy <- mean(preds == actuals)
+  accuracies[i] <- accuracy
+}
+
+df <- data.frame(subject = subjects, estimated.accuracy = accuracies)
+df
+```
+
+The results are positively hideous---much worse, in fact, than what the researchers got when they estimated new-subject error-rates for their model!  If one really plans to build a model for use on new subjects, then it would be worth tweaking the random-forest method, or perhaps we should consider new methods altogether.
+
+## References and Remarks
+
+* The source code for this document is the file `README.Rmd` in my GitHub repository:  <a href= "https://github.com/homerhanumat/WeightLifting" target = "_blank">https://github.com/homerhanumat/WeightLifting</a>.
+* The HTML for this document can be read as a README in the repository, but since GitHub knows nothing of `knitr` it cannot produce figure captions or format my tables.  If you to see them, then download the file `README.html` and view it.
+* A web-link to citation information for the original article is:  <a href = "http://groupware.les.inf.puc-rio.br/har" target = "_blank">http://groupware.les.inf.puc-rio.br/har</a>.
