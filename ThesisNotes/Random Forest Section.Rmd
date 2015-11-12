@@ -3,8 +3,6 @@ title: "Random Forest Section"
 output: html_document
 ---
 
-What is a classification tree and how do you put them together to make a random forest?
-can you make a "toy classification bagging routine"? Explain how RF is different
 
 ### Classification Trees
 
@@ -14,7 +12,7 @@ So, in simpler terms, a classification tree consists of a set of true/false deci
 
 Shall we look at an example of a classification tree?
 
-We are using a data set from a survey taken in the MAT 111 class (Elementary Probability and Statistics). This data set has 71 rows and 12 variables. The survey includes variables such as sex, height, GPA, sleep, and the fastest speed ever driven. The names of some of the variables may seem a little odd, such as weight_feel, love_first, and  extra_life. The weight_feel variable is how the participant feels about their weight. They could have answered underweight (which is given a numerical value of 1), about right (which is given a numerical value of 2), or overweight (which is given a numerical value of 3). The love_feel variable is whether or not the participant believes in love at first sight and the extra_life variable is whether or not the participant believes in extraterrestrial life. 
+We are using a data set from a survey taken in the MAT 111 class (Elementary Probability and Statistics). This data set has 71 rows and 12 variables. The survey includes variables such as sex, height, GPA, sleep, and the fastest speed ever driven. The names of some of the variables may seem a little odd, such as weight_feel, love_first, and  extra_life. The weight_feel variable is how the participant feels about their weight. They could have answered underweight ("a"), about right ("b"), or overweight ("c"). The love_feel variable is whether or not the participant believes in love at first sight and the extra_life variable is whether or not the participant believes in extraterrestrial life. The seat variable is where the participant sits in a classroom. The letter "a" corresponds to sitting in the front, "b" corresponds sitting in the middle rows, and "c" corresponds to sitting in the back rows.
 
 
 ```{r, include=FALSE}
@@ -50,20 +48,24 @@ As you can see from this example, classification trees are easy to interpret and
 
 ### Random forests
 
-Random forests are more advanced learning models that are capable of creating more complex decision boundaries than logistic regression  The “forest” part of the name means that it is made up of multiple decision trees (in general, the more trees, the better). Usually in a random forest instead of building a tree using all the features, we use only a random subset of features and use bagging to create the trees. That means different trees will consider different features when asking questions. But in a forest, other trees would include this feature, so it would still influence the overall prediction by the random forest.
+Random forests are more advanced learning models that are capable of creating more complex decision boundaries than logistic regression.  The “forest” part of the name means that it is made up of multiple decision trees (in general, the more trees, the better). Usually in a random forest instead of building a tree using all the features, we use only a random subset of features and use bagging to create the trees. That means different trees will consider different features when asking questions. But in a forest, other trees would include this feature, so it would still influence the overall prediction by the random forest.
 
-Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance.
+Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance. 
+XXXXX**Do I need to talk about variance and bias in this section?**
 
 Here is an example of a random forest:
 
-```{r}
+```{r, include=FALSE}
 
 library(tigerstats)
 library(randomForest)
 
 m111surv2 <- m111survey[complete.cases(m111survey),]
+```
 
-rf.sexm111 <- randomForest(sex~fastest+GPA+height+sleep+weight_feel+love_first, data=m111surv2, do.trace = 50)
+```{r}
+set.seed(1010)
+rf.sexm111 <- randomForest(sex~fastest+GPA+height+sleep+weight_feel+love_first+extra_life+ideal_ht+seat+enough_Sleep+diff.ideal.act., data=m111surv2, do.trace = 50)
 rf.sexm111
 
 ```
@@ -93,3 +95,17 @@ getTree(rf.sexm111, k=499, labelVar = TRUE)
 ```
 
 
+```{r}
+
+getTree(rf.sexm111, k=96, labelVar = TRUE)
+
+```
+
+
+```{r}
+
+getTree(rf.sexm111, k=153, labelVar = TRUE)
+
+```
+
+XXXXX**Probably need to talk about what each tree means, since it is not in a neat visual form**

@@ -70,7 +70,7 @@ img {
 <p>Classification trees are a tree-based model and are used to predict a qualitative response. The variables that go into these classification trees can be numerical or categorical. We predict that “each observation belongs to the most commonly occuring class (or category) of training observations in the region to which it belongs” (James, 2013). They are useful because they provide predictors in situations where there are many variables that interact in complicated, non-linear ways. In interpreting these classification trees, we are often “interested in both the class prediction corresponding to a particular terminal node region, and in the class proportions among the training observations that fall into that region” (James, 2013).</p>
 <p>So, in simpler terms, a classification tree consists of a set of true/false decision rules. It is kind of like a game of 20 questions, where we ask different questions based on the answers to previous questions, and then at the end we make a guess based on all the answers. We can visualize a decision tree as a set of nodes (corresponding to true/false questions), each of which has two branches depending on the answer to the question. Unlike real trees, we usually draw them with their “root” at the top, and the “leaves” at the bottom. In order to make predictions with the tree, we start at the top (the “root” node), and ask questions, traveling left or right in the tree based on what the answer is (left for true and right for false). At each step, we reach a new node, with a new question. Once we reach the bottom (a leaf node), we make a prediction based on the set of answers, just like 20 questions. But unlike 20 questions, the number of questions in a decision tree is not always 20, but can vary (Corso, 2013). XXXXX<strong>This was adapted from a lecture PPT of James Corso from SUNY at Buffalo CSE 555 course.</strong></p>
 <p>Shall we look at an example of a classification tree?</p>
-<p>We are using a data set from a survey taken in the MAT 111 class (Elementary Probability and Statistics). This data set has 71 rows and 12 variables. The survey includes variables such as sex, height, GPA, sleep, and the fastest speed ever driven. The names of some of the variables may seem a little odd, such as weight_feel, love_first, and extra_life. The weight_feel variable is how the participant feels about their weight. They could have answered underweight (which is given a numerical value of 1), about right (which is given a numerical value of 2), or overweight (which is given a numerical value of 3). The love_feel variable is whether or not the participant believes in love at first sight and the extra_life variable is whether or not the participant believes in extraterrestrial life.</p>
+<p>We are using a data set from a survey taken in the MAT 111 class (Elementary Probability and Statistics). This data set has 71 rows and 12 variables. The survey includes variables such as sex, height, GPA, sleep, and the fastest speed ever driven. The names of some of the variables may seem a little odd, such as weight_feel, love_first, and extra_life. The weight_feel variable is how the participant feels about their weight. They could have answered underweight (“a”), about right (“b”), or overweight (“c”). The love_feel variable is whether or not the participant believes in love at first sight and the extra_life variable is whether or not the participant believes in extraterrestrial life. The seat variable is where the participant sits in a classroom. The letter “a” corresponds to sitting in the front, “b” corresponds sitting in the middle rows, and “c” corresponds to sitting in the back rows.</p>
 <pre class="r"><code>m111s.tr &lt;- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
                  data=m111survey)
 
@@ -97,119 +97,139 @@ text(m111s.tr)</code></pre>
 <p>Random forests are more advanced learning models that are capable of creating more complex decision boundaries than logistic regression The “forest” part of the name means that it is made up of multiple decision trees (in general, the more trees, the better). Usually in a random forest instead of building a tree using all the features, we use only a random subset of features and use bagging to create the trees. That means different trees will consider different features when asking questions. But in a forest, other trees would include this feature, so it would still influence the overall prediction by the random forest.</p>
 <p>Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance.</p>
 <p>Here is an example of a random forest:</p>
-<pre class="r"><code>library(tigerstats)
-library(randomForest)</code></pre>
-<pre><code>## randomForest 4.6-10
-## Type rfNews() to see new features/changes/bug fixes.
-## 
-## Attaching package: 'randomForest'
-## 
-## The following object is masked from 'package:dplyr':
-## 
-##     combine</code></pre>
-<pre class="r"><code>m111surv2 &lt;- m111survey[complete.cases(m111survey),]
-
-rf.sexm111 &lt;- randomForest(sex~fastest+GPA+height+sleep+weight_feel+love_first, data=m111surv2, do.trace = 50)</code></pre>
+<pre class="r"><code>set.seed(1010)
+rf.sexm111 &lt;- randomForest(sex~fastest+GPA+height+sleep+weight_feel+love_first+extra_life+ideal_ht+seat+enough_Sleep+diff.ideal.act., data=m111surv2, do.trace = 50)</code></pre>
 <pre><code>## ntree      OOB      1      2
-##    50:  20.59% 18.42% 23.33%
-##   100:  13.24% 15.79% 10.00%
-##   150:  11.76% 13.16% 10.00%
-##   200:  13.24% 15.79% 10.00%
-##   250:  11.76% 13.16% 10.00%
-##   300:  11.76% 13.16% 10.00%
-##   350:  13.24% 15.79% 10.00%
-##   400:  14.71% 15.79% 13.33%
-##   450:  14.71% 15.79% 13.33%
-##   500:  13.24% 13.16% 13.33%</code></pre>
+##    50:   5.88%  2.63% 10.00%
+##   100:   4.41%  2.63%  6.67%
+##   150:   4.41%  2.63%  6.67%
+##   200:   4.41%  2.63%  6.67%
+##   250:   4.41%  2.63%  6.67%
+##   300:   4.41%  2.63%  6.67%
+##   350:   4.41%  2.63%  6.67%
+##   400:   4.41%  2.63%  6.67%
+##   450:   4.41%  2.63%  6.67%
+##   500:   4.41%  2.63%  6.67%</code></pre>
 <pre class="r"><code>rf.sexm111</code></pre>
 <pre><code>## 
 ## Call:
-##  randomForest(formula = sex ~ fastest + GPA + height + sleep +      weight_feel + love_first, data = m111surv2, do.trace = 50) 
+##  randomForest(formula = sex ~ fastest + GPA + height + sleep +      weight_feel + love_first + extra_life + ideal_ht + seat +      enough_Sleep + diff.ideal.act., data = m111surv2, do.trace = 50) 
 ##                Type of random forest: classification
 ##                      Number of trees: 500
-## No. of variables tried at each split: 2
+## No. of variables tried at each split: 3
 ## 
-##         OOB estimate of  error rate: 13.24%
+##         OOB estimate of  error rate: 4.41%
 ## Confusion matrix:
 ##        female male class.error
-## female     33    5   0.1315789
-## male        4   26   0.1333333</code></pre>
+## female     37    1  0.02631579
+## male        2   28  0.06666667</code></pre>
 <p>Now, we can look at individual trees from this forest to see the differences:</p>
 <pre class="r"><code>getTree(rf.sexm111, k=1, labelVar = TRUE)</code></pre>
 <pre><code>##    left daughter right daughter   split var split point status prediction
-## 1              2              3      height      69.500      1       &lt;NA&gt;
-## 2              4              5         GPA       3.225      1       &lt;NA&gt;
-## 3              6              7     fastest      87.500      1       &lt;NA&gt;
-## 4              8              9 weight_feel       3.000      1       &lt;NA&gt;
-## 5              0              0        &lt;NA&gt;       0.000     -1     female
-## 6             10             11      height      74.000      1       &lt;NA&gt;
-## 7             12             13 weight_feel       3.000      1       &lt;NA&gt;
-## 8             14             15         GPA       2.900      1       &lt;NA&gt;
-## 9             16             17         GPA       2.785      1       &lt;NA&gt;
-## 10            18             19       sleep       4.750      1       &lt;NA&gt;
-## 11             0              0        &lt;NA&gt;       0.000     -1     female
-## 12             0              0        &lt;NA&gt;       0.000     -1       male
-## 13            20             21     fastest     110.000      1       &lt;NA&gt;
-## 14             0              0        &lt;NA&gt;       0.000     -1     female
-## 15             0              0        &lt;NA&gt;       0.000     -1       male
-## 16            22             23         GPA       2.600      1       &lt;NA&gt;
-## 17             0              0        &lt;NA&gt;       0.000     -1     female
-## 18             0              0        &lt;NA&gt;       0.000     -1       male
-## 19             0              0        &lt;NA&gt;       0.000     -1     female
-## 20             0              0        &lt;NA&gt;       0.000     -1     female
-## 21             0              0        &lt;NA&gt;       0.000     -1       male
-## 22             0              0        &lt;NA&gt;       0.000     -1     female
-## 23             0              0        &lt;NA&gt;       0.000     -1       male</code></pre>
-<pre class="r"><code>getTree(rf.sexm111, k=250, labelVar = TRUE)</code></pre>
-<pre><code>##    left daughter right daughter   split var split point status prediction
-## 1              2              3      height      69.500      1       &lt;NA&gt;
-## 2              4              5     fastest     132.500      1       &lt;NA&gt;
-## 3              6              7       sleep       3.500      1       &lt;NA&gt;
-## 4              8              9         GPA       3.225      1       &lt;NA&gt;
-## 5              0              0        &lt;NA&gt;       0.000     -1       male
+## 1              2              3         GPA       3.715      1       &lt;NA&gt;
+## 2              4              5    ideal_ht      71.000      1       &lt;NA&gt;
+## 3              0              0        &lt;NA&gt;       0.000     -1     female
+## 4              6              7      height      66.875      1       &lt;NA&gt;
+## 5              8              9      height      77.000      1       &lt;NA&gt;
 ## 6              0              0        &lt;NA&gt;       0.000     -1     female
-## 7             10             11 weight_feel       3.000      1       &lt;NA&gt;
-## 8             12             13     fastest     122.500      1       &lt;NA&gt;
-## 9              0              0        &lt;NA&gt;       0.000     -1     female
+## 7             10             11 weight_feel       1.000      1       &lt;NA&gt;
+## 8              0              0        &lt;NA&gt;       0.000     -1       male
+## 9             12             13 weight_feel       2.000      1       &lt;NA&gt;
 ## 10             0              0        &lt;NA&gt;       0.000     -1       male
-## 11            14             15  love_first       1.000      1       &lt;NA&gt;
-## 12            16             17       sleep       7.500      1       &lt;NA&gt;
-## 13             0              0        &lt;NA&gt;       0.000     -1       male
-## 14            18             19       sleep       8.000      1       &lt;NA&gt;
-## 15             0              0        &lt;NA&gt;       0.000     -1       male
-## 16            20             21  love_first       1.000      1       &lt;NA&gt;
-## 17             0              0        &lt;NA&gt;       0.000     -1     female
-## 18            22             23      height      76.500      1       &lt;NA&gt;
-## 19             0              0        &lt;NA&gt;       0.000     -1       male
-## 20            24             25      height      63.375      1       &lt;NA&gt;
-## 21             0              0        &lt;NA&gt;       0.000     -1     female
-## 22             0              0        &lt;NA&gt;       0.000     -1       male
-## 23             0              0        &lt;NA&gt;       0.000     -1     female
-## 24             0              0        &lt;NA&gt;       0.000     -1     female
-## 25            26             27         GPA       2.985      1       &lt;NA&gt;
-## 26             0              0        &lt;NA&gt;       0.000     -1       male
-## 27             0              0        &lt;NA&gt;       0.000     -1     female</code></pre>
+## 11            14             15        seat       1.000      1       &lt;NA&gt;
+## 12             0              0        &lt;NA&gt;       0.000     -1       male
+## 13             0              0        &lt;NA&gt;       0.000     -1     female
+## 14             0              0        &lt;NA&gt;       0.000     -1       male
+## 15             0              0        &lt;NA&gt;       0.000     -1     female</code></pre>
+<pre class="r"><code>getTree(rf.sexm111, k=250, labelVar = TRUE)</code></pre>
+<pre><code>##    left daughter right daughter       split var split point status
+## 1              2              3          height      66.875      1
+## 2              4              5        ideal_ht      72.500      1
+## 3              6              7 diff.ideal.act.       1.750      1
+## 4              0              0            &lt;NA&gt;       0.000     -1
+## 5              0              0            &lt;NA&gt;       0.000     -1
+## 6              8              9     weight_feel       1.000      1
+## 7              0              0            &lt;NA&gt;       0.000     -1
+## 8              0              0            &lt;NA&gt;       0.000     -1
+## 9             10             11          height      72.500      1
+## 10             0              0            &lt;NA&gt;       0.000     -1
+## 11             0              0            &lt;NA&gt;       0.000     -1
+##    prediction
+## 1        &lt;NA&gt;
+## 2        &lt;NA&gt;
+## 3        &lt;NA&gt;
+## 4      female
+## 5        male
+## 6        &lt;NA&gt;
+## 7        male
+## 8        male
+## 9        &lt;NA&gt;
+## 10     female
+## 11       male</code></pre>
 <pre class="r"><code>getTree(rf.sexm111, k=499, labelVar = TRUE)</code></pre>
+<pre><code>##    left daughter right daughter       split var split point status
+## 1              2              3        ideal_ht       70.75      1
+## 2              4              5      extra_life        1.00      1
+## 3              6              7 diff.ideal.act.       -1.50      1
+## 4              0              0            &lt;NA&gt;        0.00     -1
+## 5              8              9         fastest       97.50      1
+## 6              0              0            &lt;NA&gt;        0.00     -1
+## 7              0              0            &lt;NA&gt;        0.00     -1
+## 8              0              0            &lt;NA&gt;        0.00     -1
+## 9             10             11            seat        2.00      1
+## 10             0              0            &lt;NA&gt;        0.00     -1
+## 11             0              0            &lt;NA&gt;        0.00     -1
+##    prediction
+## 1        &lt;NA&gt;
+## 2        &lt;NA&gt;
+## 3        &lt;NA&gt;
+## 4      female
+## 5        &lt;NA&gt;
+## 6      female
+## 7        male
+## 8      female
+## 9        &lt;NA&gt;
+## 10       male
+## 11     female</code></pre>
+<pre class="r"><code>getTree(rf.sexm111, k=96, labelVar = TRUE)</code></pre>
 <pre><code>##    left daughter right daughter   split var split point status prediction
-## 1              2              3     fastest     96.5000      1       &lt;NA&gt;
-## 2              4              5      height     69.5000      1       &lt;NA&gt;
-## 3              6              7         GPA      3.1335      1       &lt;NA&gt;
-## 4              0              0        &lt;NA&gt;      0.0000     -1     female
-## 5              8              9 weight_feel      3.0000      1       &lt;NA&gt;
-## 6             10             11      height     66.5000      1       &lt;NA&gt;
-## 7             12             13     fastest    106.5000      1       &lt;NA&gt;
+## 1              2              3         GPA      3.1335      1       &lt;NA&gt;
+## 2              4              5       sleep      7.7500      1       &lt;NA&gt;
+## 3              6              7 weight_feel      3.0000      1       &lt;NA&gt;
+## 4              8              9       sleep      6.5000      1       &lt;NA&gt;
+## 5             10             11       sleep      8.2500      1       &lt;NA&gt;
+## 6             12             13    ideal_ht     70.0000      1       &lt;NA&gt;
+## 7             14             15      height     72.0000      1       &lt;NA&gt;
 ## 8              0              0        &lt;NA&gt;      0.0000     -1       male
-## 9             14             15         GPA      3.4000      1       &lt;NA&gt;
-## 10             0              0        &lt;NA&gt;      0.0000     -1     female
-## 11             0              0        &lt;NA&gt;      0.0000     -1       male
-## 12            16             17     fastest    102.0000      1       &lt;NA&gt;
-## 13            18             19      height     69.2500      1       &lt;NA&gt;
-## 14             0              0        &lt;NA&gt;      0.0000     -1       male
-## 15             0              0        &lt;NA&gt;      0.0000     -1     female
-## 16             0              0        &lt;NA&gt;      0.0000     -1     female
+## 9             16             17        seat      3.0000      1       &lt;NA&gt;
+## 10            18             19     fastest    115.0000      1       &lt;NA&gt;
+## 11             0              0        &lt;NA&gt;      0.0000     -1     female
+## 12             0              0        &lt;NA&gt;      0.0000     -1     female
+## 13             0              0        &lt;NA&gt;      0.0000     -1       male
+## 14             0              0        &lt;NA&gt;      0.0000     -1     female
+## 15            20             21       sleep      6.0000      1       &lt;NA&gt;
+## 16            22             23      height     64.8750      1       &lt;NA&gt;
 ## 17             0              0        &lt;NA&gt;      0.0000     -1     female
-## 18             0              0        &lt;NA&gt;      0.0000     -1     female
-## 19             0              0        &lt;NA&gt;      0.0000     -1       male</code></pre>
+## 18             0              0        &lt;NA&gt;      0.0000     -1       male
+## 19             0              0        &lt;NA&gt;      0.0000     -1     female
+## 20             0              0        &lt;NA&gt;      0.0000     -1       male
+## 21             0              0        &lt;NA&gt;      0.0000     -1     female
+## 22             0              0        &lt;NA&gt;      0.0000     -1     female
+## 23             0              0        &lt;NA&gt;      0.0000     -1       male</code></pre>
+<pre class="r"><code>getTree(rf.sexm111, k=153, labelVar = TRUE)</code></pre>
+<pre><code>##    left daughter right daughter   split var split point status prediction
+## 1              2              3         GPA        2.75      1       &lt;NA&gt;
+## 2              4              5 weight_feel        3.00      1       &lt;NA&gt;
+## 3              6              7    ideal_ht       71.00      1       &lt;NA&gt;
+## 4              0              0        &lt;NA&gt;        0.00     -1       male
+## 5              8              9        seat        1.00      1       &lt;NA&gt;
+## 6              0              0        &lt;NA&gt;        0.00     -1     female
+## 7             10             11      height       77.00      1       &lt;NA&gt;
+## 8              0              0        &lt;NA&gt;        0.00     -1     female
+## 9              0              0        &lt;NA&gt;        0.00     -1       male
+## 10             0              0        &lt;NA&gt;        0.00     -1       male
+## 11             0              0        &lt;NA&gt;        0.00     -1     female</code></pre>
+<p>XXXXX<strong>Probably need to talk about what each tree means, since it is not in a neat visual form</strong></p>
 </div>
 
 
