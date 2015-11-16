@@ -1,6 +1,8 @@
 ---
 title: "Random Forest Section"
-output: html_document
+output: 
+  html_document:
+    keep_md: true
 ---
 
 
@@ -18,7 +20,6 @@ We are using a data set from a survey taken in the MAT 111 class (Elementary Pro
 ```{r, include=FALSE}
 library(tree)
 library(tigerstats)
-library(fastR)
 
 ```
 
