@@ -22,3 +22,15 @@ library(randomForest)
 rf.m111 <- randomForest(x = m111.train, y = y.train, xtest = m111.test, ytest = y.test, do.trace = 50)
 ```
 
+
+Classification Tree
+
+```{r}
+set.seed(2020)
+
+m111s.tr <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
+                 data=m111survey, control = tree.control(nobs = nrow(m111survey), mincut = 3, minsize = 6, mindev = 0))
+
+summary(m111s.tr)
+
+```
