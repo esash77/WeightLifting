@@ -1,7 +1,7 @@
 ---
-title: "Thesis Proposal"
+title: "Thesis Proposal-Revised"
 author: "Elizabeth Ash"
-date: "October 16, 2015"
+date: "December 30, 2015"
 output: pdf_document
 linestretch: 1
 geometry: margin=1in
@@ -35,9 +35,9 @@ The subjects repeated each lift ten times and during each lift the researchers r
 
   Using this data, Dr. Homer White aimed to devise a random forest model to predict activity-type from those variables. Random forest is a predictive model method that is used for large data sets to find interactions between predictors. For any given set of values for a predictive variable, the random forest algorithm will return an estimate of the chances that it belongs to a certain class. For example, given a set of values from the Velloso, et. al data, a random forest would return an estimate that the performed lift belonged to one of the five defined classes. The observation has a 5% chance of being in Class A, a 15% chance of being in Class B, 70% chance of being in Class C, 3% chance of being in Class D, and 7% chance of being in Class E. I would then conclude that based on the values, the lift is predicted to be a Class C error, meaning the subject is lifting the dumbbell only halfway up. (This is just a basic definition and hypothetical example, we will go into further detail in the Methodology section). 
   
-  Dr. White designed a model that predicted the activity the subject was performing based on the data gathered during each of the lift types. The final model he constructed was estimated to be correct about 99.7% of the time. In the parameters of the project, Dr. White built a model using observations from the same lifts as the observations for which the activity type was predicted. However, this is not particularly useful in a real-life situation. A real-life model for predicting activity type would always be making predictions for observations for new lifts.
+  Dr. White designed a model that predicted the activity the subject was performing based on the data gathered during each of the lift types. The final model he constructed was estimated to be correct about 99.7% of the time. In the parameters of the project, Dr. White built a model using observations from the same lifts as the observations for which the activity type was predicted. However, Dr. White recognized that this model would not be optimal for predicting lift type for those same subjects should they return to the gym and perform new lifts.
   
-  This is where my research project begins. The main questions I would like to investigate using the data from Velloso, et. al are "Can we predict how someone is performing a weight lift motion based on the numeric information provided from instruments? Furthermore, how well does random forest work to predict new lifts on the same subjects? What about predicting for new subjects?" I want to tweak Dr. White's model to build an honest predictive model- one to use in real life with new subjects. 
+  This is where my research project begins. The main question I would like to investigate using the data from Velloso, et. al is "How well would a random forest model work to predict activity type for new lifts performed by the same subjects in the experiment?" In other words, I will modify Dr. White's model to build an "honest" predictive model to use in realistic circumstances
 
 
 ## Significance of Project
@@ -50,22 +50,29 @@ The subjects repeated each lift ten times and during each lift the researchers r
 ## Methodology
 
   The main goal of this project is to build a predictive model using data gathered from inertial measurement units (IMUs) of the Velloso, et. al study. To do so requires several steps of data cleaning, separation, and analyses. 
-  
 
-### General Considerations of Model Making
+### Data Cleaning
+
+  I will not go into detail about the specifics about data cleaning. In general, I will eliminate the variables that will not be used in the model making process.
+
+### Separation
   
   A new model should be able to be used to classify new data. Thus, it is important to have high model performance with new data. The performance of a model is measured in terms of its *error rate*: percentage of incorrectly classified instances in the data set (Witten and Eibe, 2000). The simplest way to get a handle on the ability of a predictive model to perform on future data is to try to simulate it.
    
    The data set I am working with will have to be divided into two sets (a training set and a test set). The training set is used to build the model and the test set is new data that is used to measure the model's performance by being treated as new data. The model made with the training data will be tried out on the "new" test data. When the original data set is separated into the training and test sets, the simplest partition is a two-way random partition, careful to avoid introducing any systematic differences. The reasoning behind this type of division is that the data available for analytics fairly represents the real-world processes and that those processes are expected to remain stable over time (Steinberg, 2014). So, a well-constructed model will perform adequately on the new data. 
    
-   You may be thinking that I should use all the data from the Weight Lifting data set. Then more data will be available to make the model and the model will be more accurate, right? However, this is incorrect. The *resubstitution error* (error rate on the training set) is a bad predictor of performance on new data because the model was built to account for the training data. The best model for predicting is the dataset itself. So, if you take a given data instance and ask for it’s classification, you can look that instance up in the dataset and report the correct result every time. You are asking the model to make predictions to data that it has “seen” before- data that were used to create the model. Thus, to really know if the model would be a good predictor of the weight lift motion, it must be measured on the test data set, not the training set. 
+   Why not use all the data from the Weight Lifting data set? Then more data will be available to make the model and the model will be more accurate, right? However, this is incorrect. The *resubstitution error* (error rate on the training set) is a bad predictor of performance on new data because the model was built to account for the training data. The best model for predicting is the dataset itself. So, if you take a given data instance and ask for it’s classification, you can look that instance up in the dataset and report the correct result every time. You are asking the model to make predictions to data that it has “seen” before- data that were used to create the model. Thus, to really know if the model would be a good predictor of the weight lift motion, it must be measured on the test data set, not the training set. 
    
-   Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. In his report, Dr. White separated the original data set into training and test sets using a random partition (a typical separation). However, in my project I will attempt to further expand on the partition by ensuring that no single lift appears in both sets. In real life, each new person does a new lift and no lift is the same. While the error rate for the model will most likely be worse with new data, I want to make the model as honest as possible, which means none of the measurements from a single lift should be in both the training and test set. 
+   Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. In his report, Dr. White separated the original data set into training and test sets using a random partition (a typical separation). However, in my project I will attempt to further expand on the partition by ensuring that no single lift appears in both sets. In real life, each person does a new lift and no lift is the same. While the error rate for the model will most likely be worse with new data, I want to make the model as "honest" as possible, which means none of the measurements from a single lift should be in both the training and test set. The proper separation of data is important because I not only want to see if I can make a random forest model, I wantto see how accurately it can make predictions
+   
+### Analysis
+
+  After proper separation of the data, the analysis will be easy. Since I am going to make a random forest model, this will predict activity type for each item in the test set. After the predictions are made, I can look at how many times the predictions were wrong and an error rate can be calculated. I predict that the error rate found from my predictive model will be higher than the error rate found from Dr. White's initial work.
    
    
 ### Types of Predictive Models
 
-  As mentioned earlier, I will be using random forest to build a predictive model. Another method that is useful for constructing predictive models is k-nearest neighbors (referred to as k-NN). Random forests are more sophisticated and this will be my main method of model building. 
+  As mentioned earlier, I will be using random forest to build a predictive model. Random forests are more sophisticated and this will be my main method of model building. 
   
 
 **Random Forests**
@@ -82,11 +89,6 @@ Each tree of the forest is grown as follows:
 3. Each tree is grown to the largest extent possible. There is no pruning.
 
 The trees, which make up the forest, are then used to make the predictive model. I will be using R and R Studio coding to perfrom the random forests algorithm and use it to make a model.
-
-
-**k-Nearest Neighbor**
-
-  The nearest neighbors approach, or better known as k-Nearest Neighbors algorithm (referred to as k-NN), is a non-parametric method used for classification. The input consists of the k closest training examples. In k-NN classification, the output is a class membership. An object is classified by a "majority vote" of its neighbors, with the object being assigned to the class most common among its k nearest neighbors (k is a positive integer, typically small). If k = 1, then the object is simply assigned to the class of that single nearest neighbor (Mitchell, 1997). Basically, k-NN works based on minimum distance from what we are predicting to the training samples to determine the k nearest neighbors. After gathering the k-nearest neighbors, the majority of the neighbors are taken to be the prediction of the object. This is a simple method, but the results can be extremely helpful in determining where to begin for the random forest method. 
   
 
 ### Tools Used
