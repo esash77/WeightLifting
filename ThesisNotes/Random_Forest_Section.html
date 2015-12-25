@@ -131,7 +131,7 @@ text(m111s.tr)</code></pre>
 <p>XXXXX<strong>Step by step process of RF</strong></p>
 <p><strong>How Random Forests Work</strong></p>
 <p>When the training set for the current tree is drawn by sampling with replacement, about one-third of the cases are left out of the sample. This oob (out-of-bag) data is used to get a running unbiased estimate of the classification error as trees are added to the forest.</p>
-<p>Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance. The average</p>
+<p>Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance.</p>
 <p>Here is an example of a random forest:</p>
 <pre class="r"><code>set.seed(1010)
 rf.sexm111 &lt;- randomForest(sex~fastest+GPA+height+sleep+weight_feel+

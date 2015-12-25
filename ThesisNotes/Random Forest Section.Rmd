@@ -13,6 +13,7 @@ library(knitr)
 library(randomForest)
 ```
 
+XXXXX**Think about tenses when writing this up. Avoid "you"**
 
 ### Classification Trees
 
@@ -100,8 +101,7 @@ XXXXX**Step by step process of RF**
 
 When the training set for the current tree is drawn by sampling with replacement, about one-third of the cases are left out of the sample. This oob (out-of-bag) data is used to get a running unbiased estimate of the classification error as trees are added to the forest. 
 
-
-Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance. The average 
+Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance.
 
 
 Here is an example of a random forest:
@@ -124,7 +124,7 @@ XXXXX**Talk about results of random forest**
 
 Above are the results from the random forest. This random forest is made up of 500 classification trees. 
 
-**At 50th stage, looking at each of the items in training set, can tree vote on that item? The ones that didn't use item (individual in random resample) have a vote. Majority vote wins- either right or wrong. OOB is the percentage of time the group of 50 trees got it wrong. Females = 1 only wrong 2.6% of time, males= 2 wrong 10% of time.**
+**At 50th stage, looking at each of the items in training set, can tree vote on that item? The ones that didn't use item (individual in random resample) have a vote. Majority vote wins- either right or wrong. OOB is the percentage of time the group of 50 trees got it wrong. Preliminary guess because OOB Females = 1 only wrong 2.6% of time, males= 2 wrong 10% of time.**
 
 
 Now, we can look at individual trees from this forest to see the differences:

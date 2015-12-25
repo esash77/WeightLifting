@@ -1,4 +1,6 @@
-# Random Forest Section
+# Random Forest
+
+
 
 
 ### Classification Trees
@@ -11,14 +13,82 @@ Shall we look at an example of a classification tree?
 
 We are using a data set from a survey taken in the MAT 111 class (Elementary Probability and Statistics). This data set has 71 rows and 12 variables. The survey includes variables such as sex, height, GPA, sleep, and the fastest speed ever driven. The names of some of the variables may seem a little odd, such as weight_feel, love_first, and  extra_life. The weight_feel variable is how the participant feels about their weight. They could have answered underweight ("a"), about right ("b"), or overweight ("c"). The love_feel variable is whether or not the participant believes in love at first sight and the extra_life variable is whether or not the participant believes in extraterrestrial life. The seat variable is where the participant sits in a classroom. The letter "a" corresponds to sitting in the front, "b" corresponds sitting in the middle rows, and "c" corresponds to sitting in the back rows.
 
+**Classification tree example:**
 
+
+```r
+set.seed(2020)
+
+m111s.tr <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
+                 data=m111survey)
+
+m111s.tr
+```
+
+```
+## node), split, n, deviance, yval, (yprob)
+##       * denotes terminal node
+## 
+## 1) root 70 96.120 female ( 0.5571 0.4429 )  
+##   2) height < 69.5 42 34.450 female ( 0.8571 0.1429 )  
+##     4) GPA < 3.225 18 22.910 female ( 0.6667 0.3333 )  
+##       8) height < 66.875 9  6.279 female ( 0.8889 0.1111 ) *
+##       9) height > 66.875 9 12.370 male ( 0.4444 0.5556 ) *
+##     5) GPA > 3.225 24  0.000 female ( 1.0000 0.0000 ) *
+##   3) height > 69.5 28 19.070 male ( 0.1071 0.8929 )  
+##     6) weight_feel: 3_overweight 10 12.220 male ( 0.3000 0.7000 ) *
+##     7) weight_feel: 1_underweight,2_about_right 18  0.000 male ( 0.0000 1.0000 ) *
+```
+
+
+This tree is used to predict the sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight. Below is an easy to understand schematic of a classification tree.
 
 
 
 ```r
-m111s.tr <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
-                 data=m111survey)
+plot(m111s.tr)
+text(m111s.tr)
+```
 
+![](Random_Forest_Section_files/figure-html/unnamed-chunk-3-1.png) 
+
+Looking at this tree, we can see that the first division is set when height is less than 69.5 inches. If the height of an observation is less than 69.5 inches they are put into the left region and those with a height equal to or above 69.5 inches are put into the right region. Those in the left hand region are divided by GPA. If the GPA is greater than or equal to 3.225, the prediction is female. If the GPA is less than 3.225, then a further division by height is made. If the height is less than 66.875 inches, then female is predicted. Otherwise, the sex is predicted as male. Those in the right region are divided by how they feel about their weight. Notice that the division is by "weight_feel:c". This means that the left region feel underweight or about right and the right region feel overweight. Instead of using the full name of the variable, this tree made shorter version. The letter "a" corresponds to feeling underweight, the letter "b" corresponds to feeling about right, and the letter "c" corresponds to feeling overweight. Looking at the two terminal nodes, it appears that it doesn't matter how they feel about their weight; the prediction will still be male. 
+
+Now, it may seem odd that the classification tree made a split that ended up in two nodes with the same prediction. Why bother making another division? This split was made because it led to increased *node purity*. This means that the region could be further subdivided into 2 regions where each was more purely male or female. After the division, one node is completely male and the other is 70% male. If the height is greater than 69.5 inches and they feel overweight, then male is absolutely certain. If they feel just right or underweight, 70% of the node are male. Even though we are less certain of this classification (compared to 89% male before the division), it improves the deviance. We want the deviance as close to 0 as possible and the deviance improved from 19.070 to 12.220. The sum of the deviances from the post-division nodes is closer to 0 than the pre-division node. Let's take a closer look into how deviance is found and why it is so important.
+
+The deviance formula used for the classification trees is:
+
+$$-2 \sum_{k}n_{ik}log_e(p_{ik})$$
+
+where $n_ik$ is the number of a certain type in the node and$p_ik$ is the proportion of a certain type in the node.
+
+So using the classification tree example, let's look at how the deviance was found for the first split of the classification tree:
+
+If you recall, there are 70 participants before the first split; 39 female and 31 male. Then
+
+$$D = -2[(39)(\ln(\frac{39}{70})) + (31)(\ln(\frac{31}{70}))]$$
+
+$$D = 96.124$$
+
+Now if we look at the deviance of each side of the split and add them together, the sum should be less than 96.124. 
+
+$$D~ht<69.5~ = -2[(36)(\ln(\frac{36}{42})) + (6)(\ln(\frac{6}{42}))] = 34.450$$
+
+$$D~ht>69.5~ = -2[(3)(\ln(\frac{3}{28})) + (25)(\ln(\frac{25}{28}))] = 19.068$$
+
+$$D~ht<69.5~ + D~ht>69.5~ = 53.518$$
+
+At each split, the deviance is determined. The deviance must be at least 0.01 times the deviance of the root node before splitting (this is a default setting in the code used to form classification trees). For example, the deviance before the height split was 96.124. In order for the node to be divided into two new nodes, the deviance must be at least 0.96. Since the sum of the deviances of the two sides of the split is 53.518, the tree is allowed to make the split.
+
+We can control how finely a tree will be made by the `tree.control` function. there are 4 arguments for this function, and each has a say in whether the tree can continue splitting or not. The first argument, `nobs`, is the number of observations in the training set. The next argument, `mincut`, is the minimum number of observations to include in either post-division node. The third argument, `minsize`, is the smallest allowed node size. The final argument of the function is `mindev`. The within-node deviance must be at least this times that of the root node for the node to be split. This means that for a division to be made, the deviance of the new node must be at least the value of `mindev` times the deviance of the root node. The default settings for this function are mincut = 5, minsize = 10, and mindev = 0.01. 
+
+If we set `mindev` to 0 and `minsize` to 2, a tree that fits the data perfectly will be produced. These settings produce trees that are larger and make fewer errors. Even though the terminal nodes are pure (since the deviation can be 0 the tree can have terminal nodes with sizes 2 or 3 with all the same classification), any chance error may be seen as patterns. This does not make for good predictions on new data and the model will not be useful for predicting on any other data set than the one it was made with.
+
+
+Below is a summary of the classification tree example from above. 
+
+
+```r
 summary(m111s.tr)
 ```
 
@@ -34,21 +104,7 @@ summary(m111s.tr)
 ## Misclassification error rate: 0.1143 = 8 / 70
 ```
 
-
-This tree is used to predict the sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight. The summary given shows the variables actually used in constructing the classification tree, the number of terminal nodes, the residual mean deviance, and the misclassification error rate.
-
-
-
-```r
-plot(m111s.tr)
-text(m111s.tr)
-```
-
-![](Random_Forest_Section_files/figure-html/unnamed-chunk-3-1.png) 
-
-Looking at this tree, we can see that the first division is set when height is less than 69.5 inches. If the height of an observation is less than 69.5 inches they are put into the left region and those with a height equal to or above 69.5 inches are put into the right region. Those in the left hand region are divided by GPA. If the GPA is greater than or equal to 3.225, the prediction is female. If the GPA is less than 3.225, then a further division by height is made. If the height is less than 66.875 inches, then female is predicted. Otherwise, the sex is predicted as male. Those in the right region are divided by how they feel about their weight. Notice that the division is by "weight_feel:c". This means that the left region feel underweight or about right and the right region feel overweight. Instead of using the full name of the variable, this tree made shorter version. The letter "a" corresponds to feeling underweight, the letter "b" corresponds to feeling about right, and the letter "c" corresponds to feeling overweight. Looking at the two terminal nodes, it appears that it doesn't matter how they feel about their weight; the prediction will still be male. 
-
-XXXXX **Ideally wants all girls or all guys at each node. "purity of node"- further sub-divide region into 2 where each was more purely guy or gal. Measure of avg purity. Deviance measure using example tree.**
+The summary given shows the variables actually used in constructing the classification tree, the number of terminal nodes, the residual mean deviance, and the misclassification error rate.
 
 As you can see from this example, classification trees are easy to interpret and fairly good predictions can be made from them. In this example the misclassification error rate is about 11.4%, or 8 out of 70 observations were misclassified.
 
@@ -57,8 +113,14 @@ As you can see from this example, classification trees are easy to interpret and
 
 Random forests are more advanced learning models that are capable of creating more complex decision boundaries than logistic regression.  The “forest” part of the name means that it is made up of multiple decision trees (in general, the more trees, the better). Usually in a random forest instead of building a tree using all the features, we use only a random subset of features and use bagging to create the trees. That means different trees will consider different features when asking questions. But in a forest, other trees would include this feature, so it would still influence the overall prediction by the random forest.
 
-Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance. 
-XXXXX**Do I need to talk about variance and bias in this section?**
+XXXXX**Step by step process of RF**
+
+**How Random Forests Work**
+
+When the training set for the current tree is drawn by sampling with replacement, about one-third of the cases are left out of the sample. This oob (out-of-bag) data is used to get a running unbiased estimate of the classification error as trees are added to the forest. 
+
+Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance.
+
 
 Here is an example of a random forest:
 
@@ -67,31 +129,16 @@ Here is an example of a random forest:
 
 ```r
 set.seed(1010)
-rf.sexm111 <- randomForest(sex~fastest+GPA+height+sleep+weight_feel+love_first+extra_life+ideal_ht+seat+enough_Sleep+diff.ideal.act., data=m111surv2, do.trace = 50)
-```
-
-```
-## ntree      OOB      1      2
-##    50:   5.88%  2.63% 10.00%
-##   100:   4.41%  2.63%  6.67%
-##   150:   4.41%  2.63%  6.67%
-##   200:   4.41%  2.63%  6.67%
-##   250:   4.41%  2.63%  6.67%
-##   300:   4.41%  2.63%  6.67%
-##   350:   4.41%  2.63%  6.67%
-##   400:   4.41%  2.63%  6.67%
-##   450:   4.41%  2.63%  6.67%
-##   500:   4.41%  2.63%  6.67%
-```
-
-```r
+rf.sexm111 <- randomForest(sex~fastest+GPA+height+sleep+weight_feel+
+                             love_first+extra_life+ideal_ht+seat+
+                             enough_Sleep+diff.ideal.act., data=m111surv2)
 rf.sexm111
 ```
 
 ```
 ## 
 ## Call:
-##  randomForest(formula = sex ~ fastest + GPA + height + sleep +      weight_feel + love_first + extra_life + ideal_ht + seat +      enough_Sleep + diff.ideal.act., data = m111surv2, do.trace = 50) 
+##  randomForest(formula = sex ~ fastest + GPA + height + sleep +      weight_feel + love_first + extra_life + ideal_ht + seat +      enough_Sleep + diff.ideal.act., data = m111surv2) 
 ##                Type of random forest: classification
 ##                      Number of trees: 500
 ## No. of variables tried at each split: 3
@@ -103,152 +150,95 @@ rf.sexm111
 ## male        2   28  0.06666667
 ```
 
+XXXXX**Talk about results of random forest**
+
+Above are the results from the random forest. This random forest is made up of 500 classification trees. 
+
+**At 50th stage, looking at each of the items in training set, can tree vote on that item? The ones that didn't use item (individual in random resample) have a vote. Majority vote wins- either right or wrong. OOB is the percentage of time the group of 50 trees got it wrong. Females = 1 only wrong 2.6% of time, males= 2 wrong 10% of time.**
 
 
 Now, we can look at individual trees from this forest to see the differences:
 
 
 ```r
-getTree(rf.sexm111, k=1, labelVar = TRUE)
+st1 <- getTree(rf.sexm111, k=1, labelVar = TRUE)
+names(st1)[1:2] <- c("LD", "RD")
+kable(st1, caption = "Tree 1")
 ```
 
+
+
+Table: Tree 1
+
+ LD   RD  split var      split point   status  prediction 
+---  ---  ------------  ------------  -------  -----------
+  2    3  GPA                  3.715        1  NA         
+  4    5  ideal_ht            71.000        1  NA         
+  0    0  NA                   0.000       -1  female     
+  6    7  height              66.875        1  NA         
+  8    9  height              77.000        1  NA         
+  0    0  NA                   0.000       -1  female     
+ 10   11  weight_feel          1.000        1  NA         
+  0    0  NA                   0.000       -1  male       
+ 12   13  weight_feel          2.000        1  NA         
+  0    0  NA                   0.000       -1  male       
+ 14   15  seat                 1.000        1  NA         
+  0    0  NA                   0.000       -1  male       
+  0    0  NA                   0.000       -1  female     
+  0    0  NA                   0.000       -1  male       
+  0    0  NA                   0.000       -1  female     
+
+The **left daughter (LD)** and the **right daughter (RD)** are the two nodes that are made by a division. The **split var** is the variable for which the division was made. The **split point** is the point where the split was made. The **status** shows if more divisions will be made (1) or if a node is terminal (-1). And then the final column shows the prediction of a terminal node. This is true for the two other tables shown below. 
+
+
+```r
+st2 <- getTree(rf.sexm111, k=250, labelVar = TRUE)
+names(st2)[1:2] <- c("LD", "RD")
+kable(st2, caption = "Tree 250")
 ```
-##    left daughter right daughter   split var split point status prediction
-## 1              2              3         GPA       3.715      1       <NA>
-## 2              4              5    ideal_ht      71.000      1       <NA>
-## 3              0              0        <NA>       0.000     -1     female
-## 4              6              7      height      66.875      1       <NA>
-## 5              8              9      height      77.000      1       <NA>
-## 6              0              0        <NA>       0.000     -1     female
-## 7             10             11 weight_feel       1.000      1       <NA>
-## 8              0              0        <NA>       0.000     -1       male
-## 9             12             13 weight_feel       2.000      1       <NA>
-## 10             0              0        <NA>       0.000     -1       male
-## 11            14             15        seat       1.000      1       <NA>
-## 12             0              0        <NA>       0.000     -1       male
-## 13             0              0        <NA>       0.000     -1     female
-## 14             0              0        <NA>       0.000     -1       male
-## 15             0              0        <NA>       0.000     -1     female
-```
+
+
+
+Table: Tree 250
+
+ LD   RD  split var          split point   status  prediction 
+---  ---  ----------------  ------------  -------  -----------
+  2    3  height                  66.875        1  NA         
+  4    5  ideal_ht                72.500        1  NA         
+  6    7  diff.ideal.act.          1.750        1  NA         
+  0    0  NA                       0.000       -1  female     
+  0    0  NA                       0.000       -1  male       
+  8    9  weight_feel              1.000        1  NA         
+  0    0  NA                       0.000       -1  male       
+  0    0  NA                       0.000       -1  male       
+ 10   11  height                  72.500        1  NA         
+  0    0  NA                       0.000       -1  female     
+  0    0  NA                       0.000       -1  male       
 
 
 
 ```r
-getTree(rf.sexm111, k=250, labelVar = TRUE)
-```
-
-```
-##    left daughter right daughter       split var split point status
-## 1              2              3          height      66.875      1
-## 2              4              5        ideal_ht      72.500      1
-## 3              6              7 diff.ideal.act.       1.750      1
-## 4              0              0            <NA>       0.000     -1
-## 5              0              0            <NA>       0.000     -1
-## 6              8              9     weight_feel       1.000      1
-## 7              0              0            <NA>       0.000     -1
-## 8              0              0            <NA>       0.000     -1
-## 9             10             11          height      72.500      1
-## 10             0              0            <NA>       0.000     -1
-## 11             0              0            <NA>       0.000     -1
-##    prediction
-## 1        <NA>
-## 2        <NA>
-## 3        <NA>
-## 4      female
-## 5        male
-## 6        <NA>
-## 7        male
-## 8        male
-## 9        <NA>
-## 10     female
-## 11       male
+st3 <- getTree(rf.sexm111, k=500, labelVar = TRUE)
+names(st3)[1:2] <- c("LD", "RD")
+kable(st3, caption = "Tree 500")
 ```
 
 
 
-```r
-getTree(rf.sexm111, k=499, labelVar = TRUE)
-```
+Table: Tree 500
 
-```
-##    left daughter right daughter       split var split point status
-## 1              2              3        ideal_ht       70.75      1
-## 2              4              5      extra_life        1.00      1
-## 3              6              7 diff.ideal.act.       -1.50      1
-## 4              0              0            <NA>        0.00     -1
-## 5              8              9         fastest       97.50      1
-## 6              0              0            <NA>        0.00     -1
-## 7              0              0            <NA>        0.00     -1
-## 8              0              0            <NA>        0.00     -1
-## 9             10             11            seat        2.00      1
-## 10             0              0            <NA>        0.00     -1
-## 11             0              0            <NA>        0.00     -1
-##    prediction
-## 1        <NA>
-## 2        <NA>
-## 3        <NA>
-## 4      female
-## 5        <NA>
-## 6      female
-## 7        male
-## 8      female
-## 9        <NA>
-## 10       male
-## 11     female
-```
+ LD   RD  split var     split point   status  prediction 
+---  ---  -----------  ------------  -------  -----------
+  2    3  extra_life           1.00        1  NA         
+  4    5  ideal_ht            69.00        1  NA         
+  6    7  ideal_ht            70.00        1  NA         
+  0    0  NA                   0.00       -1  female     
+  0    0  NA                   0.00       -1  male       
+  8    9  sleep                4.75        1  NA         
+  0    0  NA                   0.00       -1  male       
+  0    0  NA                   0.00       -1  female     
+  0    0  NA                   0.00       -1  female     
+
+Notice that each tree is different. The variables used for division differ for each tree. One tree may use variables that make the prediction off in one way, but another tree may use variables that make the prediction off in another way. Since 500 trees are used to make up this random forest, the mistakes even out to make a fairly good prediction model. 
 
 
-
-```r
-getTree(rf.sexm111, k=96, labelVar = TRUE)
-```
-
-```
-##    left daughter right daughter   split var split point status prediction
-## 1              2              3         GPA      3.1335      1       <NA>
-## 2              4              5       sleep      7.7500      1       <NA>
-## 3              6              7 weight_feel      3.0000      1       <NA>
-## 4              8              9       sleep      6.5000      1       <NA>
-## 5             10             11       sleep      8.2500      1       <NA>
-## 6             12             13    ideal_ht     70.0000      1       <NA>
-## 7             14             15      height     72.0000      1       <NA>
-## 8              0              0        <NA>      0.0000     -1       male
-## 9             16             17        seat      3.0000      1       <NA>
-## 10            18             19     fastest    115.0000      1       <NA>
-## 11             0              0        <NA>      0.0000     -1     female
-## 12             0              0        <NA>      0.0000     -1     female
-## 13             0              0        <NA>      0.0000     -1       male
-## 14             0              0        <NA>      0.0000     -1     female
-## 15            20             21       sleep      6.0000      1       <NA>
-## 16            22             23      height     64.8750      1       <NA>
-## 17             0              0        <NA>      0.0000     -1     female
-## 18             0              0        <NA>      0.0000     -1       male
-## 19             0              0        <NA>      0.0000     -1     female
-## 20             0              0        <NA>      0.0000     -1       male
-## 21             0              0        <NA>      0.0000     -1     female
-## 22             0              0        <NA>      0.0000     -1     female
-## 23             0              0        <NA>      0.0000     -1       male
-```
-
-
-
-```r
-getTree(rf.sexm111, k=153, labelVar = TRUE)
-```
-
-```
-##    left daughter right daughter   split var split point status prediction
-## 1              2              3         GPA        2.75      1       <NA>
-## 2              4              5 weight_feel        3.00      1       <NA>
-## 3              6              7    ideal_ht       71.00      1       <NA>
-## 4              0              0        <NA>        0.00     -1       male
-## 5              8              9        seat        1.00      1       <NA>
-## 6              0              0        <NA>        0.00     -1     female
-## 7             10             11      height       77.00      1       <NA>
-## 8              0              0        <NA>        0.00     -1     female
-## 9              0              0        <NA>        0.00     -1       male
-## 10             0              0        <NA>        0.00     -1       male
-## 11             0              0        <NA>        0.00     -1     female
-```
-
-XXXXX**Probably need to talk about what each tree means, since it is not in a neat visual form**
