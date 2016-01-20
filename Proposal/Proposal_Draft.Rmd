@@ -2,7 +2,7 @@
 title: "Thesis Proposal-Revised"
 author: "Elizabeth Ash"
 date: "December 30, 2015"
-output: html_document
+output: pdf_document
 linestretch: 1
 geometry: margin=1in
 fontsize: 12pt
