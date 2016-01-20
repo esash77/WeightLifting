@@ -75,6 +75,7 @@ results_test <- sapply(wl_test, FUN = function(x) !all(is.na(x)))
 goodNames <- names(results_test[results_test])
 keepNames <- goodNames[-c(1,3,4,5,6,7,60)]
 wl2 <- wl[,keepNames]
+wl2$classe <- factor(wl$classe)
 wn <- wl$num_window    ### This is an addition
 ```
 

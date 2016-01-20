@@ -114,7 +114,8 @@ m111surv2 <- m111survey[complete.cases(m111survey),]
 
 ```{r}
 set.seed(1010)
-rf.sexm111 <- randomForest(sex~fastest+GPA+height+sleep+weight_feel+
+rf.sexm111 <- randomForest(sex~fastest+GPA+height+sleep+
+                             weight_feel+
                              love_first+extra_life+ideal_ht+seat+
                              enough_Sleep+diff.ideal.act., data=m111surv2)
 rf.sexm111
