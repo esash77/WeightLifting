@@ -1,6 +1,6 @@
 ---
 title: "Write up draft"
-output: html_document
+output: pdf_document
 ---
 
 ```{r include = FALSE}
