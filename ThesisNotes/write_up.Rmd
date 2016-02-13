@@ -86,7 +86,7 @@ m111s.tr
 This tree is used to predict the sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight. R code is not only a great tool for making classification trees, it can also print a readable version of classification trees. Below is an easy to understand schematic of a classification tree.
 
 
-```{r include = FALSE}
+```{r}
 plot(m111s.tr)
 text(m111s.tr)
 ```
@@ -126,7 +126,7 @@ If we set `mindev` to 0 and `minsize` to 2, a tree that fits the data perfectly 
 
 Below is a summary of the classification tree example from above. 
 
-```{r}
+```{r echo = FALSE}
 summary(m111s.tr)
 ```
 
@@ -142,35 +142,75 @@ Now we're ready to look more at a random forest model and what it does.
 
 ### Random forests
 
-Random forests are more advanced learning models that are capable of creating more complex decision boundaries than logistic regression.  The “forest” part of the name means that it is made up of multiple decision trees (in general, the more trees, the better). Usually in a random forest instead of building a tree using all the predictor variables , we use only a random subset of features and use bagging to create the trees. That means different trees will consider different ppredictor variables when asking questions. But in a forest, other trees would include this feature, so it would still influence the overall prediction by the random forest.
+Random forests refer to a method for classification that operates by constructing a multitude of classification trees using a training set of data and outputting the class that is the most (also referred to as mode) of the classes for classification (Breiman, 2001). In other words, given a new observation, each tree makes a prediction of activity-type. The type that is chosen by the largest number of the trees is the type that the random forest predicts for that observation. So it's as if each tree gets to vote, and the type with the most votes wins. Statistical theory shows that although each individual tree is liable to be a poor predictor, a large number of them working by majority vote deliver much better predictions! According to Leo Breiman (who helped develop the random forests technique), random forests are grown from many classification trees. It is a statistical algorithm that is used to cluster points of data in functional groups. When the data set is large and/or there are many variables it becomes difficult to cluster the data because not all variables can be taken into account. The tree algorithm can also give a certain chance that a data point belongs in a certain group (Breiman, 2007). In other words, using a large number of classification trees can help make better predictions because the trees can vary a lot and they can cancel out those variations by averaging.
 
-Random forest is a method for classification that operates by constructing a multitude of classification trees using a training set of data and outputting the class that is the most (also referred to as mode) of the classes for classification (Breiman, 2001). In other words, given a new observation, each tree makes a prediction of activity-type. The type that is chosen by the largest number of the trees is the type that the random forest predicts. So it's as if each tree gets to vote, and the type with the most votes wins. Statistical theory shows that although each individual tree is liable to be a poor predictor, a large number of them working by majority vote deliver much better predictions! According to Leo Breiman (who helped develop the random forests technique), random forests are grown from many classification trees. It is a statistical algorithm that is used to cluster points of data in functional groups. When the data set is large and/or there are many variables it becomes difficult to cluster the data because not all variables can be taken into account. Therefore the algorithm can also give a certain chance that a data point belongs in a certain group (Breiman, 2007). In other words, using a large number of classification trees can help make better predictions because more trees can account for all variables better than just one tree.
+There are some major differences in the classification trees used in random forest compared to a regular classification tree. First, at any point where the tree is thinking of a split, the tree does not look at all the predictor variables. Instead, a random subset (default $\sqrt{n}$) of the predictor variables is taken. If you let n be the num of predictor variables, you can take the floor of sqrt of n. This means that the classification tree may not have all the predictor variables. The regular tree examines every pred. vari. the rf looks at sqrtn of pred. var. Also, this means that most trees in the random forest are different. 
 
-There are some major differences in the classification trees used in random forest compared to a regular classification tree. First, at any point where the tree is thinking of a split, the tree does not look at all the predictor variables. Instead, a random subset (usually about $\sqrt{n}$) of the predictor variables is taken. This means that the classification tree may not have all the predictor variables. Also, this means that most trees in the random forest are different. 
+A second important difference between random forest classification trees and regular classification trees is the size. Random forest classification trees are overgrown. Deviance is not considered when making a split nor are the node sizes. The nodes can end up being very small with one or two objects in each of the final nodes. **XXXXX give detail about overgrowing info from help**This overgrowing of classification trees allows for great variability in the classification trees. Most of the classification trees will not be able to make predictions well on new data; some will end up with strange results. But putting together all the trees can actually give good results.
 
-A second important difference between random forest classification trees and regular classification trees is the size. Random forest classification trees are overgrown. Deviance is not considered when making a split nor are the node sizes. The nodes can end up being very small with one or two objects in each of the final nodes. This overgrowing of classification trees allows for great variability in the classification trees. Most of the classification trees will not be able to make predictions well on new data; some will end up with strange results. But putting together all the trees can actually give good results.
-
-A third difference that needs to be considered is the fact that the classification trees used to build a random forest select at random, with replacement, from the data given and the sample size is equal to the size of the original data set. This gives a random sample where about $\frac{1}{$\e^th}$$ of the items are not grabbed and gives variability that we want to take into account when making a model. The classification trees should vary like the original data. The best way to simulate population data without taking another sample is to take a random sample from the original population.
+A third difference that needs to be considered is the fact that the classification trees used to build a random forest select at random, with replacement, from the data given and the sample size is equal to the size of the original data set. This gives a random sample where about $\frac{1}{e}$ of the items are not grabbed and gives variability that we want to take into account when making a model. 
+The classification trees should vary like the original data. The best way to simulate population data without taking another sample is to take a random sample from the original sample.
 
 Let me illustrate this with an example:
 
 I have a list of 100 numbers and I put them in a bag (this is my original data set). I draw out a number from the bag and write it down. I replace the number, pick from the bag again, and write down the number I've drawn. I replace the number and continue in this way until I have a new list of 100 numbers (this is the sample data set). The new list may have duplicate numbers or some numbers may be missing entirely. This new list is the best guess for the original list of numbers.
 
-As an added bonus, the random sample with replacement is used to make an estimation of how well the random forest will do.
+```{r echo = FALSE}
+set.seed(1212)
+pop <- 1:100
+samp <- sample(pop, 100, replace = T)
+got <- unique(samp)
+notGot <- pop[!(pop %in% got)]
+
+```
+
+
+I have made a list of 100 numbers and taken a random sample from the original list. 
+
+```{r echo = FALSE} 
+samp
+```
+
+Notice that some of the numbers have been repeated and some numbers are missing. We can have the computer look at the numbers we are missing and the numbers that are included in the random sample:
+
+```{r echo = FALSE}
+kable(notGot, caption = "The missing numbers from the random sample")
+
+kable(got, caption = "Numbers included in the random sample")
+```
+
+Notice that 35 numbers are missing from the new list, which is 35% of the data. Something that is very important to remember is that as the size of the data set increases the number of variables that are missing from the random resample is about $\frac{1}{e}$. That means about 36.788% of the variables are not included in the resample.
+
+As another example, suppose I have a list of numbers 1 to 10,000 instead of only 100. Then, looking at the numbers included in the new list, we find that 3,681 are missing. This is 36.81% of the original numbers, and it is very near equal to $\frac{1}{e}$.
+
+```{r echo = FALSE}
+set.seed(2222)
+pop2 <- 1:10000
+samp2 <- sample(pop2, 10000, replace = T)
+got2 <- unique(samp2)
+notGot2 <- pop2[!(pop2 %in% got2)]
+```
+
+```{r echo = FALSE}
+length(notGot2)
+```
+
+
+As an added bonus, the random sample with replacement is used to make an estimation of how well the random forest will do. And that estimation will be made even when the random forest is being constructed.
 
 Thus, the random selection of predictor variables, the overgrowing of the trees and the random sample of data allows for many different possibilities, which can help with making predictions. This makes the random forest a very effective modeling tool.
 
 
 **How Random Forests Work**
 
-When the training set for the current tree is drawn by sampling with replacement, about one-third of the cases are left out of the sample. This oob (out-of-bag) data is used to get a running unbiased estimate of the classification error as trees are added to the forest. 
-
 Random forests have low bias (just like individual decision trees), and by adding more trees, we reduce variance.
+
+**XXXXX Go through resources to find steps**
 
 
 Here is an example of a random forest:
 
-```{r, include=FALSE}
+```{r, echo = FALSE}
 
 m111surv2 <- m111survey[complete.cases(m111survey),]
 ```
@@ -195,7 +235,7 @@ Above are the results from the random forest. This random forest is made up of 5
 
 Now, we can look at individual trees from this forest to see the differences:
 
-```{r}
+```{r echo = FALSE}
 
 st1 <- getTree(rf.sexm111, k=1, labelVar = TRUE)
 names(st1)[1:2] <- c("LD", "RD")
@@ -205,7 +245,7 @@ kable(st1, caption = "Tree 1")
 
 The **left daughter (LD)** and the **right daughter (RD)** are the two nodes that are made by a division. The **split var** is the variable for which the division was made. The **split point** is the point where the split was made. The **status** shows if more divisions will be made (1) or if a node is terminal (-1). And then the final column shows the prediction of a terminal node. This is true for the two other tables shown below. 
 
-```{r}
+```{r echo = FALSE}
 
 st2 <- getTree(rf.sexm111, k=250, labelVar = TRUE)
 names(st2)[1:2] <- c("LD", "RD")
@@ -214,7 +254,7 @@ kable(st2, caption = "Tree 250")
 ```
 
 
-```{r}
+```{r echo = FALSE}
 
 st3 <- getTree(rf.sexm111, k=500, labelVar = TRUE)
 names(st3)[1:2] <- c("LD", "RD")
@@ -277,8 +317,8 @@ The data set I am working with will have to be divided into two sets (a training
 Why not use all the data from the Weight Lifting data set? Then more data will be available to make the model and the model will be more accurate, right? However, this is incorrect. The *resubstitution error* (error rate on the training set) is a bad predictor of performance on new data because the model was built to account for the training data. The best model for predicting is the dataset itself. So, if you take a given data instance and ask for it’s classification, you can look that instance up in the dataset and report the correct result every time. You are asking the model to make predictions to data that it has “seen” before- data that were used to create the model. Thus, to really know if the model would be a good predictor of the weight lift motion, it must be measured on the test data set, not the training set. 
    
 Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. While the simplest division is to separate the original data set into training and test sets using a random partition (a typical separation), an expanded separation will be done to make the model more "honest". 
-   
-The data will be separated by the window number. Even though it cannot be guaranteed that no single lift appears in both sets, by separating by new window numbers **XXXXX**
+
+I decided to separate my data by window number. Even though we cannot guarantee that a window number will not appear in both the training and the test set, this will further separate the data than a typical random partition. 
    
 Below is a function that has been written for easy separation. The arguments of this function are the data set to be separated and the variable by which the separation will be done.
    
@@ -303,7 +343,7 @@ partition_var <- function(data, var){
 
 Now the data can be separated into the training and test sets and used for a random forest procedure:
 
-```{r}
+```{r cache = T}
 set.seed(2020)
 results <- partition_var(wl2, wn)
 wlTrain <- results[[1]]
