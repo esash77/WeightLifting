@@ -24,3 +24,5 @@ Witten, Ian H., and Eibe Frank. 2000. *Data Mining: Practical Machine Learing To
 
 Xie, Yihui. *Dynamic Documents with R and knitr*. 2014. Print.
 
+XXXXX**This was adapted from a lecture PPT of James Corso from SUNY at Buffalo CSE 555 course.**
+
