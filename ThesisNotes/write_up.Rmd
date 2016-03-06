@@ -113,64 +113,131 @@ node), split, n, deviance, yval, (yprob)
 
 ```
 
-This printout actually gives us quite a bit of information about the classification tree. First, the node numbers are labeled. So the root node is number 1 and the daughter nodes are numbers 2 and 3. Second, the variable by which the split was made is given. For example, the root node is split based on height. With daughter node 2, any height less than 69.5 inches would be placed in that node. And for daughter node 3, any height greater than 69.5 inches would be placed in that node. Third, the number of cases that reach the node is given. For example, there are 70 observations in the root node. [As a note, classification trees do not like missing data, so one row from the original data set was removed to avoid any missing values.] After the root node is split, 42 observations are found in daughter node 2 and 28 observations are found in daughter node 3. The sum of the two observations is 70. The fourth piece of information given by the printout is deviance, which is an assessment of goodness of fit (we will go into this a litte later). The fifth piece of information in the prinout is the yval, which is the majority value for the node. This would be predicted for that node. For example, if the tree was forced to make a prediction about the sex at node 4, the tree would predict that the individual would be female. The final piece of information from the printout is the yprob, which gives the probabilities of the variables being predicted. In node 7, (0.0000 1.0000) is given. This means that 0% of the objects in the node are female and 100% of the objects are male.
+This printout actually gives us quite a bit of information about the classification tree. First, the node numbers are labeled. So the root node is number 1 and the daughter nodes are numbers 2 and 3. Second, the variable by which the split was made is given. For example, the root node is split based on height. With daughter node 2, any height less than 69.5 inches would be placed in that node. And for daughter node 3, any height greater than 69.5 inches would be placed in that node. Third, the number of cases that reach the node is given. For example, there are 70 observations in the root node. [As a note, classification trees do not like missing data, so one row from the original data set was removed to avoid any missing values.] After the root node is split, 42 observations are found in daughter node 2 and 28 observations are found in daughter node 3. The sum of the two observations is 70. The fourth piece of information given by the printout is deviance, which is an assessment of goodness of fit (we will go into this a litte later). The fifth piece of information in the prinout is the yval, which is the majority value for the node. This would be predicted for that node. For example, if the tree was forced to make a prediction about the sex at node 4, the tree would predict that the individual would be female. The final piece of information from the printout is the yprob, which gives the probabilities of the variables being predicted. In node 4, (0.6667 0.3333) is given. This means that 66.67% of the objects in the node are female and 33.33% of the objects are male. The yval proportions can also be used to assign a probability to the prediction of a new person. For example, if we were to try to predict the sex of a new individual (using this classification tree) and the tree had to make a guess at node 4, the new individual would be predicted to be female. Female is the majority sex in this node, which is why a female prediction would be made. In addition, the yval proportion of 0.6667 tells us that the tree is 66.67% sure that the new individual is female. 
 
 While it is wonderful to be able to recognize a classification tree and use it to make predictions, it is equally important to understand the basic mechanics of how a classification tree works. Such as, how does a tree decide to make a split? Or how does a tree decide when to stop splitting into more daughter nodes? The answer is tree control. 
 
-We can control how finely a tree will be made by the `tree.control` function. There are 4 arguments for this function, and each has a say in whether the tree can continue splitting or not. The first argument, `nobs`, is the number of observations that will be used to build the tree. The second argument, `minsize`, is the smallest allowed node size. The next argument, `mincut`, is the minimum number of observations to include in either post-division node. This means that any daughter node must be at least the size of the `mincut` value. Another small note to know, the `mincut` value cannot be more than half of the `minsize` value. The final argument of the function is `mindev`. The within-node deviance must be at least this times that of the root node for the node to be split. This means that for a division to be made, the deviance of the new node must be at least the value of `mindev` times the deviance of the root node. The default settings for this function are mincut = 5, minsize = 10, and mindev = 0.01. At each split, the deviance is determined. If the deviance is too big or too small a node will not be split. Each node has a deviance value.
+We can control how finely a tree will be made by the `tree.control` function. Let's look at the R code to get a better understanding of the tree construction:
 
-Let's take a closer look into how deviance is found and why it is so important. 
+```
+m111s.tr <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
+                 data=m111survey,
+                 control = tree.control(
+                   nobs = nrow(m111survey),
+                   mincut = 5,
+                   minsize = 10,
+                   mindev = 0.01
+                 ))
 
-The deviance formula used for the classification trees is:
+```
 
-$$-2 \sum_{k}n_{ik}log_e(p_{ik})$$
+There are 4 arguments for this function. The first argument, `nobs`, is the number of observations that will be used to build the tree. In this tree we are using all the rows in the dataset. The other three arguments have a say in whether the tree can continue splitting or not. The second argument, `minsize`, is the smallest allowed node size. The next argument, `mincut`, is the minimum number of observations to include in either post-division node. This means that any daughter node must be at least the size of the `mincut` value. Another small note to know, the `mincut` value cannot be more than half of the `minsize` value. The final argument of the function is `mindev`. The *within-node deviance* must be at least the `mindev` valude times that of the root node for the node to be split. This means that for a division to be made, the deviance of the node that we are thinking of splitting must be at least the value of `mindev` times the deviance of the root node. At each split, the deviance is determined. Each node has a deviance value, and this is considered the *within-node deviance*.
 
-where $n_ik$ is the number of a certain type in the node and$p_ik$ is the proportion of a certain type in the node.
+The default settings for the `tree.control` function are:
 
-As stated earlier, deviance is a measure of goodness of fit. In other words, the deviance is a measurement of purity. The more pure a node is (or in the case of our tree, the closer the node is to being all male or all female), the closer the deviance is to 0. Thus, when deciding on whether to make a split at a node or not, is to choose a split such that the sum of the deviance of the two daughter nodes is smaller than the deviance before the split. In fact, the tree will find a split so the sum of the two daughter nodes is as small as possible. Now, `mindev` sets a limit on how small the deviance can be. In order to split into daughter nodes, the deviance of the node which will be split must be at least (`mindev` x root deviance). Recall that the default value for `mindev` is 0.01, but this can be changed to modify the tree growth. To show how this would work, let's look at the split of the root node. If you look at the printout of the classification tree, you can see that the deviance before the height split was 96.120. 
+  * `mincut` = 5, 
+  * `minsize` = 10, 
+  * `mindev` = 0.01
+
+Even though are the default values, they can be changed and this will change the final construction of the classification tree. 
+
+Now, let's take a closer look into how deviance is found and why it is so important. 
+
+The general deviance formula used for the classification trees is:
+
+$$-2 \sum_{k}n_{k}\ln(p_{k})$$
+
+where:
+
+  * k stands for the $k^{\text{th}}$ possible value
+  * $n_{k}$ is the number of a certain type in node k    
+  * $p_{k}$ is the proportion of a certain type in node k
+
+*Recall: $\ln{x}$ is the natural logarithm of the value x*
+
+
+For example, the deviance for any node of this classification tree would be found in the following way:
+
+$$D = -2[(n_{1}\ln(p_{1})) + (n_{2}\ln(p_{2}))]$$
+
+where:
+
+  * $n_{1} = \texttt{number of females in the node}$
+  * $n_{2} = \texttt{number of males in the node}$
+  * $p_{1} = \texttt{proportion of females in the node}$
+  * $p_{2} = \texttt{proportion of males in the node}$
+
+We can now begin looking at how this formula can work. As stated earlier, deviance is a measure of goodness of fit. In other words, the deviance is a measurement of purity. The more pure a node is (or in the case of our tree, the closer the node is to being all male or all female), the closer the deviance is to 0. Thus, when deciding on whether to make a split at a node or not, is to choose a split such that the sum of the deviance of the two daughter nodes is smaller than the deviance before the split. In fact, the tree will find a split so the sum of the two daughter nodes is as small as possible. Now, `mindev` sets a limit on how small the deviance can be. In order to split into daughter nodes, the deviance of the node which will be split must be at least $$\texttt{mindev}\times\textbf{root deviance}$$ [Recall that the default value for `mindev` is 0.01, but this can be changed to modify the tree growth.]
+
+To show how this would work, let's look at the split of the root node. If you look at the printout of the classification tree, you can see that the deviance before the split was 96.120 (the deviance of root node). 
 
 ```
 1) root 70 96.120 female ( 0.5571 0.4429 )
+  2) height < 69.5 42 34.450 female ( 0.8571 0.1429 )
+  3) height > 69.5 28 19.070 male ( 0.1071 0.8929 )
 
 ```
 
-In order for the node to be divided into two new nodes, the deviance must be at least 0.96 because the deviance must be at least 0.01 times the deviance of the root node before splitting.
+Before a node can be split into daughter nodes, a few things must be considered. First, in order for the root node to be divided into two new nodes, the deviance must be at least 0.96 (since the deviance must be at least 0.01 times the deviance of the root node before splitting). Well, the deviance of the root node will be at least 0.96, so this is a trivial calculation. Second, the node must be at least size 10 (our default `minsize` value). If these two conditions are satisfied then the tree will think about splitting the node. 
 
-So using the classification tree example, let's look at how the deviance was found for the second height split of the classification tree:
 
-If you look at the original print out of the classification tree, you will notice that there are 18 participants before this split is made; 12 female and 6 male.
+So using the classification tree example, let's look at a different, nontrivial, example of how the deviance was found. How about node 4? Below is the printout of node 4 with the two daughter nodes:
 
 ```
 4) GPA < 3.225 18 22.910 female ( 0.6667 0.3333 )
+  8) height < 66.875 9  6.279 female ( 0.8889 0.1111 ) *
+  9) height > 66.875 9 12.370 male ( 0.4444 0.5556 ) *
 
 ```
 
-Then 
+If you look at the original print out of the classification tree, you will notice that there are 18 participants before this split is made; 12 female and 6 male. To find how many females or males are in the node, take the `nobs` value and multiply it with the `yprob` values (the proportions given). The nearest integer is the number of females or males in the node. So,
+
+Females = $\texttt{18}\times\texttt{0.6667}$ = 12
+
+Males = $\texttt{18}\times\texttt{0.3333}$ = 6
+
+
+Let's verify the deviance given for this node using our formula.
 
 $$D = -2[(12)(\ln(\frac{12}{18})) + (6)(\ln(\frac{6}{18}))]$$
 
 $$D = 22.914$$
 
-Now if we look at the deviance of each side of the split and add them together, the sum should be less than 22.914. 
+Since the deviance is greater than 0.96 (the deviance must be at least 0.01 times the deviance of the root node before splitting), we can think about splitting into daughter nodes. Also, since the size of the node is 18, which is greater than 10, we can think about splitting into daughter nodes.
 
-$$D_ht<66.875 = -2[(8)(\ln(\frac{8}{9})) + (1)(\ln(\frac{1}{9}))] = 6.279$$
+Notice that the daughter nodes are at least equal to 5, which is the `mincut` value. Both daughter nodes had size 9. If either of the daughter nodes had been less than size 5, then the split would not have been made.
 
-$$D_ht>66.785 = -2[(4)(\ln(\frac{4}{9})) + (5)(\ln(\frac{5}{9}))] = 12.365$$
+Now if we look at the deviance of each side of the split and add them together, the sum should be less than 22.914, since a split looks for the smallest total deviance. 
 
-$$D_ht<69.5 + D_ht>69.5 = 18.644$$
+$$D_1 = -2[(8)(\ln(\frac{8}{9})) + (1)(\ln(\frac{1}{9}))] = 6.279$$
 
-Since the deviance is greater than 0.96, the tree can make the split. Also, this means that this split gives the smallest deviance possible without being less than 0.96.
+$$D_2 = -2[(4)(\ln(\frac{4}{9})) + (5)(\ln(\frac{5}{9}))] = 12.365$$
 
-As another example of the tree making splits, recall that the tree had two terminal nodes (from the same split) that are both male. 
+$$D_1 + D_2 = 18.644$$
+
+If the sum of the two daughter nodes was larger than 22.914, then a split would not be made because it would not improve the total deviance of the classification tree. 
+
+Of all the possible splits, where both daughter nodes have a larger size than the `mincut` value, this was the smallest deviance found, which is why the tree made this particular split. The tree made a split because there was a way to make the total deviance smaller.
+
+
+As a final example of the tree making splits, recall that the tree had two terminal nodes (from the same split) that are both male. 
+
 
 ```{r echo = FALSE}
 plot(m111s.tr)
 text(m111s.tr)
 ```
 
-It may seem odd that the classification tree made a split that ended up in two nodes with the same prediction. Why bother making another division? This split was made because it led to increased *node purity*. This means that the region could be further subdivided into 2 regions where each was more purely male or female. After the division, one node is completely male and the other is 70% male. If the height is greater than 69.5 inches and they feel overweight, then the object being male is absolutely certain. If they feel just right or underweight, 70% of the node are male. Even though we are less certain of this classification (compared to 89% male before the division), it improves the deviance. We want the deviance as close to 0 as possible and the deviance improved from 19.070 to 12.220. The sum of the deviances from the post-division nodes is closer to 0 than the pre-division node.
 
-\newpage
+```
+3) height > 69.5 28 19.070 male ( 0.1071 0.8929 )  
+    6) weight_feel: 3_overweight 10 12.220 male ( 0.3000 0.7000 ) *
+    7) weight_feel: 1_underweight,2_about_right 18  0.000 male ( 0.0000 1.0000 ) *
+```
+
+It may seem odd that the classification tree made a split that ended up in two nodes with the same prediction. Why bother making another division? The tree still made a split because there was a way to make a smaller total deviance. The smaller the deviance of a node leads to increased *node purity*. This means that the region could be further subdivided into 2 regions where each was more purely male or female. After the division, one node is completely male and the other is 70% male. If the height is greater than 69.5 inches and they feel overweight, then the object being male is absolutely certain. If they feel just right or underweight, 70% of the node are male. Even though we are less certain of this classification (compared to 89% male before the division), it improves the deviance. We want the deviance as close to 0 as possible and the deviance improved from 19.070 to 12.220. The sum of the deviances from the post-division nodes is closer to 0 than the pre-division node.
+
+
 
 Below is a summary of the classification tree example from above. 
 
@@ -192,15 +259,20 @@ Misclassification error rate: 0.1143 = 8 / 70
 ```
 The summary given shows the variables actually used in constructing the classification tree, the number of terminal nodes, the residual mean deviance, and the misclassification error rate.
 
-In order to find the residual mean deviance, R added the deviance at all 5 terminal nodes and then divided by (number of observations - number of terminal nodes). The smaller the residual mean deviance, the more "pure" the nodes are on average. Thus, 
+In order to find the residual mean deviance, R added the deviance at all 5 terminal nodes and then divided by (number of observations - number of terminal nodes). This is a very difficult number to interpret. The main thing to understand is that the smaller the residual mean deviance, the more "pure" the nodes are on average. Thus, 
 
 $$ Residual Mean Deviance = \frac{30.869}{70-5} = 0.4749$$
 
-Unfortunately, R has some round-off error, which is why the values I calculated are slightly off from the summary. **What would this value say about node purity, on average, of this classification tree?**
+
+The residual mean deviance (RMD) is also used to compare two different tree models and how well they predict. The smaller the value of the residual mean deviance, the better the tree is at predicting on its own data. For example, if I have one tree model used to predict the sex of individual using one dataset and another tree model used to predict if an individual is at risk for diabetes using a different dataset, the residual mean deviance could be used to compare how well the models will predict on its own data. If the RMD of the first model is 0.4749 and the RMD of the second model is 0.5812, then we know that the first model is better at making predictions.
 
 The final output given by the classification tree summary is the misclassification error rate. The performance of a model is measured in terms of its misclassification error rate: percentage of incorrectly classified instances in the data set (Witten and Eibe, 2000). The lower the misclassification error rate, the higher the performance of the model. In other words, a lower misclassification rate means that a smaller number of objects are being misclassified and the model is making correct predictions.
 
-As you can see from the example, classification trees are easy to interpret and fairly good predictions can be made from them. In this example, the misclassification error rate is about 11.4%. This means that 8 out of 70 observations were misclassified. However, the tree is looking at correct answers that were given. If this classification tree were given new data, the error rate would most likely be much worse. As mentioned earlier, the default settings in the `tree.control` function can be modified to change the tree construction. So, if we set `mindev` to 0 and `minsize` to 2, a tree that fits the data perfectly will be produced. Since the deviation can be 0 the tree can have terminal nodes with sizes 2 or 3 with all the same classification. These settings produce trees that are larger and make fewer errors. Even though the terminal nodes are pure, any chance error may be seen as patterns. This does not make for good predictions on new data and the model will not be useful for predicting on any other data set than the one it was made with.
+As you can see from the example, classification trees are easy to interpret and fairly good predictions can be made from them. In this example, the misclassification error rate is about 11.4%. This means that 8 out of 70 observations were misclassified. However, the tree is looking at correct answers that were given. If this classification tree were given new data, the error rate would most likely be much worse.
+
+*As an aside, unfortunately, R has some round-off error. This is why the values calculated are slightly off from the summary.*
+
+As mentioned earlier, the default settings in the `tree.control` function can be modified to change the tree construction. So, if we set `mindev` to 0 and `minsize` to 2, `mincut` to 1, a tree that fits the data perfectly will be produced. Since the deviation can be 0 the tree can have terminal nodes with size 1 with the same classification.  With these settings, a tree can be made with a large number of terminal nodes that are small in size and very near to pure. Changing the default settings to lower values produces trees that are larger and can possibly make fewer errors (on the data already given). However, even though the terminal nodes are pure, any chance variation may be seen as patterns. This does not make for good predictions on new data and the model will not be useful for predicting on any other data set than the one it was made with.
 
 A model should be able to be used to classify new data. Thus, it is important to have high model performance with new data. To have a model that performs well with new data it is important to divide the original data set into two new sets (training and test sets). The training set is used to build the model and the test set is new data that is used to measure the model's performance by being treated as new data. The model made with the training data will be tried out on the "new" test data. When the original data set is separated into the training and test sets, the simplest partition is a two-way random partition, careful to avoid introducing any systematic differences. The reasoning behind this type of division is that the data available for analytics fairly represents the real-world processes and that those processes are expected to remain stable over time (Steinberg, 2014). So, a well-constructed model will perform adequately on the new data. 
    
@@ -277,17 +349,18 @@ Thus, the random selection of predictor variables, the overgrowing of the trees 
 
 **How Random Forests Work**
 
+
 Random forests refer to a method for classification that operates by constructing a multitude of classification trees using a training set of data and outputting the class that is the most (also referred to as mode) of the classes for classification (Breiman, 2001). In other words, given a new observation, each tree makes a prediction of activity-type. The type that is chosen by the largest number of the trees is the type that the random forest predicts for that observation. So it's as if each tree gets to vote, and the type with the most votes wins. Statistical theory shows that although each individual tree is liable to be a poor predictor, a large number of them working by majority vote deliver much better predictions! According to Leo Breiman (who helped develop the random forest technique), random forests are grown from many classification trees. It is a statistical algorithm that is used to cluster points of data in functional groups (Breiman, 2007). In other words, using a large number of classification trees can help make better predictions because the trees can vary a lot and they can cancel out those variations by averaging.
 
 Each tree in the random forest is grown as follows (Breiman and Cutler, 2007):
 
-1. Each tree is trained on roughly 2/3rd of the total training data. Cases are drawn at random with       replacement from the original data. This sample will be the training set for growing the tree. The other 1/3rd of the cases are left out of the sample. This out-of-bag (OOB) data is used to get a running unbiased estimate of the classification error as trees are added to the forest. It is also used to get estimates of variable importance.
+1. Each tree is trained on roughly $2/3^{\text{rd}}$ of the total training data. Cases are drawn at random with replacement from the original data. This sample will be the training set for growing the tree. The other $1/3^{\text{rd}}$ of the cases are left out of the sample. This out-of-bag (OOB) data is used to get a running unbiased estimate of the classification error as trees are added to the forest. It is also used to get estimates of variable importance.
 
 2. Some predictor variables (say, m) are selected at random out of all the predictor variables and the best split on these m is used to split the node. By default, m is square root of the total number of all predictors for classification. The value of m is held constant during the forest growing. As explained earlier, in a standard classification tree, each split is created after examining every variable and picking the best split from all the variables.
 
-3. For each tree, using the leftover data (36.8% or $\frac{1}{e}$), the misclassification rate (or OOB error rate) is calculated. The error from all trees is used to determine overall OOB error rate for the classification.
+3. For each tree, using the leftover data (36.8% or $\frac{1}{e}$), the misclassification rate (or OOB error rate) is calculated. The error from all trees is used to determine overall OOB error rate for the         classification.
 
-4. Each tree gives a classification, and we say the tree "votes" for that class. The forest chooses the classification having the most votes over all the trees in the forest. The vote will be YES or NO. All the YES votes are counted and this is the predicted probability for a classification.
+4. Each tree gives a classification, and we say the tree "votes" for that class. The forest chooses the     classification having the most votes over all the trees in the forest. The vote will be YES or NO. All the      YES votes are counted and this is the predicted probability for a classification.
 
 
 Here is an example of a random forest:
@@ -333,7 +406,9 @@ XXXXX**Talk about results of random forest**
 
 Above are the results from the random forest. This random forest is made up of 500 classification trees. The sex of an individual is being predicted based on the predictor variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight. 
 
-**At 50th stage, looking at each of the items in training set, can tree vote on that item? The ones that didn't use item (individual in random resample) have a vote. Majority vote wins- either right or wrong. OOB is the percentage of time the group of 50 trees got it wrong. Preliminary guess because OOB Females = 1 only wrong 2.6% of time, males= 2 wrong 10% of time.**
+
+
+**For do.trace: At 50th stage, looking at each of the items in training set, can tree vote on that item? The ones that didn't use item (individual in random resample) have a vote. Majority vote wins- either right or wrong. OOB is the percentage of time the group of 50 trees got it wrong. Preliminary guess because OOB Females = 1 only wrong 2.6% of time, males= 2 wrong 10% of time.**
 
 
 Now, we can look at individual trees from this forest to see the differences:
@@ -346,7 +421,7 @@ kable(st1, caption = "Tree 1")
 
 ```
 
-The **left daughter (LD)** and the **right daughter (RD)** are the two nodes that are made by a division. The **split var** is the variable for which the division was made. The **split point** is the point where the split was made. The **status** shows if more divisions will be made (1) or if a node is terminal (-1). And then the final column shows the prediction of a terminal node. This is true for the two other tables shown below. 
+The *left daughter (LD)* and the *right daughter (RD)* are the two nodes that are made by a division. The *split var* is the variable for which the division was made. The *split point* is the point where the split was made. The *status* shows if more divisions will be made (1) or if a node is terminal (-1). And then the final column shows the prediction of a terminal node. This is true for the two other tables shown below. 
 
 ```{r echo = FALSE}
 
@@ -366,7 +441,7 @@ kable(st3, caption = "Tree 500")
 
 Notice that each tree is different. The variables used for division differ for each tree. One tree may use variables that make the prediction off in one way, but another tree may use variables that make the prediction off in another way. Since 500 trees are used to make up this random forest, the mistakes even out to make a fairly good prediction model. 
 
-Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. In his report, Dr. White separated the original data set into training and test sets using a random partition (a typical separation). However, in my project I will attempt to further expand on the partition by ensuring that no single lift appears in both sets. In real life, each person does a new lift and no lift is the same. While the error rate for the model will most likely be worse with new data, I want to make the model as "honest" as possible, which means none of the measurements from a single lift should be in both the training and test set. The proper separation of data is important because I not only want to see if I can make a random forest model, I wantto see how accurately it can make predictions
+Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. In his report, Dr. White separated the original data set into training and test sets using a random partition (a typical separation). However, in my project I will attempt to further expand on the partition by ensuring that no single lift appears in both sets. In real life, each person does a new lift and no lift is the same. While the error rate for the model will most likely be worse with new data, I want to make the model as "honest" as possible, which means none of the measurements from a single lift should be in both the training and test set. The proper separation of data is important because I not only want to see if I can make a random forest model, I want to see how accurately it can make predictions.
    
    
   
@@ -467,6 +542,7 @@ rf <- randomForest(x = wlTrain[,1:53], y = wlTrain$classe,
                    xtest = wlTest[,1:53], ytest = wlTest$classe,
                    do.trace = 50)
 ```
+
 
 
 ## Conclusions and Further Discussion
