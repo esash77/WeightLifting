@@ -6,11 +6,15 @@ output: pdf_document
 
 ### Bibliography
 
+Amit, Yali; Geman, Donald (1997). "Shape quantization and recognition with randomized trees" (PDF). Neural Computation 9 (7): 1545–1588. doi:10.1162/neco.1997.9.7.1545.
+
 Breiman, Leo, and Cutler, Adele. *Random Forests Leo Breiman and Adele Cutler.* Random Forests. 29 June 2007. Web. 20 Sept. 2015. <https://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm#intro>
 
 Breiman, Leo. *Random Forests.* Machine Learning 45.1 (2001): 5-32. Web. 20 Sept. 2015.
 
 James, Gareth, Witten, Daniela, Hastie, Trevor and Tibshirani, Robert. *An Introduction to Statistical Learning with Applications in R*. 2013. Print.
+
+Ho, Tin Kam (1995). Random Decision Forests (PDF). Proceedings of the 3rd International Conference on Document Analysis and Recognition, Montreal, QC, 14–16 August 1995. pp. 278–282.
 
 Mitchell, Tom. M. 1997. *Machine Learning.* New York: McGraw-Hill.
 

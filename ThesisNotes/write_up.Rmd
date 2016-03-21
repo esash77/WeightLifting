@@ -1,6 +1,11 @@
 ---
 title: "Write up draft"
-output: pdf_document
+output: 
+  pdf_document: 
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
 ---
 
 ```{r include = FALSE}
@@ -13,7 +18,9 @@ library(tigerstats)
 ```
 
 
-## Introduction and Overview
+\newpage
+
+# Introduction and Overview
 
 Predictive modeling is a process used to create a statistical model of future behavior. A predictive model is made up of a number of **predictors**, which are variable factors that are likely to influence future behaviors or results. Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani give an example in their book *An Introduction to Statistical Learning with Applications in R* to briefly introduce the topic of predictor variables:
 
@@ -29,7 +36,7 @@ One real-life setting example of activity recogniton is physical activity, which
    
 In the case of my research project, I want to see if a predictive model can be made to recognize certain weight lift motions. If a predictor model could be made, then the model could be integrated into the weight lift equipment and used to determine if the lift was done correctly or incorrectly. This model could be integrated with other technologies and be used to help reinforce the correct weight lift motion by commending the user for a correct movement or making a comment when the user made an incorrect movement. For example, I am trying to perform the lift motion from the study correctly, but I am actually performing an error. If my predictive model is good enough (based on the measurements from the sensors, the model can accurately predict in which class my lift belongs), then my armband could beep, notifying me of my error. 
  
-### Background on Data Used
+## Background on Data Used
  
 The article *Qualitative Activity Recognition of Weight Lifting Exercises* describes a study presented by Eduardo Velloso, Andreas Bulling, Hans Gellersen, Wallace Ugulino, and Hugo Fuks. Among other goals, the researchers wanted to provide feedback to weight lifters using qualitative activity recognition. The study involved six male subjects, all in their twenties and with little weight lifting experience. The subjects were taught how to lift a dumb-bell correctly and were also taught how to perform the same movement in four incorrect ways. The Unilateral Dumbbell Bicep Curl was the lift that was taught to the subjects. The five categories of lift data collected were:
   
@@ -43,14 +50,14 @@ The subjects repeated each lift ten times and during each lift the researchers r
 
 The aim of this report is to build a predictive model that can be used in realistic circumstances built on the data from the Velloso et al study.
   
-## Methods
+# Methods
 
-### Background on Methods Used
+## Background on Methods Used
 
 The method of model making that will be used in this report is random forest. A more detailed discussion of the random forest method will follow. However, there are some concepts and definitions that need to be addressed before the random forest method can be fully understood. The first important concept is a classification tree, which is used in the construction of a random forest model.
 
 
-### Classification Trees
+## Classification Trees
 
 Classification trees are a tree-based model and are used to predict a qualitative response. The variables that go into these classification trees can be numerical or categorical. We predict that "each observation belongs to the most commonly occuring class (or category) of training observations in the region to which it belongs" (James, 2013). They are useful because they provide predictors in situations where there are many variables that interact in complicated, non-linear ways. In interpreting these classification trees, we are often "interested in both the class prediction corresponding to a particular terminal node region, and in the class proportions among the training observations that fall into that region" (James, 2013). 
 
@@ -60,7 +67,7 @@ Shall we look at an example of a classification tree?
 
 We are using a data set from a survey taken in the MAT 111 class (Elementary Probability and Statistics) at Georgetown College. This data set has 71 rows and 12 variables. The survey includes variables such as sex, height, GPA, sleep, and the fastest speed ever driven. The names of some of the variables may seem a little odd, such as weight_feel, love_first, and  extra_life. The weight_feel variable is how the participant feels about their weight. They could have answered underweight ("a"), about right ("b"), or overweight ("c"). The love_feel variable is whether or not the participant believes in love at first sight and the extra_life variable is whether or not the participant believes in extraterrestrial life. The seat variable is where the participant sits in a classroom. The letter "a" corresponds to sitting in the front, "b" corresponds sitting in the middle rows, and "c" corresponds to sitting in the back rows.
 
-**Classification tree example:**
+## An extended example of a classification tree:
 
 
 ```{r echo = FALSE}
@@ -86,7 +93,7 @@ m111s.tr <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
 This tree is used to predict the sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight. R code is not only a great tool for making classification trees, it can also print a readable version of classification trees. Below is an easy to understand schematic of a classification tree.
 
 
-```{r echo = FALSE}
+```{r echo = FALSE, fig.cap= "Classification tree to predict sex in m111survey data"}
 plot(m111s.tr)
 text(m111s.tr)
 ```
@@ -139,7 +146,7 @@ The default settings for the `tree.control` function are:
   * `minsize` = 10, 
   * `mindev` = 0.01
 
-Even though are the default values, they can be changed and this will change the final construction of the classification tree. 
+Even though are the default values, they can be changed and this will change the final construction of the classification tree. As an example, if we set `mindev` to 0 and `minsize` to 2, `mincut` to 1, a tree that fits the data perfectly will be produced. With these settings, a tree can be made with a large number of terminal nodes that are small in size and very near to pure. Changing the default settings to lower values produces trees that are larger and can possibly make fewer errors (on the data already given). However, even though the terminal nodes are pure, any chance variation may be seen as patterns. This does not make for good predictions on new data and the model will not be useful for predicting on any other data set than the one it was made with.
 
 Now, let's take a closer look into how deviance is found and why it is so important. 
 
@@ -272,26 +279,42 @@ As you can see from the example, classification trees are easy to interpret and 
 
 *As an aside, unfortunately, R has some round-off error. This is why the values calculated are slightly off from the summary.*
 
-As mentioned earlier, the default settings in the `tree.control` function can be modified to change the tree construction. So, if we set `mindev` to 0 and `minsize` to 2, `mincut` to 1, a tree that fits the data perfectly will be produced. Since the deviation can be 0 the tree can have terminal nodes with size 1 with the same classification.  With these settings, a tree can be made with a large number of terminal nodes that are small in size and very near to pure. Changing the default settings to lower values produces trees that are larger and can possibly make fewer errors (on the data already given). However, even though the terminal nodes are pure, any chance variation may be seen as patterns. This does not make for good predictions on new data and the model will not be useful for predicting on any other data set than the one it was made with.
 
-A model should be able to be used to classify new data. Thus, it is important to have high model performance with new data. To have a model that performs well with new data it is important to divide the original data set into two new sets (training and test sets). The training set is used to build the model and the test set is new data that is used to measure the model's performance by being treated as new data. The model made with the training data will be tried out on the "new" test data. When the original data set is separated into the training and test sets, the simplest partition is a two-way random partition, careful to avoid introducing any systematic differences. The reasoning behind this type of division is that the data available for analytics fairly represents the real-world processes and that those processes are expected to remain stable over time (Steinberg, 2014). So, a well-constructed model will perform adequately on the new data. 
+## The Need for Test Sets
+
+A model should be able to be used to classify new data. Thus, it is important to have high model performance with new data. To have a model that performs well with new data it is important to divide the original data set into two new sets (training and test sets). The *training set* is used to build the model and the *test set* is new data that is used to measure the model's performance by being treated as new data. The model made with the training data will be tried out on the "new" test data. When the original data set is separated into the training and test sets, the simplest partition is a two-way random partition, careful to avoid introducing any systematic differences. In other words, the training set can be created by randomly selecting a portion of the data and the test set is created with the remaining points, i.e. training set is made with 20% of the data and the remaining 80% makes up the test set. The reasoning behind this type of division is that the data available for analytics fairly represents the real-world processes and that those processes are expected to remain stable over time (Steinberg, 2014). So, a well-constructed model will perform adequately on the new data. 
    
 Why not use all the data from the data set? Then more data will be available to make the model and the model will be more accurate, right? Actually, this is incorrect. The *resubstitution error* (error rate on the training set) is a bad predictor of performance on new data because the model was built to account for the training data. The best model for predicting is the dataset itself. So, if you take a given data instance and ask for it’s classification, you can look that instance up in the dataset and report the correct result every time. You are asking the model to make predictions to data that it has “seen” before- data that were used to create the model. Thus, to really know if the model would be a good predictor of the weight lift motion, it must be measured on the test data set (the data it has never "seen" before), not the training set. 
 
 Now we're ready to look more at a random forest model and what it does.
 
-### Random forests
+## Random forests
 
-Random forests are a way of averaging multiple classification trees, trained on different parts of the same training set. However, there are some major differences in the classification trees used in a random forest compared to a regular classification tree. First, at any point where the tree is thinking of a split, the tree does not look at all the predictor variables. Instead, a random subset (default $\sqrt{n}$) of the predictor variables is taken. If you let n be the number of predictor variables, you can take the floor of $\sqrt{n}$. This means that the classification tree may not have all the predictor variables. The regular tree examines every predictor variable. The random forest tree looks at $\sqrt{n}$ of predictor variables. Also, this means that most trees in the random forest are different. 
+### History and Author 
 
-A second important difference between random forest classification trees and regular classification trees is the size. Random forest classification trees are overgrown. Deviance is not considered when making a split nor are the node sizes. The nodes can end up being very small with one or two objects in each of the final nodes. For example, one of the arguments in 'randomForest' is `nodesize`. This is the minimum size of terminal nodes. Setting this to a larger number causes trees to be smaller because the number of objects in a terminal node cannot be less than 5. The default for the classification trees in 'randomForest' is 1. Thus, larger trees are grown because the terminal nodes can have a minimum of 1 object. This overgrowing of classification trees allows for great variability in the classification trees. Most of the classification trees will not be able to make predictions well on new data; some will end up with strange results. But putting together all the trees can actually give good results.
+The first introduction of random forests to the mathematical community was made by Leo Breiman in 1996. The algorithm for the random forest technique was co-developed by Leo Breiman and Adele Cutler, and "Random Forests" is their trademark.  Leo Breiman was a distinguished statistician at the University of California, Berkeley. Breiman's work helped to bridge the gap between statistics and computer science, particularly in the field of machine learning. His most important contributions were his work on classification trees and ensembles of trees through the random forest technique. Adele Cutler is a statistician at the University of Utah. Leo Breiman was her PhD advisory and they worked together to come up with the random forest technique that is most commonly used today (Breiman, 2001). A general method of random decision forests was also proposed, independently of Breiman and Cutler, by Tin Kam Ho in 1995 (Ho, 1995).
 
-A third difference that needs to be considered is the fact that the classification trees used to build a random forest select at random, with replacement, from the data given and the sample size is equal to the size of the original data set. This gives a random sample where about $\frac{1}{e}$ of the items are not grabbed and gives variability that we want to take into account when making a model. 
-The classification trees should vary like the original data. The best way to simulate population data without taking another sample is to take a random sample from the original sample.
+The early development of Breiman's notion of random forests was influenced by the work of Yali Amit and Donald Geman who introduced the idea of searching over a random subset of the available decisions when splitting a node, in the context of growing a single tree (Amit & German, 1997). The idea of random subspace selection from Ho was also influential in the design of random forests. In this method a forest of trees is grown, and variation among the trees is introduced by projecting the training data into a randomly chosen subspace before fitting each tree.
 
-Let me illustrate this with an example:
+A random forest package was published for R by Andy Liaw and Matthew Wiener, based on original Fortran code by Leo Breiman and Adele Cutler. The following links to a PDF document for further information on the `randomForest` R package:
 
-I have a list of 100 numbers and I put them in a bag (this is my original data set). I draw out a number from the bag and write it down. I replace the number, pick from the bag again, and write down the number I've drawn. I replace the number and continue in this way until I have a new list of 100 numbers (this is the sample data set). The new list may have duplicate numbers or some numbers may be missing entirely. This new list is the best guess for the original list of numbers.
+https://cran.r-project.org/web/packages/randomForest/randomForest.pdf
+
+
+### How Random Forests Work
+
+Random forests are a way of averaging multiple classification trees, trained on different parts of the same training set. However, there are some major differences in the classification trees used in a random forest compared to a regular classification tree. First, at any point where the tree is thinking of a split, the tree does not look at all the predictor variables. Instead, a random subset (default $\sqrt{n}$, where n is the number of predictor variables) of the predictor variables is taken. You can take the floor of $\sqrt{n}$, which means that a real number is given as the largest previous following integer, respectively. More precisely, floor(x) is the largest integer less than or equal to x. This means that only a fraction of the predictor variables are used to make up the classification tree. While the regular tree examines every predictor variable and picks the one that will give the best prediction, the random forest tree looks at $\sqrt{n}$ of predictor variables. Also, this means that most trees in the random forest are different. We want the trees to differ from one another. They will make errors, but they will be errors in different directions, so to say. The hope is that the different trees will "cancel out" the error.
+
+A second important difference between random forest classification trees and regular classification trees is the size. Random forest classification trees are overgrown. In a regular classification tree the `mincut` is set at 5. In random forests we are looking at trees with nodes that end up being very small- one or two objects in the final nodes. Another example of the arguments in `randomForest` is `nodesize`. This is the minimum size of terminal nodes. The default for the classification trees in `randomForest` is 1. Thus, larger trees are grown because the terminal nodes can have a minimum of 1 object. This overgrowing of classification trees allows for great variability in the classification trees. Most of the classification trees will not be able to make predictions well on new data; some will end up with strange results. But putting together all the trees can actually give good results. Once again, the overgrown trees will give errors, but we hope that that by putting a large amount of trees together the errors will end up "canceling out".
+
+A third difference that needs to be considered is the fact that the classification trees used to build a random forest do not use the entire training data. Rather, they select at random, with replacement, from the training data. This random sample size is equal to the size of the original training data set. Since each tree does not use the entire training data, this gives variability that we want to take into account when making a model. The training data set resembles a sample of all the possible measurments. So, let's think about the weight lifting data which I will use later. The weight lifting data are like a random sample of the data we could have gotten while taking measurements of the weight lifting subjects. Overall, we want to try to reflect chance variations in real-life measurements. However, we don't have all the possible observations. We only have the weight lifting data set as an approximation. So taking a sample of the data we have is the best approximation we have to takin another sample in a real life population. Therefore, taking many samples (and most of them end up being different from each other) is the best way to see how trees depend on chance variation and this variablitity is incorporated into random forests. Thus, once again, errors are made but we hope the differences in the random samples "cancel out" those errors to provide a fairly good model for predictions.
+
+
+### Example of Random Forest
+
+The concept of a random sample with the sample size equal to the number of observations in a set may seem a little confusing at first. Let me illustrate this concept with a simple example:
+
+I will take a random sample, with replacement, from the numbers 1 through 100. I begin with a list of the first 100 numbers and I put them in a bag (this is my original data set). I draw out a number from the bag and write it down. I replace the number, pick from the bag again, and write down the number I've drawn. I replace the number and continue in this way until I have a new list of 100 numbers (this is the sample data set). The new list may have duplicate numbers or some numbers may be missing entirely. This new list is an example of what it would be like to take a random sample from those 100 numbers.
 
 ```{r echo = FALSE}
 set.seed(1212)
@@ -315,7 +338,18 @@ Notice that some of the numbers have been repeated and some numbers are missing.
 ng2 <- as.character(notGot)
 ng2 <- c(ng2, " ")
 ngmat <- matrix(ng2, nrow = 6, byrow = TRUE)
+
 ```
+
+```
+ "1"  "5"  "12" "13" "15" "18"
+ "20" "24" "26" "29" "38" "41"
+ "42" "43" "48" "50" "53" "55"
+ "57" "63" "65" "68" "70" "73"
+ "74" "76" "77" "78" "83" "85"
+ "88" "90" "91" "93" "98" 
+```
+
 
 Below is a table showing the numbers that are part of the random sample:
 
@@ -323,11 +357,61 @@ Below is a table showing the numbers that are part of the random sample:
 got2 <- as.character(got)
 got2 <- c(got2, " ")
 gmat <- matrix(got2, nrow = 6, ncol = 11, byrow = TRUE)
+
 ```
 
-Notice that 35 numbers are missing from the new list, which is 35% of the data. Something that is very important to remember is that as the size of the data set increases the number of variables that are missing from the random resample is about $\frac{1}{e}$. That means about 36.788% of the variables are not included in the resample.
+```
 
-As another example, suppose I have a list of numbers 1 to 10,000 instead of only 100. Then, looking at the numbers included in the new list, we find that 3,681 are missing. This is 36.81% of the original numbers, and it is very near equal to $\frac{1}{e}$.
+ "27" "11" "97" "36"  "64" "4"  "9"  "6"  "71" "25"  "52" 
+ "82" "3"  "62" "66"  "45" "2"  "99" "14" "23" "37"  "34" 
+ "92" "46" "96" "69"  "61" "84" "17" "44" "86" "58"  "59" 
+ "19" "60" "81" "100" "10" "49" "79" "21" "89" "22"  "54" 
+ "75" "33" "56" "67"  "31" "95" "39" "51" "87" "35"  "72" 
+ "8"  "94" "7"  "30"  "32" "16" "28" "80" "40" "47"  
+
+```
+
+Notice that 35 numbers are missing from the new list, which is 35% of the data. 
+
+Why don't we take another sample of 100?
+
+```{r echo = FALSE}
+set.seed(0000)
+pop2 <- 1:100
+samp2 <- sample(pop2, 100, replace = T)
+got3 <- unique(samp2)
+notGot2 <- pop2[!(pop2 %in% got3)]
+```
+
+I have made another list of 100 numbers and taken a random sample from the original list. 
+
+```{r echo = FALSE} 
+samp2
+```
+
+
+Below is a table showing the numbers that are missing from the random sample:
+
+```{r echo = FALSE}
+ng3 <- as.character(notGot2)
+ng3 <- c(ng3, " ")
+ngmat2 <- matrix(ng3, nrow = 6, ncol = 6, byrow = TRUE)
+ngmat2
+```
+
+
+Below is a table showing the numbers that are part of the random sample:
+
+```{r echo = FALSE}
+got4 <- as.character(got)
+got4 <- c(got4, " ")
+gmat2 <- matrix(got4, nrow = 6, ncol = 11, byrow = TRUE)
+gmat2
+```
+
+Notice that this list is missing 36 numbers from the original list. This means 36% of the original data is missing. In fact, the expected proportion of missing data is about 0.3678 or better known as $\frac{1}{e}$. The number *e* is an important mathematical constant that is the base of the natural logarithm. It is approximately equal to 2.71828. [Note: The history and mathematical importance of the number *e* is not in the scope of this paper, but if you would like to know more I suggest reading "e: the Story of a Number" by Eli Maor (1994).] 
+
+Now let's see what happens when we take a larger sample. Suppose I have a list of numbers 1 to 10,000 instead of only 100. Then, looking at the numbers included in the new list, we find that 3,681 are missing. 
 
 ```{r echo = FALSE}
 set.seed(2222)
@@ -341,6 +425,22 @@ notGot2 <- pop2[!(pop2 %in% got2)]
 ## length(notGot2)
 ```
 
+As you can see in the table below, after performing 10 random samples with replacement of size 10,000 the amount of missing numbers stays around 3600 (or about 36%). These are also close to the proportion of $\frac{1}{e}$. In fact, as the size of a dataset increases, the closer the proportion of missing data gets to $\frac{1}{e}$.
+
+
+```{r echo = FALSE}
+
+nums <- c("3682", "3674", "3690", "3691", "3727", "3696", "3596", "3685", "3716", "3741")
+nummat2 <- matrix(nums, nrow = 2, ncol = 5, byrow = TRUE)
+nummat2
+```
+
+
+Below is the computation done by R to show the value of $\frac{1}{e}$:
+
+```{r echo = FALSE}
+1/exp(1)
+```
 
 As an added bonus, the random sample with replacement is used to make an estimation of how well the random forest will do. And that estimation will be made even when the random forest is being constructed.
 
@@ -362,6 +462,8 @@ Each tree in the random forest is grown as follows (Breiman and Cutler, 2007):
 
 4. Each tree gives a classification, and we say the tree "votes" for that class. The forest chooses the     classification having the most votes over all the trees in the forest. The vote will be YES or NO. All the      YES votes are counted and this is the predicted probability for a classification.
 
+
+Once again we will use all the data from the m111survey to construct a random forest. However, for the weight lifting data I will make a division for training and test sets.
 
 Here is an example of a random forest:
 
@@ -445,11 +547,11 @@ Since there are six subjects in the study, a total of 300 lifts were performed a
    
    
   
-## Results
+# Results
 
 The following sections will go through the implementation of the methods described from earlier.
 
-### Data Cleaning
+## Data Cleaning
 
 Many of the following steps for downloading and cleaning the data are taken from the report "Predicting Movement-Types:  Quick Model-Making with Random Forests" written by Dr. White.
 
@@ -499,7 +601,7 @@ wn <- wl$num_window    ### This is an addition
 ```
 
 
-### Data Separation
+## Data Separation
 
 The data set I am working with will have to be divided into two sets (a training set and a test set). The training set is used to build the model and the test set is data that is used to measure the model's performance by being treated as "new" data. The model made with the training data will be tried out on the "new" test data. When the original data set is separated into the training and test sets, the simplest partition is a two-way random partition, careful to avoid introducing any systematic differences. The reasoning behind this type of division is that the data available for analytics fairly represents the real-world processes and that those processes are expected to remain stable over time (Steinberg, 2014). So, a well-constructed model will perform adequately on the new data. 
    
@@ -545,9 +647,9 @@ rf <- randomForest(x = wlTrain[,1:53], y = wlTrain$classe,
 
 
 
-## Conclusions and Further Discussion
+# Conclusions and Further Discussion
 
-### Analysis
+## Analysis
 
 
 
