@@ -67,7 +67,7 @@ Shall we look at an example of a classification tree?
 
 We are using a data set from a survey taken in the MAT 111 class (Elementary Probability and Statistics) at Georgetown College. This data set has 71 rows and 12 variables. The survey includes variables such as sex, height, GPA, sleep, and the fastest speed ever driven. The names of some of the variables may seem a little odd, such as weight_feel, love_first, and  extra_life. The weight_feel variable is how the participant feels about their weight. They could have answered underweight ("a"), about right ("b"), or overweight ("c"). The love_feel variable is whether or not the participant believes in love at first sight and the extra_life variable is whether or not the participant believes in extraterrestrial life. The seat variable is where the participant sits in a classroom. The letter "a" corresponds to sitting in the front, "b" corresponds sitting in the middle rows, and "c" corresponds to sitting in the back rows.
 
-## An extended example of a classification tree:
+### An Extended Example of a Classification Tree:
 
 
 ```{r echo = FALSE}
@@ -288,7 +288,7 @@ Why not use all the data from the data set? Then more data will be available to 
 
 Now we're ready to look more at a random forest model and what it does.
 
-## Random forests
+## Random Forests
 
 ### History and Author 
 
@@ -530,7 +530,7 @@ Each tree in the random forest is grown as follows (Breiman and Cutler, 2007):
 
 4. Each tree gives a classification, and we say the tree "votes" for that class. The forest chooses the     classification having the most votes over all the trees in the forest. The vote will be YES or NO. All the      YES votes are counted and this is the predicted probability for a classification.
 
-### Random Forest Example
+### An Extended Random Forest Example
 
 Once again we will use all the data from the m111survey to construct a random forest. However, for the weight lifting data I will make a division for training and test sets.
 
