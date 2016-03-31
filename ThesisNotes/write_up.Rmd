@@ -277,7 +277,9 @@ The final output given by the classification tree summary is the misclassificati
 
 As you can see from the example, classification trees are easy to interpret and fairly good predictions can be made from them. In this example, the misclassification error rate is about 11.4%. This means that 8 out of 70 observations were misclassified. However, the tree is looking at correct answers that were given. If this classification tree were given new data, the error rate would most likely be much worse.
 
-*As an aside, unfortunately, R has some round-off error. This is why the values calculated are slightly off from the summary.*
+As an aside, unfortunately, R has some round-off error. This is why the values calculated are slightly off from the summary.
+
+
 
 
 ## The Need for Test Sets
@@ -299,6 +301,8 @@ Even though Breiman and Cutler created the algorithm for random forests, the con
 A random forest package was published for R by Andy Liaw and Matthew Wiener, based on original Fortran code by Leo Breiman and Adele Cutler. The following links to a PDF document for further information on the `randomForest` R package:
 
 https://cran.r-project.org/web/packages/randomForest/randomForest.pdf
+
+\newpage
 
 
 ### How Random Forests Work
@@ -396,6 +400,8 @@ gmat <- matrix(got2, nrow = 6, ncol = 11, byrow = TRUE)
 ```
 
 Notice that 35 numbers are missing from the new list, which is 35% of the data. 
+
+\newpage
 
 Why don't we take another sample of 100?
 
@@ -500,6 +506,9 @@ nummat2 <- matrix(nums, nrow = 2, ncol = 5, byrow = TRUE)
 
 ```
 
+\newpage
+
+
 Below is the computation done by R to show the value of $\frac{1}{e}$:
 
 ```{r echo = FALSE}
@@ -520,26 +529,27 @@ Thus, the random selection of predictor variables, the overgrowing of the trees 
 
 This summarizes the information from above.
 
-Each tree in the random forest is grown as follows (Breiman and Cutler, 2007):
-
-1. Each tree is trained on roughly $2/3^{\text{rd}}$ of the total training data. Cases are drawn at random with replacement from the original data. This sample will be the training set for growing the tree. The other $1/3^{\text{rd}}$ of the cases are left out of the sample. This out-of-bag (OOB) data is used to get a running unbiased estimate of the classification error as trees are added to the forest. It is also used to get estimates of variable importance.
+1.  Each tree is trained on roughly $2/3^{\text{rd}}$ of the total training data. Cases are drawn at random with replacement from the original training data. This sample will be the training set for growing the tree. The other $1/3^{\text{rd}}$ of the cases are left out of the sample (recall it will actually be about $\frac{1}{e}$ of the data). For each tree, using the leftover data, the misclassification rate (or out-of-bag error rate) is calculated. The error from all trees is used to determine overall OOB error rate for the classification.This out-of-bag (OOB) data is used to get a running unbiased estimate of the classification error as trees are added to the forest. It is also used to get estimates of variable importance. 
 
 2. Some predictor variables (say, m) are selected at random out of all the predictor variables and the best split on these m is used to split the node. By default, m is square root of the total number of all predictors for classification. The value of m is held constant during the forest growing. As explained earlier, in a standard classification tree, each split is created after examining every variable and picking the best split from all the variables.
 
-3. For each tree, using the leftover data (36.8% or $\frac{1}{e}$), the misclassification rate (or OOB error rate) is calculated. The error from all trees is used to determine overall OOB error rate for the         classification.
+3. Each tree gives a classification, and we say the tree "votes" for that class. The forest chooses the     classification having the most votes over all the trees in the forest. The vote will be YES or NO. All the      YES votes are counted and this is the predicted probability for a classification.
 
-4. Each tree gives a classification, and we say the tree "votes" for that class. The forest chooses the     classification having the most votes over all the trees in the forest. The vote will be YES or NO. All the      YES votes are counted and this is the predicted probability for a classification.
+4. The classification trees that make up the random forest are overgrown to allow for greater variability in the classification trees. While the individual overgrown trees make poor predictions on data, putting together hundreds of overgrown trees can "cancel out" the extreme results and better predictions can be made.
+
 
 ### An Extended Random Forest Example
 
-Once again we will use all the data from the m111survey to construct a random forest. However, for the weight lifting data I will make a division for training and test sets.
+Once again we will use all the data from the `m111survey` to construct a random forest. However, for the weight lifting data I will make a division for training and test sets before constructing a random forest.
 
-Here is an example of a random forest:
+Below is an example of the code for random forests, along with explanations for each part.
 
 ```{r, echo = FALSE}
 
 m111surv2 <- m111survey[complete.cases(m111survey),]
 ```
+
+The code for implementing a random forest:
 
 ```{r}
 set.seed(1010)
@@ -547,15 +557,30 @@ rf.sexm111 <- randomForest(sex~fastest+GPA+height+sleep+
                              weight_feel+
                              love_first+extra_life+ideal_ht+
                              seat+enough_Sleep+diff.ideal.act., 
-                             data=m111surv2)
-## rf.sexm111
+                             data=m111surv2, ntree=500)
+```
+
+The `randomForest` function has several arguments, but only some are used in this example. The first argument, `formula`, is a formula describing the model to be fitted. We want to predict sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, if the participant believes in love at first sight, if the participant believes in extraterrestrial life, the participant's ideal height, where the participant prefers to sit in class, if the participant believes they got enough sleep the night before and the difference between ideal height and actual height. The structure for the formula is as follows:
 
 ```
+sex~fastest+GPA+height+sleep+
+     weight_feel+
+     love_first+extra_life+ideal_ht+
+     seat+enough_Sleep+diff.ideal.act
+     
+```
+The next argument is `data`. This is the data frame containing the variables in the model. As stated earlier, the data frame for this example is taken from the MAT 111 Survey data.
+
+The final argument used in this example is `ntree`, which is the number of trees to grow. The default number of trees to be grown for the random forest is 500, but this can be adjusted.
+
+The random forest is put into an object,`rf.sexm111`, thay way we don't have to write out all the components every time we want to implement the random forest. Also, `set.seed` is used to reproduce the results of the random forest output. In other words, each time the code is executed the results will be the same.
+
+Now that the code has been written out, we can take a look at the results. Below is the output given by running the random forest code:
 
 ```
 randomForest(formula = sex ~ fastest + GPA + height + sleep +      
 weight_feel + love_first + extra_life + ideal_ht + seat +      
-enough_Sleep + diff.ideal.act., data = m111surv2) 
+enough_Sleep + diff.ideal.act., data = m111surv2, ntree = 500) 
                
 Type of random forest: classification
 
@@ -573,16 +598,33 @@ male        2   28  0.06666667
 
 ```
 
-XXXXX**Talk about results of random forest**
 
-Above are the results from the random forest. This random forest is made up of 500 classification trees. The sex of an individual is being predicted based on the predictor variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight. 
+Let's talk about what happened bit by bit. Recall that the `randomForest` function is stored in an object (`rf.sexm111`) and R prints out the object as output with several different components. 
 
+First, is the `call` which is the original call to `randomForest`, or the code to implement the function.
 
+```
 
-**For do.trace: At 50th stage, looking at each of the items in training set, can tree vote on that item? The ones that didn't use item (individual in random resample) have a vote. Majority vote wins- either right or wrong. OOB is the percentage of time the group of 50 trees got it wrong. Preliminary guess because OOB Females = 1 only wrong 2.6% of time, males= 2 wrong 10% of time.**
+randomForest(formula = sex ~ fastest + GPA + height + sleep +      
+weight_feel + love_first + extra_life + ideal_ht + seat +      
+enough_Sleep + diff.ideal.act., data = m111surv2, ntree = 500) 
 
+```
 
-Now, we can look at individual trees from this forest to see the differences:
+Second, the `type` is given. This refers to the types of trees that were grown for the random forest. Trees are usually grown as classification or regression trees. However, it is not necessary to understand the difference between the two for our purposes. In this example, the trees are classification trees. 
+
+```
+Type of random forest: classification
+
+```
+Third, the number of tres grown, `ntree` is given. The default number is 500. However, depending on the model this number can be changed.
+
+```
+Number of trees: 500
+
+```
+
+We can actually look at some of the individual trees constructed for the random forest and see some of the differences between them:
 
 ```{r echo = FALSE}
 
@@ -611,6 +653,40 @@ kable(st3, caption = "Tree 500")
 ```
 
 Notice that each tree is different. The variables used for division differ for each tree. One tree may use variables that make the prediction off in one way, but another tree may use variables that make the prediction off in another way. Since 500 trees are used to make up this random forest, the mistakes even out to make a fairly good prediction model. 
+
+
+The fourth component of the output is `mtry`. This is the number of predictors sampled for splitting at each node. 
+
+```
+
+No. of variables tried at each split: 3
+
+```
+
+Recall that whenever a tree is thinking about splitting at a node, floor($\sqrt{n}$) predictor variables will be used. Since $\sqrt{11}$ = 3.3166, 3 variables are tried at each possible split.
+
+Fifth, an error rate is given. Recall that the misclassification rate is calculated using the leftover data using the leftover data from the random sample with replacement and the error from all trees is used to determine overall OOB error rate for the classification.
+
+```
+
+OOB estimate of  error rate: 4.41%
+
+```
+
+The final output of this example is the confusion matrix of the prediction. This tells us how many times the prediction of sex was correct or incorrect and gives an error rate for each classification.
+
+```
+Confusion matrix:
+       female male class.error
+female     37    1  0.02631579
+male        2   28  0.06666667
+
+```
+
+This table shows us that for all the females in the data set, the random forest classified 37 correctly as female and only misclassified one female as male. Also, only two males were misclassified as females. 
+
+
+** This RF was constructed using only a training set. We only have the OOB error rate as an estimate. However, with the weight lifting data I will make a division into training and test sets** 
 
 Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. In his report, Dr. White separated the original data set into training and test sets using a random partition (a typical separation). However, in my project I will attempt to further expand on the partition by ensuring that no single lift appears in both sets. In real life, each person does a new lift and no lift is the same. While the error rate for the model will most likely be worse with new data, I want to make the model as "honest" as possible, which means none of the measurements from a single lift should be in both the training and test set. The proper separation of data is important because I not only want to see if I can make a random forest model, I want to see how accurately it can make predictions.
    
@@ -710,8 +786,7 @@ wlTrain <- results[[1]]
 wlTest <- results[[2]]
 
 rf <- randomForest(x = wlTrain[,1:53], y = wlTrain$classe, 
-                   xtest = wlTest[,1:53], ytest = wlTest$classe,
-                   do.trace = 50)
+                   xtest = wlTest[,1:53], ytest = wlTest$classe)
 ```
 
 
