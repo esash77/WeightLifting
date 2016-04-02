@@ -48,7 +48,7 @@ The article *Qualitative Activity Recognition of Weight Lifting Exercises* descr
     
 The subjects repeated each lift ten times and during each lift the researchers recorded a number of inertial measurements from sensors in the users' glove, armband, lumbar belt, and dumbbell (these are pieces of equipment that are commonly used by weight lifters). These measurements make up the predictors that the researchers used when determing a correct or incorrect lift. The sensors recorded several data points throughout the lifting motion and the final data set includes 160 variables. Some of the variables included are: user_name, num_window, yaw_belt, pitch_belt, and total_accel_belt. 
 
-The aim of this report is to build a predictive model that can be used in realistic circumstances built on the data from the Velloso et al study.
+The aim of this report is to build a predictive model that can be used in realistic circumstances built on the data from the Velloso et al study. 
   
 # Methods
 
@@ -67,7 +67,7 @@ Shall we look at an example of a classification tree?
 
 We are using a data set from a survey taken in the MAT 111 class (Elementary Probability and Statistics) at Georgetown College. This data set has 71 rows and 12 variables. The survey includes variables such as sex, height, GPA, sleep, and the fastest speed ever driven. The names of some of the variables may seem a little odd, such as weight_feel, love_first, and  extra_life. The weight_feel variable is how the participant feels about their weight. They could have answered underweight ("a"), about right ("b"), or overweight ("c"). The love_feel variable is whether or not the participant believes in love at first sight and the extra_life variable is whether or not the participant believes in extraterrestrial life. The seat variable is where the participant sits in a classroom. The letter "a" corresponds to sitting in the front, "b" corresponds sitting in the middle rows, and "c" corresponds to sitting in the back rows.
 
-### An Extended Example of a Classification Tree:
+### An Extended Example of a Classification Tree
 
 
 ```{r echo = FALSE}
@@ -166,6 +166,8 @@ where:
 For example, the deviance for any node of this classification tree would be found in the following way:
 
 $$D = -2[(n_{1}\ln(p_{1})) + (n_{2}\ln(p_{2}))]$$
+
+\newpage
 
 where:
 
@@ -686,10 +688,8 @@ male        2   28  0.06666667
 This table shows us that for all the females in the data set, the random forest classified 37 correctly as female and only misclassified one female as male. Also, only two males were misclassified as females. 
 
 
-** This RF was constructed using only a training set. We only have the OOB error rate as an estimate. However, with the weight lifting data I will make a division into training and test sets** 
+*This RF was constructed using only a training set. We only have the OOB error rate as an estimate. However, with the weight lifting data I will make a division into training and test sets.* 
 
-Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. In his report, Dr. White separated the original data set into training and test sets using a random partition (a typical separation). However, in my project I will attempt to further expand on the partition by ensuring that no single lift appears in both sets. In real life, each person does a new lift and no lift is the same. While the error rate for the model will most likely be worse with new data, I want to make the model as "honest" as possible, which means none of the measurements from a single lift should be in both the training and test set. The proper separation of data is important because I not only want to see if I can make a random forest model, I want to see how accurately it can make predictions.
-   
    
   
 # Results
@@ -750,7 +750,7 @@ wn <- wl$num_window    ### This is an addition
 
 The data set I am working with will have to be divided into two sets (a training set and a test set). The training set is used to build the model and the test set is data that is used to measure the model's performance by being treated as "new" data. The model made with the training data will be tried out on the "new" test data. When the original data set is separated into the training and test sets, the simplest partition is a two-way random partition, careful to avoid introducing any systematic differences. The reasoning behind this type of division is that the data available for analytics fairly represents the real-world processes and that those processes are expected to remain stable over time (Steinberg, 2014). So, a well-constructed model will perform adequately on the new data. 
    
-Why not use all the data from the Weight Lifting data set? Then more data will be available to make the model and the model will be more accurate, right? However, this is incorrect. The *resubstitution error* (error rate on the training set) is a bad predictor of performance on new data because the model was built to account for the training data. The best model for predicting is the dataset itself. So, if you take a given data instance and ask for it’s classification, you can look that instance up in the dataset and report the correct result every time. You are asking the model to make predictions to data that it has “seen” before- data that were used to create the model. Thus, to really know if the model would be a good predictor of the weight lift motion, it must be measured on the test data set, not the training set. 
+Why not use all the data from the data set? Then more data will be available to make the model and the model will be more accurate, right? However, if you recall from section 2.3, The Need for Test Sets, this is incorrect. The *resubstitution error* (error rate on the training set) is a bad predictor of performance on new data because the model was built to account for the training data. The best model for predicting is the dataset itself. So, if you take a given instance and ask for it’s classification, you can look that instance up in the dataset and report the correct result every time. In essence, you are asking the model to make predictions to data that it has “seen” before- data that were used to create the model. Thus, to really know if the model would be a good predictor of the weight lift motion, it must be measured on the test data set, not the training set. 
    
 Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. While the simplest division is to separate the original data set into training and test sets using a random partition (a typical separation), an expanded separation will be done to make the model more "honest". 
 
@@ -790,10 +790,45 @@ rf <- randomForest(x = wlTrain[,1:53], y = wlTrain$classe,
 ```
 
 
+The results of the random forest implementation:
+
+```
+Call:
+ randomForest(x = wlTrain[, 1:53], y = wlTrain$classe,
+              xtest = wlTest[, 1:53], ytest = wlTest$classe) 
+
+Type of random forest: classification
+
+Number of trees: 500
+
+No. of variables tried at each split: 7
+
+OOB estimate of  error rate: 0.26%
+
+Confusion matrix:
+     A    B    C    D    E class.error
+A 3679    3    0    1    1 0.001357220
+B    2 2346    2    0    0 0.001702128
+C    0    5 2119    2    0 0.003292568
+D    0    0   14 2270    1 0.006564551
+E    0    0    1    2 2552 0.001174168
+                Test set error rate: 6.43%
+
+Confusion matrix:
+     A    B    C   D    E class.error
+A 1841   45    2   3    5  0.02900844
+B   40 1351   53   3    0  0.06634416
+C   12  140 1121  23    0  0.13503086
+D    0    0   52 865   14  0.07089151
+E    0   11    1  22 1018  0.03231939
+
+```
+
 
 # Conclusions and Further Discussion
 
 ## Analysis
+
 
 
 
