@@ -161,6 +161,7 @@ where:
   * $p_{k}$ is the proportion of a certain type in node k
 
 *Recall: $\ln{x}$ is the natural logarithm of the value x*
+*Note: When $p_{k}$ = 0 the entire term is defined as 0*
 
 
 For example, the deviance for any node of this classification tree would be found in the following way:
@@ -175,6 +176,7 @@ where:
   * $n_{2} = \texttt{number of males in the node}$
   * $p_{1} = \texttt{proportion of females in the node}$
   * $p_{2} = \texttt{proportion of males in the node}$
+  
 
 We can now begin looking at how this formula can work. As stated earlier, deviance is a measure of goodness of fit. In other words, the deviance is a measurement of purity. The more pure a node is (or in the case of our tree, the closer the node is to being all male or all female), the closer the deviance is to 0. Thus, when deciding on whether to make a split at a node or not, is to choose a split such that the sum of the deviance of the two daughter nodes is smaller than the deviance before the split. In fact, the tree will find a split so the sum of the two daughter nodes is as small as possible. Now, `mindev` sets a limit on how small the deviance can be. In order to split into daughter nodes, the deviance of the node which will be split must be at least $$\texttt{mindev}\times\textbf{root deviance}$$ [Recall that the default value for `mindev` is 0.01, but this can be changed to modify the tree growth.]
 
@@ -553,7 +555,7 @@ m111surv2 <- m111survey[complete.cases(m111survey),]
 
 The code for implementing a random forest:
 
-```{r}
+```{r message = FALSE}
 set.seed(1010)
 rf.sexm111 <- randomForest(sex~fastest+GPA+height+sleep+
                              weight_feel+
@@ -632,17 +634,19 @@ We can actually look at some of the individual trees constructed for the random 
 
 st1 <- getTree(rf.sexm111, k=1, labelVar = TRUE)
 names(st1)[1:2] <- c("LD", "RD")
-kable(st1, caption = "Tree 1")
+kable(st1, caption = "Tree 1 made by the Random Forest")
 
 ```
 
 The *left daughter (LD)* and the *right daughter (RD)* are the two nodes that are made by a division. The *split var* is the variable for which the division was made. The *split point* is the point where the split was made. The *status* shows if more divisions will be made (1) or if a node is terminal (-1). And then the final column shows the prediction of a terminal node. This is true for the two other tables shown below. 
 
+\newpage
+
 ```{r echo = FALSE}
 
 st2 <- getTree(rf.sexm111, k=250, labelVar = TRUE)
 names(st2)[1:2] <- c("LD", "RD")
-kable(st2, caption = "Tree 250")
+kable(st2, caption = "Tree 250 made by the Random Forest")
 
 ```
 
@@ -651,13 +655,13 @@ kable(st2, caption = "Tree 250")
 
 st3 <- getTree(rf.sexm111, k=500, labelVar = TRUE)
 names(st3)[1:2] <- c("LD", "RD")
-kable(st3, caption = "Tree 500")
+kable(st3, caption = "Tree 500 made by the Random Forest")
 ```
 
 Notice that each tree is different. The variables used for division differ for each tree. One tree may use variables that make the prediction off in one way, but another tree may use variables that make the prediction off in another way. Since 500 trees are used to make up this random forest, the mistakes even out to make a fairly good prediction model. 
 
 
-The fourth component of the output is `mtry`. This is the number of predictors sampled for splitting at each node. 
+The fourth component of the output is `mtry`. This is the number of predictors sampled for splitting at each node. The default value for this argument is $\sqrt{n}$.
 
 ```
 
@@ -675,12 +679,16 @@ OOB estimate of  error rate: 4.41%
 
 ```
 
-The final output of this example is the confusion matrix of the prediction. This tells us how many times the prediction of sex was correct or incorrect and gives an error rate for each classification.
+The final output of this example is the confusion matrix of the out-of-bag error. This tells us how many times the prediction of sex was correct or incorrect and gives an error rate for each classification.
+
 
 ```
 Confusion matrix:
+
        female male class.error
+
 female     37    1  0.02631579
+
 male        2   28  0.06666667
 
 ```
@@ -688,7 +696,7 @@ male        2   28  0.06666667
 This table shows us that for all the females in the data set, the random forest classified 37 correctly as female and only misclassified one female as male. Also, only two males were misclassified as females. 
 
 
-*This RF was constructed using only a training set. We only have the OOB error rate as an estimate. However, with the weight lifting data I will make a division into training and test sets.* 
+*This RF was constructed using only a training set. We only have the OOB error rate as an estimate of how it would do on new data. However, with the weight lifting data I will make a division into training and test sets.* 
 
    
   
@@ -724,25 +732,27 @@ load(file = "data/wl_test.rda")
 
 The main data set consists of 19622 observations on 160 variables, including:
 
-* a spurious row-number variable `X`;
+* a row-number variable `X`;
 * `user_name` (the name of the subject);
 * three time-stamp variables;
 * two variables, `new_window` and `num_window` related to time-windows;
-* 152 numerical measurements derived from the IMUs;
+* 152 numerical measurements derived from the inertial measurement units (IMUs);
 * the variable `classe` that records the activity-type.
 
-A preliminary look at the 20 examination observations indicates that for many of the variables the values are altogether missing.  Although missing-ness may have predictive value, it is difficult to see how to take advantage of this fact, so we will simply exclude all such variables from our training data.  We will also exclude all variables that record time-stamps, and the useless row-number variable `X`.
 
+
+**What variables do I actually want to eliminate?**
 The spurious variables can be eliminated from our data frame.  The code for this is as follows:
 
 ```{r}
 results_test <- sapply(wl_test, FUN = function(x) !all(is.na(x)))
 goodNames <- names(results_test[results_test])
-keepNames <- goodNames[-c(1,3,4,5,6,7,60)]
+keepNames <- goodNames[-c(1,3,4,5,6,60)]
 wl2 <- wl[,keepNames]
 wl2$user_name <- factor(wl$user_name)
 wl2$classe <- factor(wl$classe)
-wn <- wl$num_window    ### This is an addition
+wn <- wl$num_window
+
 ```
 
 
@@ -754,9 +764,9 @@ Why not use all the data from the data set? Then more data will be available to 
    
 Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. While the simplest division is to separate the original data set into training and test sets using a random partition (a typical separation), an expanded separation will be done to make the model more "honest". 
 
-I decided to separate my data by window number. Even though we cannot guarantee that a window number will not appear in both the training and the test set, this will further separate the data than a typical random partition. 
+I decided to separate my data by window number. In real life we test on a new lift. So, when we divide into test and training sets, we ideally want to keep individual lifts separate- no portion of a lift in the test and training set. Even though there is no way for us to tell when a new lift is beginning, we have the window number which provides long portions of a lift and allows for a separation with little cross-over.
    
-Below is a function that has been written for easy separation. The arguments of this function are the data set to be separated and the variable by which the separation will be done.
+Below is a function that has been written for easy separation. The arguments of this function are the data set to be separated and the variable by which the separation will be done. I can then use this function to separate the weight lifting data set into training and test sets by the `num_window` variable.
    
   
 ```{r}
@@ -777,52 +787,73 @@ partition_var <- function(data, var){
 ```
 
 
+\newpage 
+
 Now the data can be separated into the training and test sets and used for a random forest procedure:
 
-```{r cache = T, message = FALSE}
+```{r cache = T}
 set.seed(2020)
-results <- partition_var(wl2, wn)
-wlTrain <- results[[1]]
-wlTest <- results[[2]]
+results <- partition_var(wl2, wn) # I put the num_window variable into a new object, wn 
+
+wlTrain <- results[[1]] # Since 2 results are given (test and training set), 
+                        # the first result is the training set
+
+wlTest <- results[[2]]  # The second result is the test set
 
 rf <- randomForest(x = wlTrain[,1:53], y = wlTrain$classe, 
                    xtest = wlTest[,1:53], ytest = wlTest$classe)
 ```
 
 
-The results of the random forest implementation:
 
 ```
 Call:
  randomForest(x = wlTrain[, 1:53], y = wlTrain$classe,
               xtest = wlTest[, 1:53], ytest = wlTest$classe) 
+```
+This formula includes the training and the test sets that we created earlier.
+ 
 
+```
 Type of random forest: classification
 
 Number of trees: 500
 
 No. of variables tried at each split: 7
+```
+Unsuprisingly, we used 500 classification trees to make up the random forest. Also, since 53 variables are used in the data set, 7 variables were tried at each possible split of the classification trees.
 
-OOB estimate of  error rate: 0.26%
 
-Confusion matrix:
-     A    B    C    D    E class.error
-A 3679    3    0    1    1 0.001357220
-B    2 2346    2    0    0 0.001702128
-C    0    5 2119    2    0 0.003292568
-D    0    0   14 2270    1 0.006564551
-E    0    0    1    2 2552 0.001174168
-                Test set error rate: 6.43%
-
-Confusion matrix:
-     A    B    C   D    E class.error
-A 1841   45    2   3    5  0.02900844
-B   40 1351   53   3    0  0.06634416
-C   12  140 1121  23    0  0.13503086
-D    0    0   52 865   14  0.07089151
-E    0   11    1  22 1018  0.03231939
+Now, the error rates and confusion matrices are shown below:
 
 ```
+OOB estimate of  error rate: 0.1%
+
+```
+
+``` {r echo = FALSE}
+
+con1 <- rf$confusion
+kable (con1, caption = "Confusion matrix for Training Set")
+```
+
+\newpage
+
+```
+Test set error rate: 4.92%
+
+```
+** I don't know how to make this look like the other table!**
+
+```{r echo = FALSE}
+
+con2 <- rf$test["confusion"]
+kable(con2, caption = "Confusion matrix for Test Set")
+```
+
+
+**XXXXX What exactly does this mean? Explain**
+
 
 
 # Conclusions and Further Discussion
