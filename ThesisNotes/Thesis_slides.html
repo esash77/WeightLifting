@@ -112,7 +112,7 @@
 <li><p>One real-life setting example of activity recogniton is physical activity, which is one of the most important things that can be done for overall health.</p></li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2>Activity Recognition cont.</h2></hgroup><article  id="activity-recognition-cont.">
+</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section">
 
 <ul>
 <li><p>Using other physical activities as predictor variables, a predictive model could be made and used to help determine if an exercise motion is being executed properly.</p></li>
@@ -122,15 +122,20 @@
 </article></slide><slide class=''><hgroup><h2>Background on Data Used</h2></hgroup><article  id="background-on-data-used">
 
 <ul>
-<li><p><em>Qualitative Activity Recognition of Weight Lifting Exercises</em></p></li>
-<li><p>Authors: Eduardo Velloso, Andreas Bulling, Hans Gellersen, Wallace Ugulino, and Hugo Fuks</p></li>
+<li>The project data is associated with the following study:</li>
+</ul>
+
+<p>Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H.: Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human &#39;13) . Stuttgart, Germany: ACM SIGCHI, 2013</p>
+
+<ul>
+<li><p><a href='http://groupware.les.inf.puc-rio.br/har' title=''>http://groupware.les.inf.puc-rio.br/har</a></p></li>
 <li><p><strong>Goal of Study</strong>: To provide feedback to weight-lifters using qualitative activity recognition</p></li>
 <li><p>The study involved six male subjects, all in their twenties and with little weight-lifting experience. The subjects were taught how to lift a dumb-bell correctly and how to perform the same movement in four incorrect ways. The Unilateral Dumbbell Bicep Curl was the lift that was taught to the subjects.</p></li>
 </ul>
 
 <img src='http://www.dumbbell-exercises.com/exercises/biceps/images/2.gif' title=''/>
 
-</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section">
+</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-1">
 
 <ul>
 <li><p>The five categories of lift data collected were:</p>
@@ -144,7 +149,7 @@
 </ul></li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-1">
+</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-2">
 
 <ul>
 <li><p>The subjects repeated each lift ten times and during each lift the researchers recorded a number of inertial measurements (IMUs) from sensors in the users&#39; glove, armband, lumbar belt, and dumbbell (these are pieces of equipment that are commonly used by weight lifters).</p></li>
@@ -169,7 +174,7 @@
 <li><p>We can think of classification trees as a game of 20 questions, where we ask different questions based on the answers to previous questions, and then at the end we make a guess based on all the answers.</p></li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-2">
+</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-3">
 
 <ul>
 <li><p>We can visualize a decision tree as a set of nodes (corresponding to true/false questions), each of which has two branches depending on the answer to the question.</p></li>
@@ -182,22 +187,15 @@
 <ul>
 <li><p><code>mat111survey</code> data set from the MAT 111 class (Elementary Probability and Statistics) is used</p></li>
 <li><p>Variables include:</p></li>
-<li>&quot;height&quot; * &quot;extra_life&quot;</li>
-<li>&quot;ideal_ht&quot; * &quot;seat&quot;</li>
-<li>&quot;sleep&quot; * &quot;GPA&quot;</li>
-<li>&quot;fastest&quot; * &quot;enough_Sleep&quot;</li>
-<li>&quot;weight_feel&quot; * &quot;sex&quot;</li>
-<li><p>&quot;love_first&quot; * &quot;diff.ideal.act.&quot;</p></li>
 </ul>
 
-</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-3">
-
-<p>This tree is used to predict the sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight.</p>
+<p>| height | extra_life | | &#8212;- | &#8212; | | ideal_ht | seat | | sleep | GPA | | fastest | enough_Sleep | | weight_feel | sex | |love_first | diff.ideal.act. |</p>
 
 </article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-4">
 
 <ul>
-<li>The R code for creating a classification tree:</li>
+<li><p>This tree is used to predict the sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight.</p></li>
+<li><p>The R code for creating a classification tree:</p></li>
 </ul>
 
 <pre >set.seed(2020)
@@ -216,7 +214,49 @@ m111s.tr &lt;- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
 
 Classification tree to predict sex in m111survey data
 
-</p></div></article></slide>
+</p></div>
+
+</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-6">
+
+<ul>
+<li><p>All classification trees have nodes</p></li>
+<li><p>The top node is referred to as the <em>root</em> node</p></li>
+<li><p>Nodes can either split into two <em>daughter</em> nodes (or leaves) or they can stop splitting</p></li>
+<li><p>A node that does not split any further is known as a <em>terminal</em> node</p></li>
+<li><p>In this tree example, the majority sex in each terminal node is given under the node. This tree can be used to predict if a new individual is male or female. All we have to do is ask YES or NO questions and follow the nodes to a terminal node.</p></li>
+</ul>
+
+</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-7">
+
+<p>Here is a more detailed output for the classification tree:</p>
+
+<pre >node), split, n, deviance, yval, (yprob)
+      * denotes terminal node
+
+1) root 70 96.120 female ( 0.5571 0.4429 )  
+  2) height &lt; 69.5 42 34.450 female ( 0.8571 0.1429 )  
+    4) GPA &lt; 3.225 18 22.910 female ( 0.6667 0.3333 )  
+      8) height &lt; 66.875 9  6.279 female ( 0.8889 0.1111 ) *
+      9) height &gt; 66.875 9 12.370 male ( 0.4444 0.5556 ) *
+    5) GPA &gt; 3.225 24  0.000 female ( 1.0000 0.0000 ) *
+  3) height &gt; 69.5 28 19.070 male ( 0.1071 0.8929 )  
+    6) weight_feel: 3_overweight 10 12.220 male ( 0.3000 0.7000 ) *
+    7) weight_feel: 1_underweight,2_about_right 18  0.000 male ( 0.0000 1.0000 ) *
+</pre>
+
+</article></slide><slide class=''><hgroup><h2></h2></hgroup><article  id="section-8">
+
+<p>We can fine tune the classification tree using the <code>tree.control</code> function</p>
+
+<pre >m111s.tr &lt;- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
+                 data=m111survey,
+                 control = tree.control(
+                   nobs = nrow(m111survey),
+                   mincut = 5,
+                   minsize = 10,
+                   mindev = 0.01
+                 ))
+</pre></article></slide>
 
 
   <slide class="backdrop"></slide>

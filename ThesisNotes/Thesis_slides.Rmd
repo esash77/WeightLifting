@@ -2,7 +2,7 @@
 title: "Untitled"
 author: "Elizabeth Ash"
 date: "April 12, 2016"
-output: ioslides_presentation
+output: beamer_presentation
 ---
 
 ```{r setup, include=FALSE}
@@ -45,9 +45,11 @@ predictions are made, and the model is revised as additional data becomes availa
 
 ## Background on Data Used
 
-- *Qualitative Activity Recognition of Weight Lifting Exercises*
+- The project data is associated with the following study:
 
-- Authors: Eduardo Velloso, Andreas Bulling, Hans Gellersen, Wallace Ugulino, and Hugo Fuks
+Velloso, E.; Bulling, A.; Gellersen, H.; Ugulino, W.; Fuks, H.: Qualitative Activity Recognition of Weight Lifting Exercises. Proceedings of 4th International Conference in Cooperation with SIGCHI (Augmented Human '13) . Stuttgart, Germany: ACM SIGCHI, 2013
+
+- http://groupware.les.inf.puc-rio.br/har
 
 - **Goal of Study**: To provide feedback to weight-lifters using qualitative activity recognition
   
@@ -104,12 +106,13 @@ predictions are made, and the model is revised as additional data becomes availa
 
 - Variables include:
 
-  * "height"          * "extra_life"
-  * "ideal_ht"        * "seat"
-  * "sleep"           * "GPA"
-  * "fastest"         * "enough_Sleep"
-  * "weight_feel"     * "sex"
-  * "love_first"      * "diff.ideal.act."
+| height | extra_life |
+| ---- | --- |
+| ideal_ht | seat |
+| sleep | GPA |
+| fastest | enough_Sleep |
+| weight_feel | sex |
+|love_first | diff.ideal.act. |
   
   
 ##

@@ -696,7 +696,37 @@ male        2   28  0.06666667
 This table shows us that for all the females in the data set, the random forest classified 37 correctly as female and only misclassified one female as male. Also, only two males were misclassified as females. 
 
 
-*This RF was constructed using only a training set. We only have the OOB error rate as an estimate of how it would do on new data. However, with the weight lifting data I will make a division into training and test sets.* 
+*This RF was constructed using only a training set. We only have the OOB error rate as an estimate of how it would do on new data. However, with the weight lifting data I will make a division into training and test sets.*
+
+
+## Computing Tools
+
+ For this project I use a variety of tools which include R, RStudio, Git, and GitHub.
+
+### Expansion on R-related Tools
+
+  R is a programming language and an open source statisical program software environment used for statistical computing. R provides a wide variety of statistical and graphical techniques. R is available as Free Software under the terms of the Free Software Foundation's GNU General Public License. It compiles and runs on a variety of systems, such as UNIX, Windows, and MacOS. 
+  
+To learn more about R and its contributors, please visit: https://www.r-project.org/. 
+
+  R Studio is a free and open source integrated development environment (IDE) for R. This is a programmer's tool to help make writing and formatting code an easier task. 
+  
+To learn more about RStudio, please visit: https://www.rstudio.com/.
+
+  I am using R Markdown, which is an authoring format that enables easy creation of dynamic documents, presentations, and reports from R. This document format is extremely useful for a statistical paper (which is what I will be working on this year), as it allows me to enter code chunks that are automatically executed as well as add figures, graphs, and charts. This format also allows me to save PDF, HTML, and Word versions of my document. However, this format is not very flexible when it comes to the aesthetics of the document. I cannot easily format my Bibliography nor do I know how to indent paragraphs because I am just beginning to use RMarkdown. If you require certain format for this paper, please understand that it will be very difficult with RMarkdown and I will probably not be able to focus on that until much later. 
+
+To learn more about R Markdown, please visit: http://rmarkdown.rstudio.com/.
+
+
+### Expansion on Git and GitHub
+
+  Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency. 
+  
+To learn more about Git, please visit: https://git-scm.com/.
+
+  GitHub is a web-based Git repository hosting service. It offers all of the distributed revision control and source code management (SCM) functionality of Git. Unlike Git, which is strictly a command-line tool, GitHub provides a web-based graphical interface and desktop. It also provides access control and several collaboration features such as bug tracking, feature requests, task management, and wikis for every project. GitHub offers both plans for private repositories and free accounts, which are usually used to host open-source software projects. 
+
+To learn more about GitHub, please visit: https://github.com/.
 
    
   
@@ -712,18 +742,22 @@ Many of the following steps for downloading and cleaning the data are taken from
 
 The main data, along with the examination data, can be downloaded from the web:
 
+>[http://groupware.les.inf.puc-rio.br/har](http://groupware.les.inf.puc-rio.br/har)
+
+Below is an example of the code used to download, read, and load a data file into R.
+
 ```{r eval = FALSE}
-wl <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv",
-                  stringsAsFactors = FALSE)
-wl_test <- read.csv("http://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv",
-                    stringsAsFactors = FALSE)
+weblink <- paste0("http://groupware.les.inf.puc-rio.br/static/WLE/",
+                  "WearableComputing_weight_lifting_exercises_biceps",
+                   "_curl_variations.csv")
+wl <- read.csv(weblink, stringsAsFactors = FALSE)
 save(wl, file = "data/wl.rda")
-save(wl_test, file = "data/wl_test.rda")
+
 ```
 
 ```{r echo = FALSE}
 load(file = "data/wl.rda")
-load(file = "data/wl_test.rda")
+
 ```
 
 
@@ -739,19 +773,37 @@ The main data set consists of 19622 observations on 160 variables, including:
 * 152 numerical measurements derived from the inertial measurement units (IMUs);
 * the variable `classe` that records the activity-type.
 
+Many of the variables can be removed because they are not actually useful as predictor variables. For this data set, the row-number variable `X`, the time-stamp variables, and the `new_window` variable are not particularly useful for predicting the lift motion. Also, for many of the variables the values are altogether missing. These variables appear to be summaries of other variables, such as averages and standard deviations. Although these summaries may have predictive value, it is difficult to see how to take advantage of this fact, so we will simply exclude all such variables from our training data. 
 
 
-**What variables do I actually want to eliminate?**
 The spurious variables can be eliminated from our data frame.  The code for this is as follows:
 
 ```{r}
-results_test <- sapply(wl_test, FUN = function(x) !all(is.na(x)))
-goodNames <- names(results_test[results_test])
-keepNames <- goodNames[-c(1,3,4,5,6,60)]
-wl2 <- wl[,keepNames]
-wl2$user_name <- factor(wl$user_name)
-wl2$classe <- factor(wl$classe)
-wn <- wl$num_window
+
+# This function determines which of the variables have values that are mostly assigned
+goodVar <- function(x){
+  mostly_assigned <- sum(is.na(x))/length(x) < 0.5
+  mostly_nonblank <- sum(x == "")/length(x) < 0.5
+  return(mostly_assigned && mostly_nonblank)
+}                   
+
+not_summary_variable <- sapply(wl, FUN = goodVar) # This keeps all the variables 
+                  # that do not have missing values
+
+goodNames <- names(not_summary_variable[not_summary_variable])
+
+keepNames <- goodNames[-c(1,3,4,5,6)] # This keeps all the useful variables in 
+                  # the data set and removes the extra variables that are 
+                  # not useful
+
+wl2 <- wl[,keepNames] # We will put all the variables we wish to keep into a new
+                  # data set so as to preserve the original data set
+
+wl2$user_name <- factor(wl$user_name) # Makes user_name and classe a factor variable 
+wl2$classe <- factor(wl$classe)     # because the randomForest function requires factors
+
+wn <- wl$num_window # I will want to separate my data into training and test sets based
+                  # on the num_window variable
 
 ```
 
@@ -770,18 +822,29 @@ Below is a function that has been written for easy separation. The arguments of 
    
   
 ```{r}
-### Function for separation by variable
+# Function for separation by variable
 
 partition_var <- function(data, var){
-  vals <- unique(var)
+  vals <- unique(var) # Creates an object of only the variable
+  
   n <- length(vals)
   m <- floor(2/3*n)
-  bools <- c(rep(TRUE,m), rep(FALSE,n-m)) 
-  inTrain <- sample(bools, size = n, replace = FALSE) 
-  trvals <- vals[inTrain]
-  vartr <- var %in% trvals ##vector of trues and falses
-  tr <- data[vartr,]
-  tst <- data[!vartr,]
+  
+  bools <- c(rep(TRUE,m), rep(FALSE,n-m))  # A booliean object that has m TRUE
+                      # values and n-m FALSE values
+  
+  inTrain <- sample(bools, size = n, replace = FALSE) # A random sample of the bools
+                      # with size n and no replacement
+  
+  trvals <- vals[inTrain] # Gives values to the list of TRUEs from the inTrain 
+                      # random sample. 
+  
+  vartr <- var %in% trvals # A vector of TRUEs and FALSEs
+  
+  tr <- data[vartr,] # Training data set
+  
+  tst <- data[!vartr,] # Test data set
+  
   return(list(tr, tst)) 
 }
 ```
@@ -843,11 +906,10 @@ kable (con1, caption = "Confusion matrix for Training Set")
 Test set error rate: 4.92%
 
 ```
-** I don't know how to make this look like the other table!**
 
 ```{r echo = FALSE}
 
-con2 <- rf$test["confusion"]
+con2 <- (rf$test["confusion"])
 kable(con2, caption = "Confusion matrix for Test Set")
 ```
 
@@ -858,7 +920,7 @@ kable(con2, caption = "Confusion matrix for Test Set")
 
 # Conclusions and Further Discussion
 
-## Analysis
+
 
 
 
