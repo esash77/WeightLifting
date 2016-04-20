@@ -1,5 +1,7 @@
 ---
-title: "Write up draft"
+title: "A Random Forest Model for Computer-Assisted-Activity-Recognition"
+author: "Elizabeth Ash"
+date: "May 5, 2016"
 output: 
   pdf_document: 
     fig_caption: yes
@@ -284,8 +286,6 @@ As you can see from the example, classification trees are easy to interpret and 
 As an aside, unfortunately, R has some round-off error. This is why the values calculated are slightly off from the summary.
 
 
-
-
 ## The Need for Test Sets
 
 A model should be able to be used to classify new data. Thus, it is important to have high model performance with new data. To have a model that performs well with new data it is important to divide the original data set into two new sets (training and test sets). The *training set* is used to build the model and the *test set* is new data that is used to measure the model's performance by being treated as new data. The model made with the training data will be tried out on the "new" test data. When the original data set is separated into the training and test sets, the simplest partition is a two-way random partition, careful to avoid introducing any systematic differences. In other words, the training set can be created by randomly selecting a portion of the data and the test set is created with the remaining points, i.e. training set is made with 20% of the data and the remaining 80% makes up the test set. 
@@ -557,6 +557,9 @@ The code for implementing a random forest:
 
 ```{r message = FALSE}
 set.seed(1010)
+  # set.seed() keeps the results of the code chunk the same. This
+  # is useful when reproducible results are desired.
+
 rf.sexm111 <- randomForest(sex~fastest+GPA+height+sleep+
                              weight_feel+
                              love_first+extra_life+ideal_ht+
@@ -773,40 +776,52 @@ The main data set consists of 19622 observations on 160 variables, including:
 * 152 numerical measurements derived from the inertial measurement units (IMUs);
 * the variable `classe` that records the activity-type.
 
-Many of the variables can be removed because they are not actually useful as predictor variables. For this data set, the row-number variable `X`, the time-stamp variables, and the `new_window` variable are not particularly useful for predicting the lift motion. Also, for many of the variables the values are altogether missing. These variables appear to be summaries of other variables, such as averages and standard deviations. Although these summaries may have predictive value, it is difficult to see how to take advantage of this fact, so we will simply exclude all such variables from our training data. 
+Many of the variables can be removed because they are not actually useful as predictor variables. For this data set, the row-number variable `X`, the time-stamp variables, and the `new_window` variable are not particularly useful for predicting the lift motion. Also, for many of the variables the values are altogether missing. These variables appear to be summaries of other variables, such as kurtosis, averages, maximums, minimums, skewness values, amplitude values, variances, and standard deviations. Although these summaries may have predictive value, it is difficult to see how to take advantage of this fact, so we will simply exclude all such variables from our training data. 
 
+*Note: Kurtosis is a measure of the "tailedness" of the probability distribution of a real-valued random variable (http://mathworld.wolfram.com/Kurtosis.html)*
+
+
+\newpage
 
 The spurious variables can be eliminated from our data frame.  The code for this is as follows:
 
 ```{r}
 
 # This function determines which of the variables have values that are mostly assigned
+
 goodVar <- function(x){
   mostly_assigned <- sum(is.na(x))/length(x) < 0.5
   mostly_nonblank <- sum(x == "")/length(x) < 0.5
   return(mostly_assigned && mostly_nonblank)
 }                   
 
-not_summary_variable <- sapply(wl, FUN = goodVar) # This keeps all the variables 
-                  # that do not have missing values
+not_summary_variable <- sapply(wl, FUN = goodVar) 
+  # This identifies all the variables 
+  # that do not have missing values.
 
 goodNames <- names(not_summary_variable[not_summary_variable])
 
-keepNames <- goodNames[-c(1,3,4,5,6)] # This keeps all the useful variables in 
-                  # the data set and removes the extra variables that are 
-                  # not useful
+keepNames <- goodNames[-c(1,3,4,5,6)] 
+  # This keeps all the useful variables in 
+  # the data set and removes the extra variables that are 
+  # not useful.
 
-wl2 <- wl[,keepNames] # We will put all the variables we wish to keep into a new
-                  # data set so as to preserve the original data set
+wl2 <- wl[,keepNames]
+  # All the variables we wish to keep will be put into a new
+  # data set so as to preserve the original data set.
 
-wl2$user_name <- factor(wl$user_name) # Makes user_name and classe a factor variable 
-wl2$classe <- factor(wl$classe)     # because the randomForest function requires factors
+wl2$user_name <- factor(wl$user_name) 
+wl2$classe <- factor(wl$classe)
+  # Makes user_name and classe a factor variable 
+  # because the randomForest function requires factors.
 
-wn <- wl$num_window # I will want to separate my data into training and test sets based
-                  # on the num_window variable
+wn <- wl$num_window 
+  # I will want to separate my data into training and test sets based
+  # on the num_window variable.
 
 ```
 
+\newpage
 
 ## Data Separation
 
@@ -817,35 +832,60 @@ Why not use all the data from the data set? Then more data will be available to 
 Since there are six subjects in the study, a total of 300 lifts were performed and recorded (each subject did 10 repetitions of the 5 lifts). However, during **each** lift the IMU measurements were gathered using a sliding window approach with different lengths (from 0.5 to 2.5 seconds), with a 0.5 second overlap. This resulted in a large data set (over 19,000 observations); a single observation in the data set corresponds to a specific time window for a specific subject performing one of the specified lifts. While the simplest division is to separate the original data set into training and test sets using a random partition (a typical separation), an expanded separation will be done to make the model more "honest". 
 
 I decided to separate my data by window number. In real life we test on a new lift. So, when we divide into test and training sets, we ideally want to keep individual lifts separate- no portion of a lift in the test and training set. Even though there is no way for us to tell when a new lift is beginning, we have the window number which provides long portions of a lift and allows for a separation with little cross-over.
-   
+  
+\newpage
+
 Below is a function that has been written for easy separation. The arguments of this function are the data set to be separated and the variable by which the separation will be done. I can then use this function to separate the weight lifting data set into training and test sets by the `num_window` variable.
    
-  
+
 ```{r}
-# Function for separation by variable
+# Function for separation by variable.
 
 partition_var <- function(data, var){
-  vals <- unique(var) # Creates an object of only the variable
+  vals <- unique(var) 
+    # Returns a vector that is the same as "var", but with
+    # duplicate elements removed.
   
-  n <- length(vals)
-  m <- floor(2/3*n)
+  n <- length(vals)  
+    # Gives the size of the "vals" vector.
   
-  bools <- c(rep(TRUE,m), rep(FALSE,n-m))  # A booliean object that has m TRUE
-                      # values and n-m FALSE values
+  m <- floor(2/3*n) 
+    # This will be used to help separate the data; 2/3 in a training set 
+    # and 1/3 in a test set.
   
-  inTrain <- sample(bools, size = n, replace = FALSE) # A random sample of the bools
-                      # with size n and no replacement
+  bools <- c(rep(TRUE,m), rep(FALSE,n-m))  
+    # A booliean object that has m TRUE
+    # values and n-m FALSE values. Thus it is the same size as "vals".
+    # This will be used later to help determine which rows of the 
+    # "var" data will be included in each set of separation.
+    # Since there are m TRUEs, 2/3 of the "vals" will be used in the
+    # training set and 1/3 will be used in the test set.
   
-  trvals <- vals[inTrain] # Gives values to the list of TRUEs from the inTrain 
-                      # random sample. 
+  inTrain <- sample(bools, size = n, replace = FALSE) 
+    # Since it is not good enough to just
+    # take the first 2/3 of the "bools" vector and put it into a training set,
+    # a random sample of the "bools" with size n and no replacement is 
+    # is taken. This includes the same information
+    # as "bools", but it has been all mixed up. 
   
-  vartr <- var %in% trvals # A vector of TRUEs and FALSEs
+  trvals <- vals[inTrain] 
+    # Gives values to the list of TRUEs from the inTrain 
+    # random sample. "trvals" includes the "vals" that had been labeled TRUE
+    # in the "inTrain" vector.
   
-  tr <- data[vartr,] # Training data set
+  vartr <- var %in% trvals 
+    # A vector of TRUEs and FALSEs. This will label which of the "var" values
+    # were TRUE in "trvals". 
   
-  tst <- data[!vartr,] # Test data set
+  tr <- data[vartr,] 
+    # Training data set- a data frame that includes rows of "vartr".
+  
+  tst <- data[!vartr,] 
+    # Test data set- a data frame that includes rows that are not in "vartr".
   
   return(list(tr, tst)) 
+    # Since an R function can only return one object, a list of the training and 
+    # test sets is returned.
 }
 ```
 
@@ -856,12 +896,18 @@ Now the data can be separated into the training and test sets and used for a ran
 
 ```{r cache = T}
 set.seed(2020)
-results <- partition_var(wl2, wn) # I put the num_window variable into a new object, wn 
+  # set.seed() keeps the results of the code chunk the same. This
+  # is useful when reproducible results are desired.
 
-wlTrain <- results[[1]] # Since 2 results are given (test and training set), 
-                        # the first result is the training set
+results <- partition_var(wl2, wn) 
+  # I put the num_window variable into a new object, wn 
 
-wlTest <- results[[2]]  # The second result is the test set
+wlTrain <- results[[1]] 
+  # Since 2 results are given (test and training set), 
+  # the first result is the training set
+
+wlTest <- results[[2]]  
+  # The second result is the test set
 
 rf <- randomForest(x = wlTrain[,1:53], y = wlTrain$classe, 
                    xtest = wlTest[,1:53], ytest = wlTest$classe)
@@ -889,10 +935,6 @@ Unsuprisingly, we used 500 classification trees to make up the random forest. Al
 
 Now, the error rates and confusion matrices are shown below:
 
-```
-OOB estimate of  error rate: 0.1%
-
-```
 
 ``` {r echo = FALSE}
 
@@ -900,12 +942,15 @@ con1 <- rf$confusion
 kable (con1, caption = "Confusion matrix for Training Set")
 ```
 
+
+```
+OOB estimate of  error rate: 0.1%
+
+```
+
 \newpage
 
-```
-Test set error rate: 4.92%
 
-```
 
 ```{r echo = FALSE}
 
@@ -913,16 +958,67 @@ con2 <- (rf$test["confusion"])
 kable(con2, caption = "Confusion matrix for Test Set")
 ```
 
+```
+Test set error rate: 4.92%
 
-**XXXXX What exactly does this mean? Explain**
+```
 
+For your reference, here is a list of the lift types:
+
+    * Class A: correct lift movement
+    * Class B: throwing the elbows to the front
+    * Class C: lifting the dumbbell only halfway
+    * Class D: lowering the dumbbell only halfway
+    * Class E: throwing the hips to the front
+
+
+Notice that very few misclassification errors are made on the training set- 13 errors out of thousands of classifications. However, when looking at the confusion matrix for the test set, many more errors are made. For example, in the first confusion matrix, the model only made 3 errors when classifying a lift as a Class C error (misclassified it as a Class B error). But in the second confusion matrix (test set) 3 Class C errors were misclassified as a correct lift, 134 were misclassified as a Class B error, 13 as a Class D error, and 3 as a Class E error. The classification rate is not as good for the test set as it is for the training set.
+
+However, this is not surprising. The classification trees for the random forest were grown using the data from the training set. Therefore, they had already "seen" that data and the trees made few errors. When the trees began predicting on the test data (data that they had not seen before) the misclassifications increase. Recall, the resubstitution error (error rate on the training set) is a bad predictor of performance on new data because the model was built to account for the training data. So, even though the error rate is worse when using the test set, it is in fact a better estimate on how this model would work on new lifts by the experiment subjects. 
 
 
 # Conclusions and Further Discussion
 
+Recall that Dr. White devised a random forest model to predict activity-type from the same variables used in my random forest model. The final model he constructed was estimated to be correct about 99.7% of the time. Dr. White built the model using observations from the same lifts as the observations for which the activity-type was predicted, and he recognized that this was not an optimal model for predicting lift type for the subjects should they return to the gym and perform new lifts. That is where my research project began; I wanted to build an "honest" predictive model to use in realistic circumstances.
+
+The main goal of this project was to find a model that could test accurately on new lifts. In essence, this goal was met. In real life, a model would have to be able to predict the lift classification using data gathered from new lifts by the subjects. Even though there is no way to tell when a new lift is beginning, the window number provides long portions of a lift and allows for a separation with little cross-over. This gives a good representation of what it would be like to test on new lifts. It was found separating by even part of a lift has an impact on the predictive model. 
+
+
+**XXXXX Further Discussion: test subject profiles; PCA; how to deal with a model that doesn't use a test subject**
 
 
 
 
+\newpage
+
+# Bibliography
+
+Amit, Yali; Geman, Donald (1997). *Shape quantization and recognition with randomized trees* (PDF). Neural         Computation 9 (7): 1545–1588. doi:10.1162/neco.1997.9.7.1545.
+
+Breiman, Leo, and Cutler, Adele. *Random Forests Leo Breiman and Adele Cutler.* Random Forests. 29 June 2007.      Web. 20 Sept. 2015. <https://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm#intro>
+
+Breiman, Leo. *Random Forests.* Machine Learning 45.1 (2001): 5-32. Web. 20 Sept. 2015.
+
+James, Gareth, Witten, Daniela, Hastie, Trevor and Tibshirani, Robert. *An Introduction to Statistical Learning     with Applications in R*. 2013. Print.
+
+Ho, Tin Kam (1995). *Random Decision Forests* (PDF). Proceedings of the 3rd International Conference on            Document Analysis and Recognition, Montreal, QC, 14–16 August 1995. pp. 278–282.
+
+Ho, Tin Kam (1998). *The Random Subspace Method for Constructing Decision Forests* (PDF). IEEE Transactions on      Pattern Analysis and Machine Intelligence 20 (8): 832–844. doi:10.1109/34.709601.
+
+Mitchell, Tom. M. 1997. *Machine Learning.* New York: McGraw-Hill.
+
+Steinberg, Dan. *Why Data Scientists Split Data into Train and Test.* Why Data Scientists Split Data into Train      and Test. 3 Mar. 2014. Web. 27 Sept. 2015.
+
+Velloso, Eduardo, Andreas Bulling, Hans Gellersen, Wallace Ugulino, and Hugo Fuks. *Qualitative Activity            Recognition of Weight Lifting Exercises.* Proceedings of the 4th Augmented Human International Conference      on - AH '13 (2015).
+
+White, Homer. *Predicting Movement-Types: Quick Model-Making with Random Forests.*                                  Https://github.com/homerhanumat/WeightLifting. 4 Aug. 2015. Web. 1 Sept. 2015.
+
+Witten, Ian H., and Eibe Frank. 2000. *Data Mining: Practical Machine Learing Tools and Techniques with Java        Implementations.* San Diego, CA: Morgan Kaufmann.
+
+Xie, Yihui. *Dynamic Documents with R and knitr*. 2014. Print.
+
+http://mathworld.wolfram.com/Kurtosis.html
+
+https://en.wikipedia.org/wiki/Random_forest
 
 
