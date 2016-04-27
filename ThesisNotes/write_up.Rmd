@@ -51,6 +51,8 @@ The article *Qualitative Activity Recognition of Weight Lifting Exercises* descr
 The subjects repeated each lift ten times and during each lift the researchers recorded a number of inertial measurements from sensors in the users' glove, armband, lumbar belt, and dumbbell (these are pieces of equipment that are commonly used by weight lifters). These measurements make up the predictors that the researchers used when determing a correct or incorrect lift. The sensors recorded several data points throughout the lifting motion and the final data set includes 160 variables. Some of the variables included are: user_name, num_window, yaw_belt, pitch_belt, and total_accel_belt. 
 
 The aim of this report is to build a predictive model that can be used in realistic circumstances built on the data from the Velloso et al study. 
+
+\newpage
   
 # Methods
 
@@ -163,14 +165,15 @@ where:
   * $p_{k}$ is the proportion of a certain type in node k
 
 *Recall: $\ln{x}$ is the natural logarithm of the value x*
+
 *Note: When $p_{k}$ = 0 the entire term is defined as 0*
 
+
+\newpage
 
 For example, the deviance for any node of this classification tree would be found in the following way:
 
 $$D = -2[(n_{1}\ln(p_{1})) + (n_{2}\ln(p_{2}))]$$
-
-\newpage
 
 where:
 
@@ -209,6 +212,9 @@ Females = $\texttt{18}\times\texttt{0.6667}$ = 12
 
 Males = $\texttt{18}\times\texttt{0.3333}$ = 6
 
+
+
+\newpage
 
 Let's verify the deviance given for this node using our formula.
 
@@ -283,7 +289,7 @@ The final output given by the classification tree summary is the misclassificati
 
 As you can see from the example, classification trees are easy to interpret and fairly good predictions can be made from them. In this example, the misclassification error rate is about 11.4%. This means that 8 out of 70 observations were misclassified. However, the tree is looking at correct answers that were given. If this classification tree were given new data, the error rate would most likely be much worse.
 
-As an aside, unfortunately, R has some round-off error. This is why the values calculated are slightly off from the summary.
+Unfortunately, R has some round-off error. This is why the values calculated are slightly off from the summary.
 
 
 ## The Need for Test Sets
@@ -305,8 +311,6 @@ Even though Breiman and Cutler created the algorithm for random forests, the con
 A random forest package was published for R by Andy Liaw and Matthew Wiener, based on original Fortran code by Leo Breiman and Adele Cutler. The following links to a PDF document for further information on the `randomForest` R package:
 
 https://cran.r-project.org/web/packages/randomForest/randomForest.pdf
-
-\newpage
 
 
 ### How Random Forests Work
@@ -364,7 +368,12 @@ I have made a list of 100 numbers and taken a random sample from the original li
 
 ```
 
-Notice that some of the numbers have been repeated and some numbers are missing. We can have the computer look at the numbers we are missing and the numbers that are included in the random sample. Below is a table showing the numbers that are missing from the random sample:
+Notice that some of the numbers have been repeated and some numbers are missing. We can have the computer look at the numbers we are missing and the numbers that are included in the random sample. 
+
+
+\newpage
+
+Below is a table showing the numbers that are missing from the random sample:
 
 ```{r echo = FALSE}
 ng2 <- as.character(notGot)
@@ -405,7 +414,6 @@ gmat <- matrix(got2, nrow = 6, ncol = 11, byrow = TRUE)
 
 Notice that 35 numbers are missing from the new list, which is 35% of the data. 
 
-\newpage
 
 Why don't we take another sample of 100?
 
@@ -510,9 +518,6 @@ nummat2 <- matrix(nums, nrow = 2, ncol = 5, byrow = TRUE)
 
 ```
 
-\newpage
-
-
 Below is the computation done by R to show the value of $\frac{1}{e}$:
 
 ```{r echo = FALSE}
@@ -582,6 +587,9 @@ The final argument used in this example is `ntree`, which is the number of trees
 
 The random forest is put into an object,`rf.sexm111`, thay way we don't have to write out all the components every time we want to implement the random forest. Also, `set.seed` is used to reproduce the results of the random forest output. In other words, each time the code is executed the results will be the same.
 
+
+\newpage
+
 Now that the code has been written out, we can take a look at the results. Below is the output given by running the random forest code:
 
 ```
@@ -631,7 +639,10 @@ Number of trees: 500
 
 ```
 
+
 We can actually look at some of the individual trees constructed for the random forest and see some of the differences between them:
+
+\newpage
 
 ```{r echo = FALSE}
 
@@ -643,7 +654,7 @@ kable(st1, caption = "Tree 1 made by the Random Forest")
 
 The *left daughter (LD)* and the *right daughter (RD)* are the two nodes that are made by a division. The *split var* is the variable for which the division was made. The *split point* is the point where the split was made. The *status* shows if more divisions will be made (1) or if a node is terminal (-1). And then the final column shows the prediction of a terminal node. This is true for the two other tables shown below. 
 
-\newpage
+
 
 ```{r echo = FALSE}
 
@@ -653,6 +664,8 @@ kable(st2, caption = "Tree 250 made by the Random Forest")
 
 ```
 
+
+\newpage
 
 ```{r echo = FALSE}
 
@@ -702,6 +715,8 @@ This table shows us that for all the females in the data set, the random forest 
 *This RF was constructed using only a training set. We only have the OOB error rate as an estimate of how it would do on new data. However, with the weight lifting data I will make a division into training and test sets.*
 
 
+\newpage
+
 ## Computing Tools
 
  For this project I use a variety of tools which include R, RStudio, Git, and GitHub.
@@ -731,7 +746,8 @@ To learn more about Git, please visit: https://git-scm.com/.
 
 To learn more about GitHub, please visit: https://github.com/.
 
-   
+
+\newpage
   
 # Results
 
@@ -778,7 +794,7 @@ The main data set consists of 19622 observations on 160 variables, including:
 
 Many of the variables can be removed because they are not actually useful as predictor variables. For this data set, the row-number variable `X`, the time-stamp variables, and the `new_window` variable are not particularly useful for predicting the lift motion. Also, for many of the variables the values are altogether missing. These variables appear to be summaries of other variables, such as kurtosis, averages, maximums, minimums, skewness values, amplitude values, variances, and standard deviations. Although these summaries may have predictive value, it is difficult to see how to take advantage of this fact, so we will simply exclude all such variables from our training data. 
 
-*Note: Kurtosis is a measure of the "tailedness" of the probability distribution of a real-valued random variable (http://mathworld.wolfram.com/Kurtosis.html)*
+*Note: Kurtosis is a measure of the "tailedness" of the probability distribution of a real-valued random variable* (http://mathworld.wolfram.com/Kurtosis.html) 
 
 
 \newpage
@@ -954,7 +970,7 @@ OOB estimate of  error rate: 0.1%
 
 ```{r echo = FALSE}
 
-con2 <- (rf$test["confusion"])
+con2 <- (rf$test["confusion"]$confusion)
 kable(con2, caption = "Confusion matrix for Test Set")
 ```
 
@@ -972,19 +988,302 @@ For your reference, here is a list of the lift types:
     * Class E: throwing the hips to the front
 
 
-Notice that very few misclassification errors are made on the training set- 13 errors out of thousands of classifications. However, when looking at the confusion matrix for the test set, many more errors are made. For example, in the first confusion matrix, the model only made 3 errors when classifying a lift as a Class C error (misclassified it as a Class B error). But in the second confusion matrix (test set) 3 Class C errors were misclassified as a correct lift, 134 were misclassified as a Class B error, 13 as a Class D error, and 3 as a Class E error. The classification rate is not as good for the test set as it is for the training set.
+Notice that very few misclassification errors are made on the training set---13 errors out of thousands of classifications. However, when looking at the confusion matrix for the test set, many more errors are made. For example, in the first confusion matrix, the model only made 3 errors when classifying a lift as a Class C error (misclassified it as a Class B error). The overall class error rate for C is about 0.1%. But in the second confusion matrix (test set) 3 Class C errors were misclassified as a correct lift, 134 were misclassified as a Class B error, 13 as a Class D error, and 3 as a Class E error. Overall, the class error rate for C is about 11%. The classification rate is not as good for the test set as it is for the training set.
 
-However, this is not surprising. The classification trees for the random forest were grown using the data from the training set. Therefore, they had already "seen" that data and the trees made few errors. When the trees began predicting on the test data (data that they had not seen before) the misclassifications increase. Recall, the resubstitution error (error rate on the training set) is a bad predictor of performance on new data because the model was built to account for the training data. So, even though the error rate is worse when using the test set, it is in fact a better estimate on how this model would work on new lifts by the experiment subjects. 
+However, this is not surprising. The classification trees for the random forest were grown using the data from the training set. They predicted on the same window numbers that they were trained on. Therefore, they had already "seen" the window numbers and the trees made few errors because of it. When the trees began predicting on the test data the misclassifications increase. Recall, the resubstitution error (error rate on the training set) is a bad predictor of performance on new data because the model was built to account for the training data. So, even though the error rate is worse when using the test set, it is in fact a better estimate on how this model would work on new lifts by the experiment subjects. 
 
+
+\newpage
 
 # Conclusions and Further Discussion
 
 Recall that Dr. White devised a random forest model to predict activity-type from the same variables used in my random forest model. The final model he constructed was estimated to be correct about 99.7% of the time. Dr. White built the model using observations from the same lifts as the observations for which the activity-type was predicted, and he recognized that this was not an optimal model for predicting lift type for the subjects should they return to the gym and perform new lifts. That is where my research project began; I wanted to build an "honest" predictive model to use in realistic circumstances.
 
-The main goal of this project was to find a model that could test accurately on new lifts. In essence, this goal was met. In real life, a model would have to be able to predict the lift classification using data gathered from new lifts by the subjects. Even though there is no way to tell when a new lift is beginning, the window number provides long portions of a lift and allows for a separation with little cross-over. This gives a good representation of what it would be like to test on new lifts. It was found separating by even part of a lift has an impact on the predictive model. 
+The main goal of this project was to find a model that could test accurately on new lifts. In essence, this goal was met. In real life, a model would have to be able to predict the lift classification using data gathered from new lifts by the subjects. Even though there is no way to tell when a new lift is beginning, the window number provides long portions of a lift and allows for a separation with little cross-over. This gives a good representation of what it would be like to test on new lifts. The model was less accurate because we are testing on different parts of the lift than before. If a way to separate the data by complete window numbers, then I would suspect that the model would do even worse. But, it would be an even more realistic estimation.
+Thus, it was found separating by even part of a lift has an impact on the predictive model. 
 
 
-**XXXXX Further Discussion: test subject profiles; PCA; how to deal with a model that doesn't use a test subject**
+## Further Discussion
+
+The model in this project is a more "realistic" model than Dr. White's original model, but it is used for classifying new lift types from the same subjects. It is not a very good model for predicting the lift types of new subjects. We can get a feel for how the model would predict on new subjects by creating a model where 5 of the test subjects are used as training data and 1 subject is used as test data. This would give 6 different random forest models (since there are 6 subjects). However, this model would most likely give horrible results.
+
+The plan to implement this idea is as follows:
+
+  * Use all of the data (training and test combined).
+  * Divide it into six folds. Each fold will contains all of the observations pertaining to a particular subject.
+  * For each subject, build a 500-tree random forest on the other five subjects, then test it on the fold for the subject.
+  * We will NOT use user_name to build our forests.
+  * We'll get six sets of error-rates. These will give us some idea of how a model built on our six subjects might do for a new subject.
+  
+
+
+Here is the first random forest. The data from the subject Adelmo will be the test set.
+
+```{r cache = TRUE}
+
+set.seed(3030)
+subjects <- levels(wl2$user_name)
+
+Sub1 <- wl2[wl2$user_name == subjects[1], ]
+OtherSubs1 <- wl2[wl2$user_name != subjects[1], ]
+forest1 <- randomForest(x = OtherSubs1[, 2:53], y = OtherSubs1$classe,
+                               xtest = Sub1[, 2:53], ytest = Sub1$classe,
+                               ntree = 500)
+
+
+```
+
+
+\newpage
+
+```
+Call:
+  randomForest(x = OtherSubs1[, 2:53], y = OtherSubs1$classe, 
+      xtest = Sub1[, 2:53], ytest = Sub1$classe, ntree = 500) 
+               
+Type of random forest: classification
+
+Number of trees: 500
+
+No. of variables tried at each split: 7
+
+```
+
+
+``` {r echo = FALSE}
+
+conf1_tr <- forest1$confusion
+kable (conf1_tr, caption = "Confusion matrix for Training Set")
+```
+
+```
+OOB estimate of  error rate: 0.14%
+
+```
+
+
+```{r echo = FALSE}
+
+conf1_tst <- (forest1$test["confusion"]$confusion)
+kable(conf1_tst, caption = "Confusion matrix for Test Set-Adelmo")
+```
+
+
+
+```
+Test set error rate: 81.55%
+
+```
+
+
+
+Since the call for the random forest is similar for all subjects and the type of trees used, the number of trees used, and the number of variables tried at each split are the same, only the confusion matrices will be shown for the rest of the random forests.
+ 
+The next random forest uses the data from Carlitos as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3131)
+
+Sub2 <- wl2[wl2$user_name == subjects[2], ]
+OtherSubs2 <- wl2[wl2$user_name != subjects[2], ]
+forest2 <- randomForest(x = OtherSubs2[, 2:53], y = OtherSubs2$classe,
+                               xtest = Sub2[, 2:53], ytest = Sub2$classe,
+                               ntree = 500)
+
+
+```
+
+
+```{r echo = FALSE}
+conf2_tr <- forest2$confusion
+kable (conf2_tr, caption = "Confusion matrix for Training Set")
+```
+
+```
+OOB estimate of  error rate: 0.12%
+
+```
+
+```{r echo = FALSE}
+
+conf2_tst <- (forest2$test["confusion"]$confusion)
+kable(conf2_tst, caption = "Confusion matrix for Test Set-Carlitos")
+```
+
+```
+Test set error rate: 50.26%
+
+```
+
+
+The next random forest uses the data from Charles as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3232)
+
+Sub3 <- wl2[wl2$user_name == subjects[3], ]
+OtherSubs3 <- wl2[wl2$user_name != subjects[3], ]
+forest3 <- randomForest(x = OtherSubs3[, 2:53], y = OtherSubs3$classe,
+                               xtest = Sub3[, 2:53], ytest = Sub3$classe,
+                               ntree = 500)
+
+
+```
+
+
+```{r echo = FALSE}
+conf3_tr <- forest3$confusion
+kable (conf3_tr, caption = "Confusion matrix for Training Set")
+```
+
+```
+OOB estimate of  error rate: 0.11%
+
+```
+
+\newpage
+
+```{r echo = FALSE}
+
+conf3_tst <- (forest3$test["confusion"]$confusion)
+kable(conf3_tst, caption = "Confusion matrix for Test Set-Charles")
+```
+
+```
+Test set error rate: 45.25%
+
+```
+
+
+
+The next random forest uses the data from Eurico as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3333)
+
+Sub4 <- wl2[wl2$user_name == subjects[4], ]
+OtherSubs4 <- wl2[wl2$user_name != subjects[4], ]
+forest4 <- randomForest(x = OtherSubs4[, 2:53], y = OtherSubs4$classe,
+                               xtest = Sub4[, 2:53], ytest = Sub4$classe,
+                               ntree = 500)
+
+
+```
+
+
+
+```{r echo = FALSE}
+conf4_tr <- forest4$confusion
+kable (conf4_tr, caption = "Confusion matrix for Training Set")
+```
+
+
+```
+OOB estimate of  error rate: 0.16%
+
+```
+
+```{r echo = FALSE}
+
+conf4_tst <- (forest4$test["confusion"]$confusion)
+kable(conf4_tst, caption = "Confusion matrix for Test Set-Eurico")
+```
+
+```
+Test set error rate: 78.7%
+
+```
+
+
+\newpage
+
+
+The next random forest uses the data from Jeremy as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3434)
+
+Sub5 <- wl2[wl2$user_name == subjects[5], ]
+OtherSubs5 <- wl2[wl2$user_name != subjects[5], ]
+forest5 <- randomForest(x = OtherSubs5[, 2:53], y = OtherSubs5$classe,
+                               xtest = Sub5[, 2:53], ytest = Sub5$classe,
+                               ntree = 500)
+
+
+```
+
+
+
+```{r echo = FALSE}
+conf5_tr <- forest5$confusion
+kable (conf5_tr, caption = "Confusion matrix for Training Set")
+```
+
+
+```
+OOB estimate of  error rate: 0.14%
+
+```
+
+```{r echo = FALSE}
+
+conf5_tst <- (forest5$test["confusion"]$confusion)
+kable(conf5_tst, caption = "Confusion matrix for Test Set-Jeremy")
+```
+
+
+```
+Test set error rate: 53.62%
+
+```
+
+
+The final random forest uses the data from Pedro as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3535)
+
+Sub6 <- wl2[wl2$user_name == subjects[6], ]
+OtherSubs6 <- wl2[wl2$user_name != subjects[6], ]
+forest6 <- randomForest(x = OtherSubs6[, 2:53], y = OtherSubs6$classe,
+                               xtest = Sub6[, 2:53], ytest = Sub6$classe,
+                               ntree = 500)
+
+
+```
+
+
+\newpage
+
+```{r echo = FALSE}
+conf6_tr <- forest6$confusion
+kable (conf6_tr, caption = "Confusion matrix for Training Set")
+```
+
+
+```
+OOB estimate of  error rate: 0.13%
+
+```
+
+```{r echo = FALSE}
+
+conf6_tst <- (forest6$test["confusion"]$confusion)
+kable(conf6_tst, caption = "Confusion matrix for Test Set-Pedro")
+```
+
+```
+Test set error rate: 79.5%
+
+```
+
+
+Notice that the error rates for all of the forests are quite terrible when they predict on a new subject. This model probably would not be good to use on new subjects. 
 
 
 
