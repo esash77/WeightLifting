@@ -19,6 +19,33 @@ library(tree)
 library(tigerstats)
 ```
 
+\newpage
+
+First Reader: Dr. Homer White
+
+
+***
+
+&nbsp;
+&nbsp;
+
+Second Reader: Dr. David Bowman
+
+
+***
+
+\newpage
+
+\begin{center}
+
+Abstract
+
+\end{center}
+
+
+> We use predictive models to create a statistical model of future behavior. In particular, we examine how well a random forest predictive model would predict the classification of a new lift by the same experimental subjects. We separate the data into training and test sets using the variable `num_window` to ensure that a single lift is not in both sets. We find that a random forest model can accurately and 'honestly' predict the classifications of the weight lift type performed by the experimental subjects.
+
+
 
 \newpage
 
@@ -328,7 +355,7 @@ A second important difference between random forest classification trees and reg
 
 [Note: There is a `treesize` package that controls tree size in regular classification trees. There is also a `randomForest` package argument that controls the tree size in the random forest classification trees- `nodesize`]
 
-Thus, larger trees are grown because the terminal nodes can have a minimum of 1 object. This overgrowing of classification trees allows for great variability in the classification trees. Most of the classification trees will not be able to make predictions well on new data. In fact, many will have strange results. Even though an individual overgrown tree may closely describe the training data, the tree will not give good results on new data because it are tracking chance variation as pattern. However, putting together all the trees can actually give good results. The trees are all tracking chance variation in different directions and by putting them together the extreme results can be "cancelled out". 
+Thus, larger trees are grown because the terminal nodes can have a minimum of 1 object. This overgrowing of classification trees allows for great variability in the classification trees. Most of the classification trees will not be able to make predictions well on new data. In fact, many will have strange results. Even though an individual overgrown tree may closely describe the training data, the tree will not give good results on new data because it is tracking chance variation as pattern. However, putting together all the trees can actually give good results. The trees are all tracking chance variation in different directions and by putting them together the extreme results can be "cancelled out". 
 
 #### Tree Building
 
@@ -1007,6 +1034,10 @@ Thus, it was found separating by even part of a lift has an impact on the predic
 
 The model in this project is a more "realistic" model than Dr. White's original model, but it is used for classifying new lift types from the same subjects. It is not a very good model for predicting the lift types of new subjects. We can get a feel for how the model would predict on new subjects by creating a model where 5 of the test subjects are used as training data and 1 subject is used as test data. This would give 6 different random forest models (since there are 6 subjects). However, this model would most likely give horrible results.
 
+
+### A Look at How This Model Would Work on New Subjects
+
+
 The plan to implement this idea is as follows:
 
   * Use all of the data (training and test combined).
@@ -1286,6 +1317,75 @@ Test set error rate: 79.5%
 Notice that the error rates for all of the forests are quite terrible when they predict on a new subject. This model probably would not be good to use on new subjects. 
 
 
+### A Look at Principal Component Analysis
+
+Principal component analysis (PCA) is a useful tool for describing data. *Principal component analysis* refers to the statistical procedure that uses an orthogonal (perpendicular) transformation to convert a set of observations of possibly correlated variables into a set of values of linearly uncorrelated variables called principal **components**. This transformation is defined in such a way that the first principal component has the largest possible variance (that is, accounts for as much of the variability in the data as possible), and each succeeding component in turn has the highest variance possible under the constraint that it is orthogonal to the preceding components (James, et. al, 2013). In other words, PCA transforms the data into a new, lower-dimensional subspace—-into a new coordinate system. In the new coordinate system, the first axis corresponds to the first principal component, which is the component that explains the greatest amount of the variance in the data. The number of principal components is less than or equal to the number of original variables. 
+
+A simple example may be helpful in demonstrating what PCA accomplishes.
+
+
+Suppose we have a data set with only two variables. 
+
+![Dataset with two variables, x1 and x2](http://www.lauradhamilton.com/posts/2014/pca-original-dataset.png)
+
+
+Now, we want to identify the first principal component that explains the highest amount of variance. Graphically, if a line is drawn that splits the oval lengthwise, that line signifies the component that explains the most variance:
+
+![Finding the first principal component](http://www.lauradhamilton.com/posts/2014/pca-first-principal-component.png)
+
+\newpage
+
+To find the second principal component, we find a second line that explain the next highest amount of variance. This must be orthogonal to the first principal component. The second principal component attempts to capture the variance that is not captured by the first principal component. 
+
+![Finding the second principal component](http://www.lauradhamilton.com/posts/2014/pca-second-principal-component.png)
+
+As you can see, the two principal components are orthogonal and capture the elements of the data set. 
+
+\newpage
+
+Thus, if PCA was performed on this dataset and the original dataset was projected onto the first two principal components, then no information would be lost. (A two-dimensional dataset is being transformed to a new two-dimensional dataset.)  Since there are only two variables in the dataset, there can only be two principal components. Below is what the original dataset projected onto the principal components looks like. 
+
+![Original dataset projected onto the principal components](http://www.lauradhamilton.com/posts/2014/pca-projected-to-two-dimensions.png)
+
+\newpage
+
+For the weight lifting data set, we will look at the principal components (using commands from the `FactoMineR` package).
+
+```{r}
+
+wl.pc <- PCA(wlTrain[, -c(1,2,55)], graph = FALSE)
+# This command runs PCA on the training set. Three variables have
+# been removed- `user_name`, `num_window`, and `classe`. The predictors
+# must be numerical in order to perform PCA, which is why `user_name` 
+# and `classe` were removed. The window numbers were removed because they 
+# do not contribute to any variance, they are just markers for new lifts.
+```
+
+```{r echo = FALSE}
+kable(wl.pc$eig[1:10, 2:3], caption = "The first ten principal components and the percentage of variance that each contributes.") 
+
+```
+
+
+Apparently, the first five components contribute to a little more than half of the variance in our numerical predictors. The first ten principal components contribute about 76% of the variance.
+
+The next plot shows some of the most important variables plotted against the first two principal components.  These variables would be the ones that are best at spreading out the data.  
+
+```{r fig.cap = "The plotting dimensions are determined by the first two principal compnents.  The labeled variables are the five that are 'closest' to the plane of the these components."}
+
+plot(wl.pc, choix = "var", select = "cos2 5")
+# Draws the Multiple Correspondence Analysis (MCA) graphs.
+# wl.pc is the object we want to use for the plot. "var" tells the 
+# function to graph the variables. The select argument can be used in 
+# order to select a part of the elements (individuals if you draw the 
+# graph of individuals, or variables if you draw the graph of variables)
+# that are drawn. select = "cos2 5" and then the 5 elements that
+# have the highest cos2 on the 2 dimensions of your plot are drawn.
+
+```
+
+
+
 
 
 \newpage
@@ -1299,6 +1399,8 @@ Breiman, Leo, and Cutler, Adele. *Random Forests Leo Breiman and Adele Cutler.* 
 Breiman, Leo. *Random Forests.* Machine Learning 45.1 (2001): 5-32. Web. 20 Sept. 2015.
 
 James, Gareth, Witten, Daniela, Hastie, Trevor and Tibshirani, Robert. *An Introduction to Statistical Learning     with Applications in R*. 2013. Print.
+
+Hamiltion, Laura D. *Introduction to Principal Component Analysis.* Introduction to Principal Component Analysis (PCA) -. N.p., 2 Nov. 2014
 
 Ho, Tin Kam (1995). *Random Decision Forests* (PDF). Proceedings of the 3rd International Conference on            Document Analysis and Recognition, Montreal, QC, 14–16 August 1995. pp. 278–282.
 
