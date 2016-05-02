@@ -10,6 +10,7 @@ output:
     toc_depth: 4
 ---
 
+
 ```{r include = FALSE}
 library(FactoMineR)
 library(randomForest)
@@ -1319,7 +1320,7 @@ Notice that the error rates for all of the forests are quite terrible when they 
 
 ### A Look at Principal Component Analysis
 
-Principal component analysis (PCA) is a useful tool for describing data. *Principal component analysis* refers to the statistical procedure that uses an orthogonal (perpendicular) transformation to convert a set of observations of possibly correlated variables into a set of values of linearly uncorrelated variables called principal **components**. This transformation is defined in such a way that the first principal component has the largest possible variance (that is, accounts for as much of the variability in the data as possible), and each succeeding component in turn has the highest variance possible under the constraint that it is orthogonal to the preceding components (James, et. al, 2013). In other words, PCA transforms the data into a new, lower-dimensional subspace—-into a new coordinate system. In the new coordinate system, the first axis corresponds to the first principal component, which is the component that explains the greatest amount of the variance in the data. The number of principal components is less than or equal to the number of original variables. 
+Principal component analysis (PCA) is a useful tool for describing data. *Principal component analysis* refers to the statistical procedure that uses an orthogonal (perpendicular) transformation to convert a set of observations of possibly correlated variables into a set of values of linearly uncorrelated variables called principal **components**. This transformation is defined in such a way that the first principal component has the largest possible variance (that is, accounts for as much of the variability in the data as possible), and each succeeding component in turn has the highest variance possible under the constraint that it is orthogonal to the preceding components (James, et. al, 2013). In other words, PCA transforms the data into a new, lower-dimensional subspace--into a new coordinate system. In the new coordinate system, the first axis corresponds to the first principal component, which is the component that explains the greatest amount of the variance in the data. The number of principal components is less than or equal to the number of original variables. 
 
 A simple example may be helpful in demonstrating what PCA accomplishes.
 
@@ -1353,7 +1354,7 @@ For the weight lifting data set, we will look at the principal components (using
 
 ```{r}
 
-wl.pc <- PCA(wlTrain[, -c(1,2,55)], graph = FALSE)
+wl.pca <- PCA(wlTrain[, -c(1,2,55)], graph = FALSE)
 # This command runs PCA on the training set. Three variables have
 # been removed- `user_name`, `num_window`, and `classe`. The predictors
 # must be numerical in order to perform PCA, which is why `user_name` 
@@ -1362,7 +1363,7 @@ wl.pc <- PCA(wlTrain[, -c(1,2,55)], graph = FALSE)
 ```
 
 ```{r echo = FALSE}
-kable(wl.pc$eig[1:10, 2:3], caption = "The first ten principal components and the percentage of variance that each contributes.") 
+kable(wl.pca$eig[1:10, 2:3], caption = "The first ten principal components and the percentage of variance that each contributes.") 
 
 ```
 
@@ -1373,7 +1374,7 @@ The next plot shows some of the most important variables plotted against the fir
 
 ```{r fig.cap = "The plotting dimensions are determined by the first two principal compnents.  The labeled variables are the five that are 'closest' to the plane of the these components."}
 
-plot(wl.pc, choix = "var", select = "cos2 5")
+plot(wl.pca, choix = "var", select = "cos2 5")
 # Draws the Multiple Correspondence Analysis (MCA) graphs.
 # wl.pc is the object we want to use for the plot. "var" tells the 
 # function to graph the variables. The select argument can be used in 
@@ -1384,8 +1385,7 @@ plot(wl.pc, choix = "var", select = "cos2 5")
 
 ```
 
-
-
+We can also look at the first three principal components and get a 3-dimensional cloud for each subject. 
 
 
 \newpage
