@@ -1,5 +1,5 @@
 ---
-title: "A Random Forest Model for Computer-Assisted-Activity-Recognition"
+title: "A Random Forest Model for Computer-Assisted Activity-Recognition"
 author: "Elizabeth Ash"
 date: "May 5, 2016"
 output: 
@@ -47,8 +47,8 @@ Abstract
 > We use predictive models to create a statistical model of future behavior. In particular, we examine how well a random forest predictive model would predict the classification of a new lift by the same experimental subjects. We separate the data into training and test sets using the variable `num_window` to ensure that a single lift is not in both sets. We find that a random forest model can accurately and 'honestly' predict the classifications of the weight lift type performed by the experimental subjects.
 
 
-
 \newpage
+
 
 # Introduction and Overview
 
@@ -1322,7 +1322,7 @@ Notice that the error rates for all of the forests are quite terrible when they 
 
 Principal component analysis (PCA) is a useful tool for describing data. *Principal component analysis* refers to the statistical procedure that uses an orthogonal (perpendicular) transformation to convert a set of observations of possibly correlated variables into a set of values of linearly uncorrelated variables called principal **components**. This transformation is defined in such a way that the first principal component has the largest possible variance (that is, accounts for as much of the variability in the data as possible), and each succeeding component in turn has the highest variance possible under the constraint that it is orthogonal to the preceding components (James, et. al, 2013). In other words, PCA transforms the data into a new, lower-dimensional subspace--into a new coordinate system. In the new coordinate system, the first axis corresponds to the first principal component, which is the component that explains the greatest amount of the variance in the data. The number of principal components is less than or equal to the number of original variables. 
 
-A simple example may be helpful in demonstrating what PCA accomplishes.
+A simple example may be helpful in demonstrating what PCA accomplishes (Hamilton, 2014).
 
 
 Suppose we have a data set with only two variables. 
@@ -1340,11 +1340,11 @@ To find the second principal component, we find a second line that explain the n
 
 ![Finding the second principal component](http://www.lauradhamilton.com/posts/2014/pca-second-principal-component.png)
 
-As you can see, the two principal components are orthogonal and capture the elements of the data set. 
+As you can see in Figure 4, the two principal components are orthogonal and capture the elements of the data set. 
 
 \newpage
 
-Thus, if PCA was performed on this dataset and the original dataset was projected onto the first two principal components, then no information would be lost. (A two-dimensional dataset is being transformed to a new two-dimensional dataset.)  Since there are only two variables in the dataset, there can only be two principal components. Below is what the original dataset projected onto the principal components looks like. 
+Thus, if PCA was performed on this dataset and the original dataset was projected onto the first two principal components, then no information would be lost. (A two-dimensional dataset is being transformed to a new two-dimensional dataset.)  Since there are only two variables in the dataset, there can only be two principal components. Figure 5 shows what the original dataset projected onto the principal components looks like. 
 
 ![Original dataset projected onto the principal components](http://www.lauradhamilton.com/posts/2014/pca-projected-to-two-dimensions.png)
 
@@ -1354,7 +1354,7 @@ For the weight lifting data set, we will look at the principal components (using
 
 ```{r}
 
-wl.pca <- PCA(wlTrain[, -c(1,2,55)], graph = FALSE)
+wl.pca <- PCA(wl2[, -c(1,2,55)], graph = FALSE)
 # This command runs PCA on the training set. Three variables have
 # been removed- `user_name`, `num_window`, and `classe`. The predictors
 # must be numerical in order to perform PCA, which is why `user_name` 
@@ -1370,11 +1370,14 @@ kable(wl.pca$eig[1:10, 2:3], caption = "The first ten principal components and t
 
 Apparently, the first five components contribute to a little more than half of the variance in our numerical predictors. The first ten principal components contribute about 76% of the variance.
 
-The next plot shows some of the most important variables plotted against the first two principal components.  These variables would be the ones that are best at spreading out the data.  
+Figure 6 shows some of the most important variables plotted against the first two principal components. As seen in the factor map, `yaw_belt`, `roll_belt`, `total_accel_belt`, `accel_belt_y`, and `accel_belt_z` would be the best at spreading out the data. It would be interesting to see what a physicist has to say about the variables and if it makes sense that these variables are most important for predicting the classifications of lift types.
 
-```{r fig.cap = "The plotting dimensions are determined by the first two principal compnents.  The labeled variables are the five that are 'closest' to the plane of the these components."}
+\newpage
+
+```{r echo = FALSE, fig.cap = "The plotting dimensions are determined by the first two principal compnents.  The labeled variables are the five that are 'closest' to the plane of the these components."}
 
 plot(wl.pca, choix = "var", select = "cos2 5")
+
 # Draws the Multiple Correspondence Analysis (MCA) graphs.
 # wl.pc is the object we want to use for the plot. "var" tells the 
 # function to graph the variables. The select argument can be used in 
@@ -1385,8 +1388,35 @@ plot(wl.pca, choix = "var", select = "cos2 5")
 
 ```
 
-We can also look at the first three principal components and get a 3-dimensional cloud for each subject. 
 
+\newpage
+
+We can also look at the first three principal components and get a 3-dimensional cloud for each subject. 
+(One outlier was removed in order to give a better depiction of the clouds.) 
+
+```{r echo = FALSE}
+
+temp.pc3 <- wl.pca$ind$coord[,3]
+notSmall <- temp.pc3 >= -60
+coords <- subset(wl.pca$ind$coord, notSmall)
+Comp.1 <- coords[,1]
+Comp.2 <- coords[,2]
+Comp.3 <- coords[,3]
+```
+
+
+
+```{r cache = TRUE, fig.cap = "View of the training observations, plotted in the first three principal components.  Observations are colored according to which subject was being observed.  Obviously the six subjects have rather distinct movement profiles."}
+
+
+cloud(Comp.1 ~ Comp.2 * Comp.3, groups = wl2$user_name,
+      screen = list(x = 0, y = 0, z = 0),
+      auto.key = list(space = "right"),
+      main = "PC-Plot of Training Data,\nby Subject")
+```
+
+
+Each subject has distinct movement profiles, so it would be difficult to predict the movements of one subject from the movements of the other subjects. It is interesting to note that Adelmo and Pedro had two of the worst error rates from the random forest procedure and their clouds are removed from the others. 
 
 \newpage
 
