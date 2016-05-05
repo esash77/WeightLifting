@@ -1,0 +1,89 @@
+---
+author: 'Elizabeth S. Ash'
+date: 'May 2016'
+division: 'Mathematics'
+advisor: 'Dr. Homer White'
+altadvisor: 'Dr. David Bowman'
+
+department: 'Mathematics'
+title: 'A Random Forest Model for Computer-Assisted Activity-Recognition'
+abstract: >
+  `r paste(readLines('abstract.Rmd'), collapse = '\n')`
+# If you'd rather include the preliminary content in files instead of inline
+# like below, use a command like that for the abstract above.  Note that a tab is 
+# needed on the line after the >.
+
+#acknowledgements: >
+  
+
+bibliography: bib/thesis.bib
+# Download your specific bibliography database file and refer to it in the line above.
+csl: csl/apa.csl
+# Download your specific csl file and refer to it in the line above.
+output: 
+  reedtemplates::reed_thesis:
+    toc: true
+    toc_depth: 4
+
+lot: true
+lof: true
+space_between_paragraphs: true
+
+# header-includes:
+# - \usepackage{tikz}
+---
+
+<!--
+Above is the YAML (YAML Ain't Markup Language) header that includes a lot of metadata used to produce the document.  Be careful with spacing in this header!
+
+If you'd like to include a comment that won't be produced in your resulting PDF file enclose it in a block like this.
+-->
+
+```{r include_packages, include = FALSE}
+# This chunk ensures that the reedtemplates package is
+# installed and loaded. This reedtemplates package includes
+# the template files for the thesis and also two functions
+# used for labeling and referencing
+if(!require(devtools))
+  install.packages("devtools", repos = "http://cran.rstudio.com")
+if(!require(reedtemplates)){
+  library(devtools)
+  devtools::install_github("ismayc/reedtemplates")
+}
+library(reedtemplates)
+```
+
+<!--
+This is the way to split your thesis into chapters and then include each of the chapters seperately.  You can Knit the Rmd files corresponding to each chapter individually and then put them all back together by Knit-ing this document.
+
+This is an R chunk and chap0.Rmd refers to the Introductory chapter.  Feel free to name this file as something else, but don't forget to change the argument to in `child = ` below!
+-->
+
+```{r intro, child = 'chap0.Rmd'}
+```
+
+<!--
+This is for including Chapter 1.  Notice that it's also good practice to name your chunk.  This will help you debug potential issues as you knit.  The chunk above is called intro and the one below is called chapter1.  Feel free to change the name of the Rmd file as you wish, but don't forget to change it here from chap1.Rmd.
+-->
+
+```{r chapter1, child = 'chap1.Rmd'}
+```
+
+<!--
+Immediately below is the chunk for Chapter 2.
+--> 
+
+```{r chapter2, child = 'chap2.Rmd'}
+```
+
+
+```{r conclusion, child = 'conclusion.Rmd'}
+```
+
+<!--
+The bib chunk below must go last in this document according to how R Markdown renders.  More info is at http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
+-->
+
+```{r bib, child = 'bibliography.Rmd'}
+```
+

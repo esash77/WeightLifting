@@ -119,7 +119,6 @@ not in both sets. We find that a random forest model can accurately and
 by the experimental subjects.
 }
 
-\usepackage{tikz}
 
 %%
 %% End Preamble
@@ -507,8 +506,6 @@ by the experimental subjects.
   
   \emph{Note: When \(p_{k}\) = 0 the entire term is defined as 0}
   
-  \newpage
-  
   For example, the deviance for any node of this classification tree would
   be found in the following way:
   
@@ -582,8 +579,6 @@ by the experimental subjects.
   Females = \(\texttt{18}\times\texttt{0.6667}\) = 12
   
   Males = \(\texttt{18}\times\texttt{0.3333}\) = 6
-  
-  \newpage
   
   Let's verify the deviance given for this node using our formula.
   
@@ -1306,8 +1301,6 @@ by the experimental subjects.
   However, with the weight lifting data I will make a division into
   training and test sets.}
   
-  \newpage
-  
   \section{Computing Tools}\label{computing-tools}
   
   For this project I use a variety of tools which include R, RStudio, Git,
@@ -1448,7 +1441,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# This function determines which of the variables have values that are mostly assigned}
+  \CommentTok{# This function determines which of the variables have values}
+  \CommentTok{# that are mostly assigned.}
   
   \NormalTok{goodVar <-}\StringTok{ }\NormalTok{function(x)\{}
     \NormalTok{mostly_assigned <-}\StringTok{ }\KeywordTok{sum}\NormalTok{(}\KeywordTok{is.na}\NormalTok{(x))/}\KeywordTok{length}\NormalTok{(x) <}\StringTok{ }\FloatTok{0.5}
@@ -1477,8 +1471,8 @@ by the experimental subjects.
     \CommentTok{# because the randomForest function requires factors.}
   
   \NormalTok{wn <-}\StringTok{ }\NormalTok{wl$num_window }
-    \CommentTok{# I will want to separate my data into training and test sets based}
-    \CommentTok{# on the num_window variable.}
+    \CommentTok{# I will want to separate my data into training and test sets }
+    \CommentTok{# based on the num_window variable.}
   \end{Highlighting}
   \end{Shaded}
   
@@ -1553,8 +1547,8 @@ by the experimental subjects.
       \CommentTok{# Gives the size of the "vals" vector.}
     
     \NormalTok{m <-}\StringTok{ }\KeywordTok{floor}\NormalTok{(}\DecValTok{2}\NormalTok{/}\DecValTok{3}\NormalTok{*n) }
-      \CommentTok{# This will be used to help separate the data; 2/3 in a training set }
-      \CommentTok{# and 1/3 in a test set.}
+      \CommentTok{# This will be used to help separate the data; 2/3 in a training }
+      \CommentTok{# set and 1/3 in a test set.}
     
     \NormalTok{bools <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\KeywordTok{rep}\NormalTok{(}\OtherTok{TRUE}\NormalTok{,m), }\KeywordTok{rep}\NormalTok{(}\OtherTok{FALSE}\NormalTok{,n-m))  }
       \CommentTok{# A booliean object that has m TRUE}
@@ -1566,29 +1560,30 @@ by the experimental subjects.
     
     \NormalTok{inTrain <-}\StringTok{ }\KeywordTok{sample}\NormalTok{(bools, }\DataTypeTok{size =} \NormalTok{n, }\DataTypeTok{replace =} \OtherTok{FALSE}\NormalTok{) }
       \CommentTok{# Since it is not good enough to just}
-      \CommentTok{# take the first 2/3 of the "bools" vector and put it into a training set,}
-      \CommentTok{# a random sample of the "bools" with size n and no replacement is }
-      \CommentTok{# is taken. This includes the same information}
-      \CommentTok{# as "bools", but it has been all mixed up. }
+      \CommentTok{# take the first 2/3 of the "bools" vector and put it into a }
+      \CommentTok{# training set a random sample of the "bools" with size n }
+      \CommentTok{# and no replacement is taken. This includes the same }
+      \CommentTok{# information as "bools", but it has been all mixed up. }
     
     \NormalTok{trvals <-}\StringTok{ }\NormalTok{vals[inTrain] }
       \CommentTok{# Gives values to the list of TRUEs from the inTrain }
-      \CommentTok{# random sample. "trvals" includes the "vals" that had been labeled TRUE}
-      \CommentTok{# in the "inTrain" vector.}
+      \CommentTok{# random sample. "trvals" includes the "vals" that had been }
+      \CommentTok{# labeled TRUE in the "inTrain" vector.}
     
     \NormalTok{vartr <-}\StringTok{ }\NormalTok{var %in%}\StringTok{ }\NormalTok{trvals }
-      \CommentTok{# A vector of TRUEs and FALSEs. This will label which of the "var" values}
-      \CommentTok{# were TRUE in "trvals". }
+      \CommentTok{# A vector of TRUEs and FALSEs. This will label which of the }
+      \CommentTok{# "var" values were TRUE in "trvals". }
     
     \NormalTok{tr <-}\StringTok{ }\NormalTok{data[vartr,] }
       \CommentTok{# Training data set- a data frame that includes rows of "vartr".}
     
     \NormalTok{tst <-}\StringTok{ }\NormalTok{data[!vartr,] }
-      \CommentTok{# Test data set- a data frame that includes rows that are not in "vartr".}
+      \CommentTok{# Test data set- a data frame that includes rows that are not}
+      \CommentTok{# in "vartr".}
     
     \KeywordTok{return}\NormalTok{(}\KeywordTok{list}\NormalTok{(tr, tst)) }
-      \CommentTok{# Since an R function can only return one object, a list of the training and }
-      \CommentTok{# test sets is returned.}
+      \CommentTok{# Since an R function can only return one object, a list of }
+      \CommentTok{# the training and test sets is returned.}
   \NormalTok{\}}
   \end{Highlighting}
   \end{Shaded}
@@ -1638,7 +1633,7 @@ by the experimental subjects.
   
   Unsuprisingly, we used 500 classification trees to make up the random
   forest. Also, since 53 variables are used in the data set, 7 variables
-  were tried at each possible split of the classification trees.
+  were tried at each possible split of the classification trees. \newpage
   
   Now, the error rates and confusion matrices are shown below:
   
@@ -1663,8 +1658,6 @@ by the experimental subjects.
   \begin{verbatim}
   OOB estimate of  error rate: 0.1%
   \end{verbatim}
-  
-  \newpage
   
   \begin{longtable}[c]{@{}lrrrrrr@{}}
   \caption{Confusion matrix for Test Set}\tabularnewline
@@ -1722,10 +1715,9 @@ by the experimental subjects.
   better estimate on how this model would work on new lifts by the
   experiment subjects.
   
-  \chapter*{Conclusion}\label{conclusion}
-  \addcontentsline{toc}{chapter}{Conclusion}
-  
-  \# Conclusions and Further Discussion
+  \chapter*{Conclusion and Further
+  Discussion}\label{conclusion-and-further-discussion}
+  \addcontentsline{toc}{chapter}{Conclusion and Further Discussion}
   
   Recall that Dr.~White devised a random forest model to predict
   activity-type from the same variables used in my random forest model.
@@ -1795,7 +1787,8 @@ by the experimental subjects.
   \NormalTok{Sub1 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name ==}\StringTok{ }\NormalTok{subjects[}\DecValTok{1}\NormalTok{], ]}
   \NormalTok{OtherSubs1 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name !=}\StringTok{ }\NormalTok{subjects[}\DecValTok{1}\NormalTok{], ]}
   \NormalTok{forest1 <-}\StringTok{ }\KeywordTok{randomForest}\NormalTok{(}\DataTypeTok{x =} \NormalTok{OtherSubs1[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{y =} \NormalTok{OtherSubs1$classe,}
-                                 \DataTypeTok{xtest =} \NormalTok{Sub1[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{ytest =} \NormalTok{Sub1$classe,}
+                                 \DataTypeTok{xtest =} \NormalTok{Sub1[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }
+                                 \DataTypeTok{ytest =} \NormalTok{Sub1$classe,}
                                  \DataTypeTok{ntree =} \DecValTok{500}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
@@ -1872,7 +1865,8 @@ by the experimental subjects.
   \NormalTok{Sub2 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name ==}\StringTok{ }\NormalTok{subjects[}\DecValTok{2}\NormalTok{], ]}
   \NormalTok{OtherSubs2 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name !=}\StringTok{ }\NormalTok{subjects[}\DecValTok{2}\NormalTok{], ]}
   \NormalTok{forest2 <-}\StringTok{ }\KeywordTok{randomForest}\NormalTok{(}\DataTypeTok{x =} \NormalTok{OtherSubs2[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{y =} \NormalTok{OtherSubs2$classe,}
-                                 \DataTypeTok{xtest =} \NormalTok{Sub2[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{ytest =} \NormalTok{Sub2$classe,}
+                                 \DataTypeTok{xtest =} \NormalTok{Sub2[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }
+                                 \DataTypeTok{ytest =} \NormalTok{Sub2$classe,}
                                  \DataTypeTok{ntree =} \DecValTok{500}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
@@ -1930,7 +1924,8 @@ by the experimental subjects.
   \NormalTok{Sub3 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name ==}\StringTok{ }\NormalTok{subjects[}\DecValTok{3}\NormalTok{], ]}
   \NormalTok{OtherSubs3 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name !=}\StringTok{ }\NormalTok{subjects[}\DecValTok{3}\NormalTok{], ]}
   \NormalTok{forest3 <-}\StringTok{ }\KeywordTok{randomForest}\NormalTok{(}\DataTypeTok{x =} \NormalTok{OtherSubs3[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{y =} \NormalTok{OtherSubs3$classe,}
-                                 \DataTypeTok{xtest =} \NormalTok{Sub3[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{ytest =} \NormalTok{Sub3$classe,}
+                                 \DataTypeTok{xtest =} \NormalTok{Sub3[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }
+                                 \DataTypeTok{ytest =} \NormalTok{Sub3$classe,}
                                  \DataTypeTok{ntree =} \DecValTok{500}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
@@ -1990,7 +1985,8 @@ by the experimental subjects.
   \NormalTok{Sub4 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name ==}\StringTok{ }\NormalTok{subjects[}\DecValTok{4}\NormalTok{], ]}
   \NormalTok{OtherSubs4 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name !=}\StringTok{ }\NormalTok{subjects[}\DecValTok{4}\NormalTok{], ]}
   \NormalTok{forest4 <-}\StringTok{ }\KeywordTok{randomForest}\NormalTok{(}\DataTypeTok{x =} \NormalTok{OtherSubs4[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{y =} \NormalTok{OtherSubs4$classe,}
-                                 \DataTypeTok{xtest =} \NormalTok{Sub4[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{ytest =} \NormalTok{Sub4$classe,}
+                                 \DataTypeTok{xtest =} \NormalTok{Sub4[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }
+                                 \DataTypeTok{ytest =} \NormalTok{Sub4$classe,}
                                  \DataTypeTok{ntree =} \DecValTok{500}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
@@ -2050,7 +2046,8 @@ by the experimental subjects.
   \NormalTok{Sub5 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name ==}\StringTok{ }\NormalTok{subjects[}\DecValTok{5}\NormalTok{], ]}
   \NormalTok{OtherSubs5 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name !=}\StringTok{ }\NormalTok{subjects[}\DecValTok{5}\NormalTok{], ]}
   \NormalTok{forest5 <-}\StringTok{ }\KeywordTok{randomForest}\NormalTok{(}\DataTypeTok{x =} \NormalTok{OtherSubs5[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{y =} \NormalTok{OtherSubs5$classe,}
-                                 \DataTypeTok{xtest =} \NormalTok{Sub5[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{ytest =} \NormalTok{Sub5$classe,}
+                                 \DataTypeTok{xtest =} \NormalTok{Sub5[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }
+                                 \DataTypeTok{ytest =} \NormalTok{Sub5$classe,}
                                  \DataTypeTok{ntree =} \DecValTok{500}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
@@ -2108,7 +2105,8 @@ by the experimental subjects.
   \NormalTok{Sub6 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name ==}\StringTok{ }\NormalTok{subjects[}\DecValTok{6}\NormalTok{], ]}
   \NormalTok{OtherSubs6 <-}\StringTok{ }\NormalTok{wl2[wl2$user_name !=}\StringTok{ }\NormalTok{subjects[}\DecValTok{6}\NormalTok{], ]}
   \NormalTok{forest6 <-}\StringTok{ }\KeywordTok{randomForest}\NormalTok{(}\DataTypeTok{x =} \NormalTok{OtherSubs6[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{y =} \NormalTok{OtherSubs6$classe,}
-                                 \DataTypeTok{xtest =} \NormalTok{Sub6[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{], }\DataTypeTok{ytest =} \NormalTok{Sub6$classe,}
+                                 \DataTypeTok{xtest =} \NormalTok{Sub6[, }\DecValTok{2}\NormalTok{:}\DecValTok{53}\NormalTok{],}
+                                 \DataTypeTok{ytest =} \NormalTok{Sub6$classe,}
                                  \DataTypeTok{ntree =} \DecValTok{500}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
@@ -2186,7 +2184,7 @@ by the experimental subjects.
   A simple example may be helpful in demonstrating what PCA accomplishes
   (Hamilton, 2014).
   
-  Suppose we have a data set with only two variables.
+  Suppose we have a data set with only two variables (Figure 2).
   
   \begin{figure}[htbp]
   \centering
@@ -2245,11 +2243,13 @@ by the experimental subjects.
   \begin{Shaded}
   \begin{Highlighting}[]
   \NormalTok{wl.pca <-}\StringTok{ }\KeywordTok{PCA}\NormalTok{(wl2[, -}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{55}\NormalTok{)], }\DataTypeTok{graph =} \OtherTok{FALSE}\NormalTok{)}
+  
   \CommentTok{# This command runs PCA on the training set. Three variables have}
-  \CommentTok{# been removed- `user_name`, `num_window`, and `classe`. The predictors}
-  \CommentTok{# must be numerical in order to perform PCA, which is why `user_name` }
-  \CommentTok{# and `classe` were removed. The window numbers were removed because they }
-  \CommentTok{# do not contribute to any variance, they are just markers for new lifts.}
+  \CommentTok{# been removed- `user_name`, `num_window`, and `classe`. The }
+  \CommentTok{# predictors must be numerical in order to perform PCA, which is why  }
+  \CommentTok{# `user_name` and `classe` were removed. The window numbers were }
+  \CommentTok{# removed because they do not contribute to any variance, they are }
+  \CommentTok{# just markers for new lifts.}
   \end{Highlighting}
   \end{Shaded}
   
@@ -2315,9 +2315,10 @@ by the experimental subjects.
   \CommentTok{# wl.pc is the object we want to use for the plot. "var" tells the }
   \CommentTok{# function to graph the variables. The select argument can be used in }
   \CommentTok{# order to select a part of the elements (individuals if you draw the }
-  \CommentTok{# graph of individuals, or variables if you draw the graph of variables)}
-  \CommentTok{# that are drawn. select = "cos2 5" and then the 5 elements that}
-  \CommentTok{# have the highest cos2 on the 2 dimensions of your plot are drawn.}
+  \CommentTok{# graph of individuals, or variables if you draw the graph of }
+  \CommentTok{# variables) that are drawn. select = "cos2 5" and then the 5 }
+  \CommentTok{# elements that have the highest cos2 on the 2 dimensions of your }
+  \CommentTok{# plot are drawn.}
   \end{Highlighting}
   \end{Shaded}
   
@@ -2349,9 +2350,11 @@ by the experimental subjects.
   predict the movements of one subject from the movements of the other
   subjects. It is interesting to note that Adelmo and Pedro had two of the
   worst error rates from the random forest procedure and their clouds are
-  removed from the others. \appendix
+  removed from the others.
   
-  \chapter{Appendix}\label{appendix}
+  \appendix
+  
+  \chapter{Hidden Code Chunks}\label{hidden-code-chunks}
   
   This appendix includes all of the R chunks of code that were hidden
   throughout the document (using the \texttt{include\ =\ FALSE} chunk tag)
@@ -2372,7 +2375,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Code to create classification tree example and print it in a nice, readable version.}
+  \CommentTok{# Code to create classification tree example and print it in a}
+  \CommentTok{# nice, readable version.}
   
   \KeywordTok{set.seed}\NormalTok{(}\DecValTok{2020}\NormalTok{)}
   
@@ -2386,8 +2390,9 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# This creates a random sample of the numbers 1-100. I could then create lists of the numbers}
-  \CommentTok{# included in the sample and the numbers missing from the sample. }
+  \CommentTok{# This creates a random sample of the numbers 1-100. I could then}
+  \CommentTok{# create lists of the numbers included in the sample and the }
+  \CommentTok{# numbers missing from the sample. }
   
   \KeywordTok{set.seed}\NormalTok{(}\DecValTok{1212}\NormalTok{)}
   \NormalTok{pop <-}\StringTok{ }\DecValTok{1}\NormalTok{:}\DecValTok{100}
@@ -2399,7 +2404,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# This creates a matrix of the missing numbers from the random sample example.}
+  \CommentTok{# This creates a matrix of the missing numbers }
+  \CommentTok{# from the random sample example.}
   
   \NormalTok{ng2 <-}\StringTok{ }\KeywordTok{as.character}\NormalTok{(notGot)}
   \NormalTok{ng2 <-}\StringTok{ }\KeywordTok{c}\NormalTok{(ng2, }\StringTok{" "}\NormalTok{)}
@@ -2445,8 +2451,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# A random sample of the numbers 1-10000. As well as how many numbers were missing}
-  \CommentTok{# from the random sample.}
+  \CommentTok{# A random sample of the numbers 1-10000. As well as how many numbers }
+  \CommentTok{# were missing from the random sample.}
   
   \KeywordTok{set.seed}\NormalTok{(}\DecValTok{2222}\NormalTok{)}
   \NormalTok{pop2 <-}\StringTok{ }\DecValTok{1}\NormalTok{:}\DecValTok{10000}
@@ -2461,14 +2467,16 @@ by the experimental subjects.
   \begin{Highlighting}[]
   \CommentTok{# The number of missing values from ten random samples of 1-10000.}
   
-  \NormalTok{nums <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"3682"}\NormalTok{, }\StringTok{"3674"}\NormalTok{, }\StringTok{"3690"}\NormalTok{, }\StringTok{"3691"}\NormalTok{, }\StringTok{"3727"}\NormalTok{, }\StringTok{"3696"}\NormalTok{, }\StringTok{"3596"}\NormalTok{, }\StringTok{"3685"}\NormalTok{, }\StringTok{"3716"}\NormalTok{, }\StringTok{"3741"}\NormalTok{)}
+  \NormalTok{nums <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"3682"}\NormalTok{, }\StringTok{"3674"}\NormalTok{, }\StringTok{"3690"}\NormalTok{, }\StringTok{"3691"}\NormalTok{, }\StringTok{"3727"}\NormalTok{, }\StringTok{"3696"}\NormalTok{, }
+            \StringTok{"3596"}\NormalTok{, }\StringTok{"3685"}\NormalTok{, }\StringTok{"3716"}\NormalTok{, }\StringTok{"3741"}\NormalTok{)}
   \NormalTok{nummat2 <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(nums, }\DataTypeTok{nrow =} \DecValTok{2}\NormalTok{, }\DataTypeTok{ncol =} \DecValTok{5}\NormalTok{, }\DataTypeTok{byrow =} \OtherTok{TRUE}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Loading the MAT111 survey data. However, any blank or NA values have been removed.}
+  \CommentTok{# Loading the MAT111 survey data. However, any blank or }
+  \CommentTok{# NA values have been removed.}
   
   \NormalTok{m111surv2 <-}\StringTok{ }\NormalTok{m111survey[}\KeywordTok{complete.cases}\NormalTok{(m111survey),]}
   \end{Highlighting}
@@ -2476,8 +2484,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Getting individual trees from the random forest and producing a table with the }
-  \CommentTok{# information from those trees.}
+  \CommentTok{# Getting individual trees from the random forest and producing a  }
+  \CommentTok{# table with the information from those trees.}
   
   \NormalTok{st1 <-}\StringTok{ }\KeywordTok{getTree}\NormalTok{(rf.sexm111, }\DataTypeTok{k=}\DecValTok{1}\NormalTok{, }\DataTypeTok{labelVar =} \OtherTok{TRUE}\NormalTok{)}
   \KeywordTok{names}\NormalTok{(st1)[}\DecValTok{1}\NormalTok{:}\DecValTok{2}\NormalTok{] <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"LD"}\NormalTok{, }\StringTok{"RD"}\NormalTok{)}
@@ -2503,8 +2511,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Creating the table that shows the confusion matrices of the training set}
-  \CommentTok{# and the test set. }
+  \CommentTok{# Creating the table that shows the confusion matrices of the }
+  \CommentTok{# training set and the test set. }
   
   \NormalTok{con1 <-}\StringTok{ }\NormalTok{rf$confusion}
   \KeywordTok{kable} \NormalTok{(con1, }\DataTypeTok{caption =} \StringTok{"Confusion matrix for Training Set"}\NormalTok{)}
@@ -2516,8 +2524,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Creates the tables that show the confusion matrices of the training and}
-  \CommentTok{# test sets when predicting Adelmo's movements.}
+  \CommentTok{# Creates the tables that show the confusion matrices of the training }
+  \CommentTok{# and test sets when predicting Adelmo's movements.}
   
   \NormalTok{conf1_tr <-}\StringTok{ }\NormalTok{forest1$confusion}
   \KeywordTok{kable} \NormalTok{(conf1_tr, }\DataTypeTok{caption =} \StringTok{"Confusion matrix for Training Set-Adelmo"}\NormalTok{)}
@@ -2529,8 +2537,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Creates the tables that show the confusion matrices of the training and}
-  \CommentTok{# test sets when predicting Carlitos' movements.}
+  \CommentTok{# Creates the tables that show the confusion matrices of the training }
+  \CommentTok{# and test sets when predicting Carlitos' movements.}
   
   \NormalTok{conf2_tr <-}\StringTok{ }\NormalTok{forest2$confusion}
   \KeywordTok{kable} \NormalTok{(conf2_tr, }\DataTypeTok{caption =} \StringTok{"Confusion matrix for Training Set-Carlitos"}\NormalTok{)}
@@ -2542,8 +2550,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Creates the tables that show the confusion matrices of the training and}
-  \CommentTok{# test sets when predicting Charles' movements.}
+  \CommentTok{# Creates the tables that show the confusion matrices of the training }
+  \CommentTok{# and test sets when predicting Charles' movements.}
   
   \NormalTok{conf3_tr <-}\StringTok{ }\NormalTok{forest3$confusion}
   \KeywordTok{kable} \NormalTok{(conf3_tr, }\DataTypeTok{caption =} \StringTok{"Confusion matrix for Training Set-Charles"}\NormalTok{)}
@@ -2555,8 +2563,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Creates the tables that show the confusion matrices of the training and}
-  \CommentTok{# test sets when predicting Eurico's movements.}
+  \CommentTok{# Creates the tables that show the confusion matrices of the training }
+  \CommentTok{# and test sets when predicting Eurico's movements.}
   
   \NormalTok{conf4_tr <-}\StringTok{ }\NormalTok{forest4$confusion}
   \KeywordTok{kable} \NormalTok{(conf4_tr, }\DataTypeTok{caption =} \StringTok{"Confusion matrix for Training Set-Eurico"}\NormalTok{)}
@@ -2568,8 +2576,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Creates the tables that show the confusion matrices of the training and}
-  \CommentTok{# test sets when predicting Jeremy's movements.}
+  \CommentTok{# Creates the tables that show the confusion matrices of the training }
+  \CommentTok{# and test sets when predicting Jeremy's movements.}
   
   \NormalTok{conf5_tr <-}\StringTok{ }\NormalTok{forest5$confusion}
   \KeywordTok{kable} \NormalTok{(conf5_tr, }\DataTypeTok{caption =} \StringTok{"Confusion matrix for Training Set-Jeremy"}\NormalTok{)}
@@ -2581,8 +2589,8 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Creates the tables that show the confusion matrices of the training and}
-  \CommentTok{# test sets when predicting Pedro's movements.}
+  \CommentTok{# Creates the tables that show the confusion matrices of the training }
+  \CommentTok{# and test sets when predicting Pedro's movements.}
   
   \NormalTok{conf6_tr <-}\StringTok{ }\NormalTok{forest6$confusion}
   \KeywordTok{kable} \NormalTok{(conf6_tr, }\DataTypeTok{caption =} \StringTok{"Confusion matrix for Training Set-Pedro"}\NormalTok{)}
@@ -2594,17 +2602,20 @@ by the experimental subjects.
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Creates the table that shows the first ten principal components and the }
-  \CommentTok{# percentage of variance that each contributes.}
+  \CommentTok{# Creates the table that shows the first ten principal components and  }
+  \CommentTok{# the percentage of variance that each contributes.}
   
-  \KeywordTok{kable}\NormalTok{(wl.pca$eig[}\DecValTok{1}\NormalTok{:}\DecValTok{10}\NormalTok{, }\DecValTok{2}\NormalTok{:}\DecValTok{3}\NormalTok{], }\DataTypeTok{caption =} \StringTok{"The first ten principal components and the percentage of variance that each contributes."}\NormalTok{) }
+  \KeywordTok{kable}\NormalTok{(wl.pca$eig[}\DecValTok{1}\NormalTok{:}\DecValTok{10}\NormalTok{, }\DecValTok{2}\NormalTok{:}\DecValTok{3}\NormalTok{], }\DataTypeTok{caption =} \StringTok{"The first ten principal }
+  \StringTok{      components and the percentage of variance that }
+  \StringTok{      each contributes."}\NormalTok{) }
   \end{Highlighting}
   \end{Shaded}
   
   \begin{Shaded}
   \begin{Highlighting}[]
-  \CommentTok{# Removes an outlier from the dataset and creates the coordinates for the}
-  \CommentTok{# first three principal components in order to create a 3-D cloud plot.}
+  \CommentTok{# Removes an outlier from the dataset and creates the coordinates for}
+  \CommentTok{# the first three principal components in order to create a }
+  \CommentTok{# 3-D cloud plot.}
   
   \NormalTok{temp.pc3 <-}\StringTok{ }\NormalTok{wl.pca$ind$coord[,}\DecValTok{3}\NormalTok{]}
   \NormalTok{notSmall <-}\StringTok{ }\NormalTok{temp.pc3 >=}\StringTok{ }\NormalTok{-}\DecValTok{60}

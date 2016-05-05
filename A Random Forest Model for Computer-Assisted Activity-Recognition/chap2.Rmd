@@ -1,3 +1,8 @@
+---
+output: pdf_document
+---
+
+
 # Results
 
 The following sections will go through the implementation of the methods described from earlier.

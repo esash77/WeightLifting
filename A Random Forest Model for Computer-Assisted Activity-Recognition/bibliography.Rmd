@@ -1,0 +1,53 @@
+---
+output: pdf_document
+---
+
+
+
+# Bibliography
+
+<!--
+To remove the indentation of the first entry.
+-->
+\noindent
+
+<!--
+To create a hanging indent and spacing between entries.  These three lines may need to be removed for styles that don't require the hanging indent.
+-->
+
+\setlength{\parindent}{-0.20in}
+\setlength{\leftskip}{0.20in}
+\setlength{\parskip}{8pt}
+
+
+
+
+Amit, Yali; Geman, Donald (1997). *Shape quantization and recognition with randomized trees* (PDF). Neural         Computation 9 (7): 1545–1588. doi:10.1162/neco.1997.9.7.1545.
+
+Breiman, Leo, and Cutler, Adele. *Random Forests Leo Breiman and Adele Cutler.* Random Forests. 29 June 2007.      Web. 20 Sept. 2015. <https://www.stat.berkeley.edu/~breiman/RandomForests/cc_home.htm#intro>
+
+Breiman, Leo. *Random Forests.* Machine Learning 45.1 (2001): 5-32. Web. 20 Sept. 2015.
+
+James, Gareth, Witten, Daniela, Hastie, Trevor and Tibshirani, Robert. *An Introduction to Statistical Learning     with Applications in R*. 2013. Print.
+
+Hamiltion, Laura D. *Introduction to Principal Component Analysis.* Introduction to Principal Component Analysis (PCA) -. N.p., 2 Nov. 2014
+
+Ho, Tin Kam (1995). *Random Decision Forests* (PDF). Proceedings of the 3rd International Conference on            Document Analysis and Recognition, Montreal, QC, 14–16 August 1995. pp. 278–282.
+
+Ho, Tin Kam (1998). *The Random Subspace Method for Constructing Decision Forests* (PDF). IEEE Transactions on      Pattern Analysis and Machine Intelligence 20 (8): 832–844. doi:10.1109/34.709601.
+
+Mitchell, Tom. M. 1997. *Machine Learning.* New York: McGraw-Hill.
+
+Steinberg, Dan. *Why Data Scientists Split Data into Train and Test.* Why Data Scientists Split Data into Train      and Test. 3 Mar. 2014. Web. 27 Sept. 2015.
+
+Velloso, Eduardo, Andreas Bulling, Hans Gellersen, Wallace Ugulino, and Hugo Fuks. *Qualitative Activity            Recognition of Weight Lifting Exercises.* Proceedings of the 4th Augmented Human International Conference      on - AH '13 (2015).
+
+White, Homer. *Predicting Movement-Types: Quick Model-Making with Random Forests.*                                  Https://github.com/homerhanumat/WeightLifting. 4 Aug. 2015. Web. 1 Sept. 2015.
+
+Witten, Ian H., and Eibe Frank. 2000. *Data Mining: Practical Machine Learing Tools and Techniques with Java        Implementations.* San Diego, CA: Morgan Kaufmann.
+
+Xie, Yihui. *Dynamic Documents with R and knitr*. 2014. Print.
+
+http://mathworld.wolfram.com/Kurtosis.html
+
+https://en.wikipedia.org/wiki/Random_forest
