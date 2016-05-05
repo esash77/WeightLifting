@@ -1,0 +1,17 @@
+base
+devtools
+reedtemplates
+FactoMineR
+randomForest
+lattice
+ggplot2
+caret
+knitr
+tree
+nlme
+dplyr
+car
+mosaicData
+mosaic
+abd
+tigerstats

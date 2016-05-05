@@ -1,0 +1,40 @@
+
+
+```{r include = FALSE}
+library(FactoMineR)
+library(randomForest)
+library(caret)
+library(knitr)
+library(tree)
+library(tigerstats)
+```
+
+# Introduction and Overview {.unnumbered}
+
+Predictive modeling is a process used to create a statistical model of future behavior. A predictive model is made up of a number of **predictors**, which are variable factors that are likely to influence future behaviors or results. Gareth James, Daniela Witten, Trevor Hastie and Robert Tibshirani give an example in their book *An Introduction to Statistical Learning with Applications in R* to briefly introduce the topic of predictor variables:
+
+> Suppose we are statistical consultants hired by a company to provided advice on how to improve sales of a particular product...It is not possible for our client to directly increase the sales of the  product. On the other hand, they can control the advertising expenditure in each of the three media  [TV, radio and newspapers]. Therefore, if we determine that there is an association between  advertising and sales, then we can instruct our client to adjust advertising budgets, thereby  indirectly increasing sales. In other words, our goal is to develop an accurate model that can be used to predict sales on the basis of the three media budgets (James, 2013).
+
+In this example, James, et al. use media budgets for TV, radio, and newspapers as the predictor variables and the sales of a particular product is the response variable. Using predictive modeling, the company can then use the predictor variables to predict the sales outcomes of the particular product.
+
+In predictive modeling, data is collected for the relevant predictors, a statistical model is formulated, predictions are made, and the model is revised as additional data becomes available. My research project deals with predictive models and applications of such modeling.
+
+An example of an application of predictive modeling is activity recognition. Activity recognition is an increasingly important technology because it can be applied to many real-life problems such as, home-based proactive and preventive healthcare applications. It can also be applied in learning environments, security systems, and a variety of human-computer interfaces. The goal of activity recognition is to recognize common human activities in real-life settings.
+ 
+One real-life setting example of activity recogniton is physical activity, which is one of the most important things that can be done for overall health. It can help control weight, lower risk for heart disease, strengthen bones and muscles, and increase chances of longer life. However, if the activity is performed incorrectly, there is a greater risk of injury, which is counterproductive. To benefit most from a fitness routine, the activity should be performed as accurately as possible. Some people can go to a gym and work with a certified trainer, but many people cannot or will not work with a personal trainer. These people may be doing the correct exercise motion, but there is no way to really know unless they are taught the correct motion by a professional. Using other physical activities as predictor variables, a predictive model could be made and used to help determine if the exercise motion is being executed properly.
+   
+In the case of my research project, I want to see if a predictive model can be made to recognize certain weight lift motions. If a predictor model could be made, then the model could be integrated into the weight lift equipment and used to determine if the lift was done correctly or incorrectly. This model could be integrated with other technologies and be used to help reinforce the correct weight lift motion by commending the user for a correct movement or making a comment when the user made an incorrect movement. For example, I am trying to perform the lift motion from the study correctly, but I am actually performing an error. If my predictive model is good enough (based on the measurements from the sensors, the model can accurately predict in which class my lift belongs), then my armband could beep, notifying me of my error. 
+ 
+## Background on Data Used
+ 
+The article *Qualitative Activity Recognition of Weight Lifting Exercises* describes a study presented by Eduardo Velloso, Andreas Bulling, Hans Gellersen, Wallace Ugulino, and Hugo Fuks. Among other goals, the researchers wanted to provide feedback to weight lifters using qualitative activity recognition. The study involved six male subjects, all in their twenties and with little weight lifting experience. The subjects were taught how to lift a dumb-bell correctly and were also taught how to perform the same movement in four incorrect ways. The Unilateral Dumbbell Bicep Curl was the lift that was taught to the subjects. The five categories of lift data collected were:
+  
+    * Class A: correct lift movement
+    * Class B: throwing the elbows to the front
+    * Class C: lifting the dumbbell only halfway
+    * Class D: lowering the dumbbell only halfway
+    * Class E: throwing the hips to the front
+    
+The subjects repeated each lift ten times and during each lift the researchers recorded a number of inertial measurements from sensors in the users' glove, armband, lumbar belt, and dumbbell (these are pieces of equipment that are commonly used by weight lifters). These measurements make up the predictors that the researchers used when determing a correct or incorrect lift. The sensors recorded several data points throughout the lifting motion and the final data set includes 160 variables. Some of the variables included are: user_name, num_window, yaw_belt, pitch_belt, and total_accel_belt. 
+
+The aim of this report is to build a predictive model that can be used in realistic circumstances built on the data from the Velloso et al study. 

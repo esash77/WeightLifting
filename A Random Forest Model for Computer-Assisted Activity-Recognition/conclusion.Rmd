@@ -1,0 +1,693 @@
+---
+output: pdf_document
+---
+
+# Conclusion and Further Discussion {.unnumbered}
+  
+
+Recall that Dr. White devised a random forest model to predict activity-type from the same variables used in my random forest model. The final model he constructed was estimated to be correct about 99.7% of the time. Dr. White built the model using observations from the same lifts as the observations for which the activity-type was predicted, and he recognized that this was not an optimal model for predicting lift type for the subjects should they return to the gym and perform new lifts. That is where my research project began; I wanted to build an "honest" predictive model to use in realistic circumstances.
+
+The main goal of this project was to find a model that could test accurately on new lifts. In essence, this goal was met. In real life, a model would have to be able to predict the lift classification using data gathered from new lifts by the subjects. Even though there is no way to tell when a new lift is beginning, the window number provides long portions of a lift and allows for a separation with little cross-over. This gives a good representation of what it would be like to test on new lifts. The model was less accurate because we are testing on different parts of the lift than before. If a way to separate the data by complete window numbers, then I would suspect that the model would do even worse. But, it would be an even more realistic estimation.
+Thus, it was found separating by even part of a lift has an impact on the predictive model. 
+
+
+## Further Discussion
+
+The model in this project is a more "realistic" model than Dr. White's original model, but it is used for classifying new lift types from the same subjects. It is not a very good model for predicting the lift types of new subjects. We can get a feel for how the model would predict on new subjects by creating a model where 5 of the test subjects are used as training data and 1 subject is used as test data. This would give 6 different random forest models (since there are 6 subjects). However, this model would most likely give horrible results.
+
+
+### A Look at How This Model Would Work on New Subjects
+
+
+The plan to implement this idea is as follows:
+
+  * Use all of the data (training and test combined).
+  * Divide it into six folds. Each fold will contains all of the observations pertaining to a particular subject.
+  * For each subject, build a 500-tree random forest on the other five subjects, then test it on the fold for the subject.
+  * We will NOT use user_name to build our forests.
+  * We'll get six sets of error-rates. These will give us some idea of how a model built on our six subjects might do for a new subject.
+  
+
+
+Here is the first random forest. The data from the subject Adelmo will be the test set.
+
+```{r cache = TRUE}
+
+set.seed(3030)
+subjects <- levels(wl2$user_name)
+
+Sub1 <- wl2[wl2$user_name == subjects[1], ]
+OtherSubs1 <- wl2[wl2$user_name != subjects[1], ]
+forest1 <- randomForest(x = OtherSubs1[, 2:53], y = OtherSubs1$classe,
+                               xtest = Sub1[, 2:53], 
+                               ytest = Sub1$classe,
+                               ntree = 500)
+
+
+```
+
+
+\newpage
+
+```
+Call:
+  randomForest(x = OtherSubs1[, 2:53], y = OtherSubs1$classe, 
+      xtest = Sub1[, 2:53], ytest = Sub1$classe, ntree = 500) 
+               
+Type of random forest: classification
+
+Number of trees: 500
+
+No. of variables tried at each split: 7
+
+```
+
+
+``` {r echo = FALSE}
+
+conf1_tr <- forest1$confusion
+kable (conf1_tr, caption = "Confusion matrix for Training Set-Adelmo")
+```
+
+```
+OOB estimate of  error rate: 0.14%
+
+```
+
+
+```{r echo = FALSE}
+
+conf1_tst <- (forest1$test["confusion"]$confusion)
+kable(conf1_tst, caption = "Confusion matrix for Test Set-Adelmo")
+```
+
+
+
+```
+Test set error rate: 81.55%
+
+```
+
+
+
+Since the call for the random forest is similar for all subjects and the type of trees used, the number of trees used, and the number of variables tried at each split are the same, only the confusion matrices will be shown for the rest of the random forests.
+ 
+The next random forest uses the data from Carlitos as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3131)
+
+Sub2 <- wl2[wl2$user_name == subjects[2], ]
+OtherSubs2 <- wl2[wl2$user_name != subjects[2], ]
+forest2 <- randomForest(x = OtherSubs2[, 2:53], y = OtherSubs2$classe,
+                               xtest = Sub2[, 2:53], 
+                               ytest = Sub2$classe,
+                               ntree = 500)
+
+
+```
+
+
+```{r echo = FALSE}
+conf2_tr <- forest2$confusion
+kable (conf2_tr, caption = "Confusion matrix for Training Set-Carlitos")
+```
+
+```
+OOB estimate of  error rate: 0.12%
+
+```
+
+```{r echo = FALSE}
+
+conf2_tst <- (forest2$test["confusion"]$confusion)
+kable(conf2_tst, caption = "Confusion matrix for Test Set-Carlitos")
+```
+
+```
+Test set error rate: 50.26%
+
+```
+
+
+The next random forest uses the data from Charles as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3232)
+
+Sub3 <- wl2[wl2$user_name == subjects[3], ]
+OtherSubs3 <- wl2[wl2$user_name != subjects[3], ]
+forest3 <- randomForest(x = OtherSubs3[, 2:53], y = OtherSubs3$classe,
+                               xtest = Sub3[, 2:53], 
+                               ytest = Sub3$classe,
+                               ntree = 500)
+
+
+```
+
+
+```{r echo = FALSE}
+conf3_tr <- forest3$confusion
+kable (conf3_tr, caption = "Confusion matrix for Training Set-Charles")
+```
+
+```
+OOB estimate of  error rate: 0.11%
+
+```
+
+\newpage
+
+```{r echo = FALSE}
+
+conf3_tst <- (forest3$test["confusion"]$confusion)
+kable(conf3_tst, caption = "Confusion matrix for Test Set-Charles")
+```
+
+```
+Test set error rate: 45.25%
+
+```
+
+
+
+The next random forest uses the data from Eurico as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3333)
+
+Sub4 <- wl2[wl2$user_name == subjects[4], ]
+OtherSubs4 <- wl2[wl2$user_name != subjects[4], ]
+forest4 <- randomForest(x = OtherSubs4[, 2:53], y = OtherSubs4$classe,
+                               xtest = Sub4[, 2:53], 
+                               ytest = Sub4$classe,
+                               ntree = 500)
+
+
+```
+
+
+
+```{r echo = FALSE}
+conf4_tr <- forest4$confusion
+kable (conf4_tr, caption = "Confusion matrix for Training Set-Eurico")
+```
+
+
+```
+OOB estimate of  error rate: 0.16%
+
+```
+
+```{r echo = FALSE}
+
+conf4_tst <- (forest4$test["confusion"]$confusion)
+kable(conf4_tst, caption = "Confusion matrix for Test Set-Eurico")
+```
+
+```
+Test set error rate: 78.7%
+
+```
+
+
+\newpage
+
+
+The next random forest uses the data from Jeremy as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3434)
+
+Sub5 <- wl2[wl2$user_name == subjects[5], ]
+OtherSubs5 <- wl2[wl2$user_name != subjects[5], ]
+forest5 <- randomForest(x = OtherSubs5[, 2:53], y = OtherSubs5$classe,
+                               xtest = Sub5[, 2:53], 
+                               ytest = Sub5$classe,
+                               ntree = 500)
+
+
+```
+
+
+
+```{r echo = FALSE}
+conf5_tr <- forest5$confusion
+kable (conf5_tr, caption = "Confusion matrix for Training Set-Jeremy")
+```
+
+
+```
+OOB estimate of  error rate: 0.14%
+
+```
+
+```{r echo = FALSE}
+
+conf5_tst <- (forest5$test["confusion"]$confusion)
+kable(conf5_tst, caption = "Confusion matrix for Test Set-Jeremy")
+```
+
+
+```
+Test set error rate: 53.62%
+
+```
+
+
+The final random forest uses the data from Pedro as the test set.
+
+```{r cache = TRUE}
+
+set.seed(3535)
+
+Sub6 <- wl2[wl2$user_name == subjects[6], ]
+OtherSubs6 <- wl2[wl2$user_name != subjects[6], ]
+forest6 <- randomForest(x = OtherSubs6[, 2:53], y = OtherSubs6$classe,
+                               xtest = Sub6[, 2:53],
+                               ytest = Sub6$classe,
+                               ntree = 500)
+
+
+```
+
+
+\newpage
+
+```{r echo = FALSE}
+conf6_tr <- forest6$confusion
+kable (conf6_tr, caption = "Confusion matrix for Training Set-Pedro")
+```
+
+
+```
+OOB estimate of  error rate: 0.13%
+
+```
+
+```{r echo = FALSE}
+
+conf6_tst <- (forest6$test["confusion"]$confusion)
+kable(conf6_tst, caption = "Confusion matrix for Test Set-Pedro")
+```
+
+```
+Test set error rate: 79.5%
+
+```
+
+
+Notice that the error rates for all of the forests are quite terrible when they predict on a new subject. This model probably would not be good to use on new subjects. 
+
+
+### A Look at Principal Component Analysis
+
+Principal component analysis (PCA) is a useful tool for describing data. *Principal component analysis* refers to the statistical procedure that uses an orthogonal (perpendicular) transformation to convert a set of observations of possibly correlated variables into a set of values of linearly uncorrelated variables called principal **components**. This transformation is defined in such a way that the first principal component has the largest possible variance (that is, accounts for as much of the variability in the data as possible), and each succeeding component in turn has the highest variance possible under the constraint that it is orthogonal to the preceding components (James, et. al, 2013). In other words, PCA transforms the data into a new, lower-dimensional subspace--into a new coordinate system. In the new coordinate system, the first axis corresponds to the first principal component, which is the component that explains the greatest amount of the variance in the data. The number of principal components is less than or equal to the number of original variables. 
+
+A simple example may be helpful in demonstrating what PCA accomplishes (Hamilton, 2014).
+
+
+Suppose we have a data set with only two variables (Figure 2). 
+
+![Dataset with two variables, x1 and x2](http://www.lauradhamilton.com/posts/2014/pca-original-dataset.png)
+
+
+Now, we want to identify the first principal component that explains the highest amount of variance. Graphically, if a line is drawn that splits the oval lengthwise, that line signifies the component that explains the most variance:
+
+![Finding the first principal component](http://www.lauradhamilton.com/posts/2014/pca-first-principal-component.png)
+
+\newpage
+
+To find the second principal component, we find a second line that explain the next highest amount of variance. This must be orthogonal to the first principal component. The second principal component attempts to capture the variance that is not captured by the first principal component. 
+
+![Finding the second principal component](http://www.lauradhamilton.com/posts/2014/pca-second-principal-component.png)
+
+As you can see in Figure 4, the two principal components are orthogonal and capture the elements of the data set. 
+
+\newpage
+
+Thus, if PCA was performed on this dataset and the original dataset was projected onto the first two principal components, then no information would be lost. (A two-dimensional dataset is being transformed to a new two-dimensional dataset.)  Since there are only two variables in the dataset, there can only be two principal components. Figure 5 shows what the original dataset projected onto the principal components looks like. 
+
+![Original dataset projected onto the principal components](http://www.lauradhamilton.com/posts/2014/pca-projected-to-two-dimensions.png)
+
+\newpage
+
+For the weight lifting data set, we will look at the principal components (using commands from the `FactoMineR` package).
+
+```{r}
+
+wl.pca <- PCA(wl2[, -c(1,2,55)], graph = FALSE)
+
+# This command runs PCA on the training set. Three variables have
+# been removed- `user_name`, `num_window`, and `classe`. The 
+# predictors must be numerical in order to perform PCA, which is why  
+# `user_name` and `classe` were removed. The window numbers were 
+# removed because they do not contribute to any variance, they are 
+# just markers for new lifts.
+```
+
+```{r echo = FALSE}
+kable(wl.pca$eig[1:10, 2:3], caption = "The first ten principal
+      components and the percentage of variance that each 
+      contributes.") 
+
+```
+
+
+Apparently, the first five components contribute to a little more than half of the variance in our numerical predictors. The first ten principal components contribute about 76% of the variance.
+
+Figure 6 shows some of the most important variables plotted against the first two principal components. As seen in the factor map, `yaw_belt`, `roll_belt`, `total_accel_belt`, `accel_belt_y`, and `accel_belt_z` would be the best at spreading out the data. It would be interesting to see what a physicist has to say about the variables and if it makes sense that these variables are most important for predicting the classifications of lift types.
+
+\newpage
+
+```{r  fig.cap = "The plotting dimensions are determined by the first two principal compnents.  The labeled variables are the five that are 'closest' to the plane of the these components."}
+
+plot(wl.pca, choix = "var", select = "cos2 5")
+
+# Draws the Multiple Correspondence Analysis (MCA) graphs.
+# wl.pc is the object we want to use for the plot. "var" tells the 
+# function to graph the variables. The select argument can be used in 
+# order to select a part of the elements (individuals if you draw the 
+# graph of individuals, or variables if you draw the graph of 
+# variables) that are drawn. select = "cos2 5" and then the 5 
+# elements that have the highest cos2 on the 2 dimensions of your 
+# plot are drawn.
+
+```
+
+
+\newpage
+
+We can also look at the first three principal components and get a 3-dimensional cloud for each subject. 
+(One outlier was removed in order to give a better depiction of the clouds.) 
+
+```{r echo = FALSE}
+
+temp.pc3 <- wl.pca$ind$coord[,3]
+notSmall <- temp.pc3 >= -60
+coords <- subset(wl.pca$ind$coord, notSmall)
+Comp.1 <- coords[,1]
+Comp.2 <- coords[,2]
+Comp.3 <- coords[,3]
+```
+
+
+
+```{r cache = TRUE, fig.cap = "View of the training observations, plotted in the first three principal components.  Observations are colored according to which subject was being observed.  Obviously the six subjects have rather distinct movement profiles."}
+
+
+cloud(Comp.1 ~ Comp.2 * Comp.3, groups = wl2$user_name,
+      screen = list(x = 0, y = 0, z = 0),
+      auto.key = list(space = "right"),
+      main = "PC-Plot of Training Data,\nby Subject")
+```
+
+
+Each subject has distinct movement profiles, so it would be difficult to predict the movements of one subject from the movements of the other subjects. It is interesting to note that Adelmo and Pedro had two of the worst error rates from the random forest procedure and their clouds are removed from the others. 
+
+
+\appendix
+
+
+This  appendix includes all of the R chunks of code that were hidden throughout the document (using the `include = FALSE` chunk tag) to help with readibility and/or setup. 
+
+
+
+```{r eval = FALSE}
+
+# These are the required packages.
+
+library(FactoMineR)
+library(randomForest)
+library(caret)
+library(knitr)
+library(tree)
+library(tigerstats)
+
+```
+
+
+```{r eval = FALSE}
+
+# Code to create classification tree example and print it in a
+# nice, readable version.
+
+set.seed(2020)
+
+m111s.tr <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
+                 data=m111survey)
+
+plot(m111s.tr)
+text(m111s.tr)
+```
+
+
+```{r eval = FALSE}
+
+# This creates a random sample of the numbers 1-100. I could then
+# create lists of the numbers included in the sample and the 
+# numbers missing from the sample. 
+
+set.seed(1212)
+pop <- 1:100
+samp <- sample(pop, 100, replace = T)
+got <- unique(samp)
+notGot <- pop[!(pop %in% got)]
+
+```
+
+
+```{r eval = FALSE}
+
+# This creates a matrix of the missing numbers 
+# from the random sample example.
+
+ng2 <- as.character(notGot)
+ng2 <- c(ng2, " ")
+ngmat <- matrix(ng2, nrow = 6, byrow = TRUE)
+
+```
+
+
+```{r eval = FALSE}
+
+# This creates a matrix of the numbers included in the random sample.
+
+got2 <- as.character(got)
+got2 <- c(got2, " ")
+gmat <- matrix(got2, nrow = 6, ncol = 11, byrow = TRUE)
+
+```
+
+
+```{r eval = FALSE}
+
+# A second random sample of the numbers 1-100.
+
+set.seed(0000)
+pop2 <- 1:100
+samp2 <- sample(pop2, 100, replace = T)
+got3 <- unique(samp2)
+notGot2 <- pop2[!(pop2 %in% got3)]
+```
+
+
+```{r eval = FALSE}
+
+# The matrices of missing and included numbers of the random sample.
+
+ng3 <- as.character(notGot2)
+ng3 <- c(ng3)
+ngmat2 <- matrix(ng3, nrow = 6, ncol = 6, byrow = TRUE)
+
+got4 <- as.character(got3)
+got4 <- c(got4)
+gmat2 <- matrix(got4, nrow = 8, ncol = 8, byrow = TRUE)
+
+
+```
+
+
+```{r eval = FALSE}
+
+# A random sample of the numbers 1-10000. As well as how many numbers 
+# were missing from the random sample.
+
+set.seed(2222)
+pop2 <- 1:10000
+samp2 <- sample(pop2, 10000, replace = T)
+got2 <- unique(samp2)
+notGot2 <- pop2[!(pop2 %in% got2)]
+length(notGot2)
+```
+
+
+```{r eval = FALSE}
+
+# The number of missing values from ten random samples of 1-10000.
+
+nums <- c("3682", "3674", "3690", "3691", "3727", "3696", 
+          "3596", "3685", "3716", "3741")
+nummat2 <- matrix(nums, nrow = 2, ncol = 5, byrow = TRUE)
+
+```
+
+
+```{r eval = FALSE}
+
+# Loading the MAT111 survey data. However, any blank or 
+# NA values have been removed.
+
+m111surv2 <- m111survey[complete.cases(m111survey),]
+```
+
+
+```{r eval = FALSE}
+
+# Getting individual trees from the random forest and producing a  
+# table with the information from those trees.
+
+st1 <- getTree(rf.sexm111, k=1, labelVar = TRUE)
+names(st1)[1:2] <- c("LD", "RD")
+kable(st1, caption = "Tree 1 made by the Random Forest")
+
+st2 <- getTree(rf.sexm111, k=250, labelVar = TRUE)
+names(st2)[1:2] <- c("LD", "RD")
+kable(st2, caption = "Tree 250 made by the Random Forest")
+
+st3 <- getTree(rf.sexm111, k=500, labelVar = TRUE)
+names(st3)[1:2] <- c("LD", "RD")
+kable(st3, caption = "Tree 500 made by the Random Forest")
+
+```
+
+
+```{r eval = FALSE}
+
+# Loading the weight-lifting data set
+
+load(file = "data/wl.rda")
+
+```
+
+
+``` {r eval = FALSE}
+
+# Creating the table that shows the confusion matrices of the 
+# training set and the test set. 
+
+con1 <- rf$confusion
+kable (con1, caption = "Confusion matrix for Training Set")
+
+con2 <- (rf$test["confusion"]$confusion)
+kable(con2, caption = "Confusion matrix for Test Set")
+```
+
+
+``` {r eval = FALSE}
+
+# Creates the tables that show the confusion matrices of the training 
+# and test sets when predicting Adelmo's movements.
+
+conf1_tr <- forest1$confusion
+kable (conf1_tr, caption = "Confusion matrix for Training Set-Adelmo")
+
+conf1_tst <- (forest1$test["confusion"]$confusion)
+kable(conf1_tst, caption = "Confusion matrix for Test Set-Adelmo")
+```
+
+
+```{r eval = FALSE}
+
+# Creates the tables that show the confusion matrices of the training 
+# and test sets when predicting Carlitos' movements.
+
+conf2_tr <- forest2$confusion
+kable (conf2_tr, caption = "Confusion matrix for Training Set-Carlitos")
+
+conf2_tst <- (forest2$test["confusion"]$confusion)
+kable(conf2_tst, caption = "Confusion matrix for Test Set-Carlitos")
+```
+
+
+```{r eval = FALSE}
+
+# Creates the tables that show the confusion matrices of the training 
+# and test sets when predicting Charles' movements.
+
+conf3_tr <- forest3$confusion
+kable (conf3_tr, caption = "Confusion matrix for Training Set-Charles")
+
+conf3_tst <- (forest3$test["confusion"]$confusion)
+kable(conf3_tst, caption = "Confusion matrix for Test Set-Charles")
+```
+
+
+```{r eval = FALSE}
+
+# Creates the tables that show the confusion matrices of the training 
+# and test sets when predicting Eurico's movements.
+
+conf4_tr <- forest4$confusion
+kable (conf4_tr, caption = "Confusion matrix for Training Set-Eurico")
+
+conf4_tst <- (forest4$test["confusion"]$confusion)
+kable(conf4_tst, caption = "Confusion matrix for Test Set-Eurico")
+```
+
+
+```{r eval = FALSE}
+
+# Creates the tables that show the confusion matrices of the training 
+# and test sets when predicting Jeremy's movements.
+
+conf5_tr <- forest5$confusion
+kable (conf5_tr, caption = "Confusion matrix for Training Set-Jeremy")
+
+conf5_tst <- (forest5$test["confusion"]$confusion)
+kable(conf5_tst, caption = "Confusion matrix for Test Set-Jeremy")
+```
+
+
+```{r eval = FALSE}
+
+# Creates the tables that show the confusion matrices of the training 
+# and test sets when predicting Pedro's movements.
+
+conf6_tr <- forest6$confusion
+kable (conf6_tr, caption = "Confusion matrix for Training Set-Pedro")
+
+conf6_tst <- (forest6$test["confusion"]$confusion)
+kable(conf6_tst, caption = "Confusion matrix for Test Set-Pedro")
+```
+
+
+```{r eval = FALSE}
+
+# Creates the table that shows the first ten principal components and  
+# the percentage of variance that each contributes.
+
+kable(wl.pca$eig[1:10, 2:3], caption = "The first ten principal 
+      components and the percentage of variance that 
+      each contributes.") 
+
+```
+
+
+```{r eval = FALSE}
+
+# Removes an outlier from the dataset and creates the coordinates for
+# the first three principal components in order to create a 
+# 3-D cloud plot.
+
+temp.pc3 <- wl.pca$ind$coord[,3]
+notSmall <- temp.pc3 >= -60
+coords <- subset(wl.pca$ind$coord, notSmall)
+Comp.1 <- coords[,1]
+Comp.2 <- coords[,2]
+Comp.3 <- coords[,3]
+```
