@@ -2,8 +2,11 @@
 title: "A Random Forest Model for Computer-Assisted Activity-Recognition"
 author: "Elizabeth Ash"
 date: "May 5, 2016"
-output: 
-  pdf_document: 
+output:
+  html_document:
+    toc: yes
+    toc_depth: '4'
+  pdf_document:
     fig_caption: yes
     number_sections: yes
     toc: yes
@@ -1085,7 +1088,7 @@ No. of variables tried at each split: 7
 ``` {r echo = FALSE}
 
 conf1_tr <- forest1$confusion
-kable (conf1_tr, caption = "Confusion matrix for Training Set")
+kable (conf1_tr, caption = "Confusion matrix for Training Set-Adelmo")
 ```
 
 ```
@@ -1129,7 +1132,7 @@ forest2 <- randomForest(x = OtherSubs2[, 2:53], y = OtherSubs2$classe,
 
 ```{r echo = FALSE}
 conf2_tr <- forest2$confusion
-kable (conf2_tr, caption = "Confusion matrix for Training Set")
+kable (conf2_tr, caption = "Confusion matrix for Training Set-Carlitos")
 ```
 
 ```
@@ -1167,7 +1170,7 @@ forest3 <- randomForest(x = OtherSubs3[, 2:53], y = OtherSubs3$classe,
 
 ```{r echo = FALSE}
 conf3_tr <- forest3$confusion
-kable (conf3_tr, caption = "Confusion matrix for Training Set")
+kable (conf3_tr, caption = "Confusion matrix for Training Set-Charles")
 ```
 
 ```
@@ -1209,7 +1212,7 @@ forest4 <- randomForest(x = OtherSubs4[, 2:53], y = OtherSubs4$classe,
 
 ```{r echo = FALSE}
 conf4_tr <- forest4$confusion
-kable (conf4_tr, caption = "Confusion matrix for Training Set")
+kable (conf4_tr, caption = "Confusion matrix for Training Set-Eurico")
 ```
 
 
@@ -1252,7 +1255,7 @@ forest5 <- randomForest(x = OtherSubs5[, 2:53], y = OtherSubs5$classe,
 
 ```{r echo = FALSE}
 conf5_tr <- forest5$confusion
-kable (conf5_tr, caption = "Confusion matrix for Training Set")
+kable (conf5_tr, caption = "Confusion matrix for Training Set-Jeremy")
 ```
 
 
@@ -1294,7 +1297,7 @@ forest6 <- randomForest(x = OtherSubs6[, 2:53], y = OtherSubs6$classe,
 
 ```{r echo = FALSE}
 conf6_tr <- forest6$confusion
-kable (conf6_tr, caption = "Confusion matrix for Training Set")
+kable (conf6_tr, caption = "Confusion matrix for Training Set-Pedro")
 ```
 
 
