@@ -411,6 +411,8 @@ ngmat2 <- matrix(ng3, nrow = 6, ncol = 6, byrow = TRUE)
 
 ```
 
+\newpage
+
 Below is a table showing the numbers that are part of the random sample:
 
 ```{r echo = FALSE}
@@ -479,6 +481,7 @@ As an added bonus, the random sample with replacement is used to make an estimat
 
 Thus, the random selection of predictor variables, the overgrowing of the trees and the random sample of data allows for many different possibilities, which can help with making predictions. This makes the random forest a very effective modeling tool.
 
+\newpage
 
 ### Summary of How Random Forests Work 
 

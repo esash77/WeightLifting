@@ -313,18 +313,18 @@ A simple example may be helpful in demonstrating what PCA accomplishes (Hamilton
 
 Suppose we have a data set with only two variables (Figure 2). 
 
-![Dataset with two variables, x1 and x2](http://www.lauradhamilton.com/posts/2014/pca-original-dataset.png)
+![Dataset with two variables, x1 and x2](figure/OriginalDataset.png)
 
 
 Now, we want to identify the first principal component that explains the highest amount of variance. Graphically, if a line is drawn that splits the oval lengthwise, that line signifies the component that explains the most variance:
 
-![Finding the first principal component](http://www.lauradhamilton.com/posts/2014/pca-first-principal-component.png)
+![Finding the first principal component](figure/PrincipalComponent1.png)
 
 \newpage
 
 To find the second principal component, we find a second line that explain the next highest amount of variance. This must be orthogonal to the first principal component. The second principal component attempts to capture the variance that is not captured by the first principal component. 
 
-![Finding the second principal component](http://www.lauradhamilton.com/posts/2014/pca-second-principal-component.png)
+![Finding the second principal component](figure/PrincipalComponent2.png)
 
 As you can see in Figure 4, the two principal components are orthogonal and capture the elements of the data set. 
 
@@ -332,7 +332,7 @@ As you can see in Figure 4, the two principal components are orthogonal and capt
 
 Thus, if PCA was performed on this dataset and the original dataset was projected onto the first two principal components, then no information would be lost. (A two-dimensional dataset is being transformed to a new two-dimensional dataset.)  Since there are only two variables in the dataset, there can only be two principal components. Figure 5 shows what the original dataset projected onto the principal components looks like. 
 
-![Original dataset projected onto the principal components](http://www.lauradhamilton.com/posts/2014/pca-projected-to-two-dimensions.png)
+![Original dataset projected onto the principal components](figure/ProjectedPC.png)
 
 \newpage
 
