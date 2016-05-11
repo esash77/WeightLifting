@@ -5,7 +5,7 @@ output: pdf_document
 # Conclusion and Further Discussion {.unnumbered}
   
 
-Recall that Dr. White devised a random forest model to predict activity-type from the same variables used in my random forest model. The final model he constructed was estimated to be correct about 99.7% of the time. Dr. White built the model using observations from the same lifts as the observations for which the activity-type was predicted, and he recognized that this was not an optimal model for predicting lift type for the subjects should they return to the gym and perform new lifts. That is where my research project began; I wanted to build an "honest" predictive model to use in realistic circumstances.
+In a previous project, Dr. White devised a random forest model to predict activity-type from the same variables used in my random forest model. The final model he constructed was estimated to be correct about 99.7% of the time. Dr. White built the model using observations from the same lifts as the observations for which the activity-type was predicted, and he recognized that this was not an optimal model for predicting lift type for the subjects should they return to the gym and perform new lifts. That is where my research project began; I wanted to build an "honest" predictive model to use in realistic circumstances.
 
 The main goal of this project was to find a model that could test accurately on new lifts. In essence, this goal was met. In real life, a model would have to be able to predict the lift classification using data gathered from new lifts by the subjects. Even though there is no way to tell when a new lift is beginning, the window number provides long portions of a lift and allows for a separation with little cross-over. This gives a good representation of what it would be like to test on new lifts. The model was less accurate because we are testing on different parts of the lift than before. If a way to separate the data by complete window numbers, then I would suspect that the model would do even worse. But, it would be an even more realistic estimation.
 Thus, it was found separating by even part of a lift has an impact on the predictive model. 
@@ -91,6 +91,8 @@ Test set error rate: 81.55%
 
 
 Since the call for the random forest is similar for all subjects and the type of trees used, the number of trees used, and the number of variables tried at each split are the same, only the confusion matrices will be shown for the rest of the random forests.
+
+\newpage
  
 The next random forest uses the data from Carlitos as the test set.
 
@@ -158,7 +160,7 @@ OOB estimate of  error rate: 0.11%
 
 ```
 
-\newpage
+
 
 ```{r echo = FALSE}
 
@@ -214,9 +216,6 @@ Test set error rate: 78.7%
 ```
 
 
-\newpage
-
-
 The next random forest uses the data from Jeremy as the test set.
 
 ```{r cache = TRUE}
@@ -258,6 +257,7 @@ Test set error rate: 53.62%
 
 ```
 
+\newpage
 
 The final random forest uses the data from Pedro as the test set.
 
@@ -276,7 +276,6 @@ forest6 <- randomForest(x = OtherSubs6[, 2:53], y = OtherSubs6$classe,
 ```
 
 
-\newpage
 
 ```{r echo = FALSE}
 conf6_tr <- forest6$confusion
@@ -311,7 +310,7 @@ Principal component analysis (PCA) is a useful tool for describing data. *Princi
 A simple example may be helpful in demonstrating what PCA accomplishes (Hamilton, 2014).
 
 
-Suppose we have a data set with only two variables (Figure 2). 
+Suppose we have a data set with only two variables (Figure 2.1). 
 
 ![Dataset with two variables, x1 and x2](figure/OriginalDataset.png)
 
@@ -326,11 +325,10 @@ To find the second principal component, we find a second line that explain the n
 
 ![Finding the second principal component](figure/PrincipalComponent2.png)
 
-As you can see in Figure 4, the two principal components are orthogonal and capture the elements of the data set. 
+As you can see in Figure 2.3, the two principal components are orthogonal and capture the elements of the data set. 
 
-\newpage
 
-Thus, if PCA was performed on this dataset and the original dataset was projected onto the first two principal components, then no information would be lost. (A two-dimensional dataset is being transformed to a new two-dimensional dataset.)  Since there are only two variables in the dataset, there can only be two principal components. Figure 5 shows what the original dataset projected onto the principal components looks like. 
+Thus, if PCA was performed on this dataset and the original dataset was projected onto the first two principal components, then no information would be lost. (A two-dimensional dataset is being transformed to a new two-dimensional dataset.)  Since there are only two variables in the dataset, there can only be two principal components. Figure 2.4 shows what the original dataset projected onto the principal components looks like. 
 
 ![Original dataset projected onto the principal components](figure/ProjectedPC.png)
 
@@ -360,7 +358,7 @@ kable(wl.pca$eig[1:10, 2:3], caption = "The first ten principal
 
 Apparently, the first five components contribute to a little more than half of the variance in our numerical predictors. The first ten principal components contribute about 76% of the variance.
 
-Figure 6 shows some of the most important variables plotted against the first two principal components. As seen in the factor map, `yaw_belt`, `roll_belt`, `total_accel_belt`, `accel_belt_y`, and `accel_belt_z` would be the best at spreading out the data. It would be interesting to see what a physicist has to say about the variables and if it makes sense that these variables are most important for predicting the classifications of lift types.
+Figure 2.5 shows some of the most important variables plotted against the first two principal components. As seen in the factor map, `yaw_belt`, `roll_belt`, `total_accel_belt`, `accel_belt_y`, and `accel_belt_z` would be the best at spreading out the data. It would be interesting to see what a physicist has to say about the variables and if it makes sense that these variables are most important for predicting the classifications of lift types.
 
 \newpage
 
@@ -382,8 +380,8 @@ plot(wl.pca, choix = "var", select = "cos2 5")
 
 \newpage
 
-We can also look at the first three principal components and get a 3-dimensional cloud for each subject. 
-(One outlier was removed in order to give a better depiction of the clouds.) 
+We can also look at the first three principal components and get a 3-dimensional cloud for each subject (Figure 2.6). ^[One outlier was removed in order to give a better depiction of the clouds.] 
+
 
 ```{r echo = FALSE}
 
@@ -446,6 +444,7 @@ plot(m111s.tr)
 text(m111s.tr)
 ```
 
+\newpage
 
 ```{r eval = FALSE}
 
@@ -513,6 +512,8 @@ gmat2 <- matrix(got4, nrow = 8, ncol = 8, byrow = TRUE)
 ```
 
 
+\newpage
+
 ```{r eval = FALSE}
 
 # A random sample of the numbers 1-10000. As well as how many numbers 
@@ -575,6 +576,7 @@ load(file = "data/wl.rda")
 
 ```
 
+\newpage
 
 ``` {r eval = FALSE}
 

@@ -43,7 +43,7 @@ m111s.tr <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
 ```
 
 
-This tree is used to predict the sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight. R code is not only a great tool for making classification trees, it can also print a readable version of classification trees. Below is an easy to understand schematic of a classification tree.
+This tree is used to predict the sex of an individual based on the variables of fastest speed ever driven, GPA, height, the amount of sleep the participant got the night before, how the participant feels about their weight, and if the participant believes in love at first sight. R code is not only a great tool for making classification trees, it can also print a readable version of classification trees. Figure 1.1 shows an easy to understand schematic of a classification tree.
 
 
 ```{r echo = FALSE, fig.cap= "Classification tree to predict sex in m111survey data"}
@@ -73,7 +73,7 @@ node), split, n, deviance, yval, (yprob)
 
 ```
 
-This printout actually gives us quite a bit of information about the classification tree. First, the node numbers are labeled. So the root node is number 1 and the daughter nodes are numbers 2 and 3. Second, the variable by which the split was made is given. For example, the root node is split based on height. With daughter node 2, any height less than 69.5 inches would be placed in that node. And for daughter node 3, any height greater than 69.5 inches would be placed in that node. Third, the number of cases that reach the node is given. For example, there are 70 observations in the root node. [As a note, classification trees do not like missing data, so one row from the original data set was removed to avoid any missing values.] After the root node is split, 42 observations are found in daughter node 2 and 28 observations are found in daughter node 3. The sum of the two observations is 70. The fourth piece of information given by the printout is deviance, which is an assessment of goodness of fit (we will go into this a litte later). The fifth piece of information in the prinout is the yval, which is the majority value for the node. This would be predicted for that node. For example, if the tree was forced to make a prediction about the sex at node 4, the tree would predict that the individual would be female. The final piece of information from the printout is the yprob, which gives the probabilities of the variables being predicted. In node 4, (0.6667 0.3333) is given. This means that 66.67% of the objects in the node are female and 33.33% of the objects are male. The yval proportions can also be used to assign a probability to the prediction of a new person. For example, if we were to try to predict the sex of a new individual (using this classification tree) and the tree had to make a guess at node 4, the new individual would be predicted to be female. Female is the majority sex in this node, which is why a female prediction would be made. In addition, the yval proportion of 0.6667 tells us that the tree is 66.67% sure that the new individual is female. 
+This printout actually gives us quite a bit of information about the classification tree. First, the node numbers are labeled. So the root node is number 1 and the daughter nodes are numbers 2 and 3. Second, the variable by which the split was made is given. For example, the root node is split based on height. With daughter node 2, any height less than 69.5 inches would be placed in that node. And for daughter node 3, any height greater than 69.5 inches would be placed in that node. Third, the number of cases that reach the node is given. For example, there are 70 observations in the root node. ^[Classification trees do not like missing data, so one row from the original data set was removed to avoid any missing values.] After the root node is split, 42 observations are found in daughter node 2 and 28 observations are found in daughter node 3. The sum of the two observations is 70. The fourth piece of information given by the printout is deviance, which is an assessment of goodness of fit (we will go into this a litte later). The fifth piece of information in the prinout is the yval, which is the majority value for the node. This would be predicted for that node. For example, if the tree was forced to make a prediction about the sex at node 4, the tree would predict that the individual would be female. The final piece of information from the printout is the yprob, which gives the probabilities of the variables being predicted. In node 4, (0.6667 0.3333) is given. This means that 66.67% of the objects in the node are female and 33.33% of the objects are male. The yval proportions can also be used to assign a probability to the prediction of a new person. For example, if we were to try to predict the sex of a new individual (using this classification tree) and the tree had to make a guess at node 4, the new individual would be predicted to be female. Female is the majority sex in this node, which is why a female prediction would be made. In addition, the yval proportion of 0.6667 tells us that the tree is 66.67% sure that the new individual is female. 
 
 While it is wonderful to be able to recognize a classification tree and use it to make predictions, it is equally important to understand the basic mechanics of how a classification tree works. Such as, how does a tree decide to make a split? Or how does a tree decide when to stop splitting into more daughter nodes? The answer is tree control. 
 
@@ -91,7 +91,7 @@ m111s.tr <- tree(sex~fastest+GPA+height+sleep+weight_feel+love_first,
 
 ```
 
-There are 4 arguments for this function. The first argument, `nobs`, is the number of observations that will be used to build the tree. In this tree we are using all the rows in the dataset. The other three arguments have a say in whether the tree can continue splitting or not. The second argument, `minsize`, is the smallest allowed node size. The next argument, `mincut`, is the minimum number of observations to include in either post-division node. This means that any daughter node must be at least the size of the `mincut` value. Another small note to know, the `mincut` value cannot be more than half of the `minsize` value. The final argument of the function is `mindev`. The *within-node deviance* must be at least the `mindev` valude times that of the root node for the node to be split. This means that for a division to be made, the deviance of the node that we are thinking of splitting must be at least the value of `mindev` times the deviance of the root node. At each split, the deviance is determined. Each node has a deviance value, and this is considered the *within-node deviance*.
+There are 4 arguments for this function. The first argument, `nobs`, is the number of observations that will be used to build the tree. In this tree we are using all the rows in the dataset. The other three arguments have a say in whether the tree can continue splitting or not. The second argument, `minsize`, is the smallest allowed node size. The next argument, `mincut`, is the minimum number of observations to include in either post-division node. This means that any daughter node must be at least the size of the `mincut` value. Another small note to know, the `mincut` value cannot be more than half of the `minsize` value. The final argument of the function is `mindev`. The *within-node deviance* must be at least the `mindev` value times that of the root node for the node to be split. This means that for a division to be made, the deviance of the node that we are thinking of splitting must be at least the value of `mindev` times the deviance of the root node. At each split, the deviance is determined. Each node has a deviance value, and this is considered the *within-node deviance*.
 
 The default settings for the `tree.control` function are:
 
@@ -103,19 +103,15 @@ Even though these are the default values, they can be changed and this will chan
 
 Now, let's take a closer look into how deviance is found and why it is so important. 
 
-The general deviance formula used for the classification trees is:
+The general deviance formula used for the classification trees is^[$\ln{x}$ is the natural logarithm of the value x.]:
 
-$$-2 \sum_{k}n_{k}\ln(p_{k})$$
+$$-2 \sum_{k}n_{k}\ln(p_{k})$$ 
 
 where:
 
   * k stands for the $k^{\text{th}}$ possible value
   * $n_{k}$ is the number of a certain type in node k    
-  * $p_{k}$ is the proportion of a certain type in node k
-
-*Recall: $\ln{x}$ is the natural logarithm of the value x*
-
-*Note: When $p_{k}$ = 0 the entire term is defined as 0*
+  * $p_{k}$ is the proportion of a certain type in node k ^[When $p_{k}$ = 0 the entire term is defined as 0.]
 
 
 
@@ -131,7 +127,9 @@ where:
   * $p_{2} = \texttt{proportion of males in the node}$
   
 
-We can now begin looking at how this formula can work. As stated earlier, deviance is a measure of goodness of fit. In other words, the deviance is a measurement of purity. The more pure a node is (or in the case of our tree, the closer the node is to being all male or all female), the closer the deviance is to 0. Thus, when deciding on whether to make a split at a node or not, is to choose a split such that the sum of the deviance of the two daughter nodes is smaller than the deviance before the split. In fact, the tree will find a split so the sum of the two daughter nodes is as small as possible. Now, `mindev` sets a limit on how small the deviance can be. In order to split into daughter nodes, the deviance of the node which will be split must be at least $$\texttt{mindev}\times\textbf{root deviance}$$ [Recall that the default value for `mindev` is 0.01, but this can be changed to modify the tree growth.]
+We can now begin looking at how this formula can work. As stated earlier, deviance is a measure of goodness of fit. In other words, the deviance is a measurement of purity. The more pure a node is (or in the case of our tree, the closer the node is to being all male or all female), the closer the deviance is to 0. Thus, when deciding on whether to make a split at a node or not, is to choose a split such that the sum of the deviance of the two daughter nodes is smaller than the deviance before the split. In fact, the tree will find a split so the sum of the two daughter nodes is as small as possible. Now, `mindev` sets a limit on how small the deviance can be. In order to split into daughter nodes, the deviance of the node which will be split must be at least ^[Recall that the default value for `mindev` is 0.01, but this can be changed to modify the tree growth.]
+
+$$\texttt{mindev}\times\textbf{root deviance}$$ 
 
 To show how this would work, let's look at the split of the root node. If you look at the printout of the classification tree, you can see that the deviance before the split was 96.120 (the deviance of root node). 
 
@@ -182,7 +180,7 @@ $$D_1 + D_2 = 18.644$$
 
 If the sum of the two daughter nodes was larger than 22.914, then a split would not be made because it would not improve the total deviance of the classification tree. 
 
-Of all the possible splits, where both daughter nodes have a larger size than the `mincut` value, this was the smallest deviance found, which is why the tree made this particular split. The tree made a split because there was a way to make the total deviance smaller.
+Of all the possible splits, where both daughter nodes have a size at least as large as the mincut value,, this was the smallest deviance found, which is why the tree made this particular split. The tree made a split because there was a way to make the total deviance smaller.
 
 
 As a final example of the tree making splits, recall that the tree had two terminal nodes (from the same split) that are both male. 
@@ -233,9 +231,7 @@ The residual mean deviance (RMD) is also used to compare two different tree mode
 
 The final output given by the classification tree summary is the misclassification error rate. The performance of a model is measured in terms of its misclassification error rate: percentage of incorrectly classified instances in the data set (Witten and Eibe, 2000). The lower the misclassification error rate, the higher the performance of the model. In other words, a lower misclassification rate means that a smaller number of objects are being misclassified and the model is making correct predictions.
 
-As you can see from the example, classification trees are easy to interpret and fairly good predictions can be made from them. In this example, the misclassification error rate is about 11.4%. This means that 8 out of 70 observations were misclassified. However, the tree is looking at correct answers that were given. If this classification tree were given new data, the error rate would most likely be much worse.
-
-Unfortunately, R has some round-off error. This is why the values calculated are slightly off from the summary.
+As you can see from the example, classification trees are easy to interpret and fairly good predictions can be made from them. In this example, the misclassification error rate is about 11.4%. This means that 8 out of 70 observations were misclassified. However, the tree is looking at correct answers that were given. If this classification tree were given new data, the error rate would most likely be much worse. ^[Unfortunately, R has some round-off error. This is why the values calculated are slightly off from the summary.]
 
 
 ## The Need for Test Sets
@@ -270,9 +266,7 @@ As an example, we will look at the weight lifting data. There are over 100 diffe
 
 #### Tree Size
 
-A second important difference between random forest classification trees and regular classification trees is the size. Random forest classification trees are overgrown. In a regular classification tree the `mincut` is set at 5. In random forests we are looking at trees with nodes that end up being very small- one or two objects in the final nodes. One example of the arguments in the `randomForest` package is `nodesize`. This is the minimum size of terminal nodes. The default for the classification trees in `randomForest` is 1. 
-
-[Note: There is a `treesize` package that controls tree size in regular classification trees. There is also a `randomForest` package argument that controls the tree size in the random forest classification trees- `nodesize`]
+A second important difference between random forest classification trees and regular classification trees is the size. Random forest classification trees are overgrown. In a regular classification tree the `mincut` is set at 5. In random forests we are looking at trees with nodes that end up being very small- one or two objects in the final nodes. One example of the arguments in the `randomForest` package is `nodesize`. This is the minimum size of terminal nodes. The default for the classification trees in `randomForest` is 1. ^[There is a `treesize` package that controls tree size in regular classification trees. There is also a `randomForest` package argument that controls the tree size in the random forest classification trees- `nodesize`.]
 
 Thus, larger trees are grown because the terminal nodes can have a minimum of 1 object. This overgrowing of classification trees allows for great variability in the classification trees. Most of the classification trees will not be able to make predictions well on new data. In fact, many will have strange results. Even though an individual overgrown tree may closely describe the training data, the tree will not give good results on new data because it is tracking chance variation as pattern. However, putting together all the trees can actually give good results. The trees are all tracking chance variation in different directions and by putting them together the extreme results can be "cancelled out". 
 
@@ -434,7 +428,7 @@ gmat2 <- matrix(got4, nrow = 8, ncol = 8, byrow = TRUE)
 
 ```
 
-Notice that this list is missing 36 numbers from the original list. This means 36% of the original data is missing. In fact, the expected proportion of missing data is about 0.3678 or better known as $\frac{1}{e}$. The number *e* is an important mathematical constant that is the base of the natural logarithm. It is approximately equal to 2.71828. [Note: The history and mathematical importance of the number *e* is not in the scope of this paper, but if you would like to know more I suggest reading "e: the Story of a Number" by Eli Maor (1994).] 
+Notice that this list is missing 36 numbers from the original list. This means 36% of the original data is missing. In fact, the expected proportion of missing data is about 0.3678 or better known as $\frac{1}{e}$. The number *e* is an important mathematical constant that is the base of the natural logarithm. It is approximately equal to 2.71828. ^[The history and mathematical importance of the number *e* is not in the scope of this paper, but if you would like to know more I suggest reading "e: the Story of a Number" by Eli Maor (1994).] 
 
 Now let's see what happens when we take a larger sample. Suppose I have a list of numbers 1 to 10,000 instead of only 100. Then, looking at the numbers included in the new list, we find that 3,681 are missing. 
 
@@ -506,6 +500,9 @@ Below is an example of the code for random forests, along with explanations for 
 
 m111surv2 <- m111survey[complete.cases(m111survey),]
 ```
+
+
+\newpage
 
 The code for implementing a random forest:
 
@@ -643,6 +640,8 @@ Fifth, an error rate is given. Recall that the misclassification rate is calcula
 OOB estimate of  error rate: 4.41%
 
 ```
+
+\newpage
 
 The final output of this example is the confusion matrix of the out-of-bag error. This tells us how many times the prediction of sex was correct or incorrect and gives an error rate for each classification.
 

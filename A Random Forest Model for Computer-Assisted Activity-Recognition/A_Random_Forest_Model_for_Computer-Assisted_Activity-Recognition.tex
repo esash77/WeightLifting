@@ -331,8 +331,8 @@ by the experimental subjects.
   the participant got the night before, how the participant feels about
   their weight, and if the participant believes in love at first sight. R
   code is not only a great tool for making classification trees, it can
-  also print a readable version of classification trees. Below is an easy
-  to understand schematic of a classification tree.
+  also print a readable version of classification trees. Figure 1.1 shows
+  an easy to understand schematic of a classification tree.
   
   \begin{figure}
   
@@ -396,9 +396,9 @@ by the experimental subjects.
   than 69.5 inches would be placed in that node. And for daughter node 3,
   any height greater than 69.5 inches would be placed in that node. Third,
   the number of cases that reach the node is given. For example, there are
-  70 observations in the root node. {[}As a note, classification trees do
-  not like missing data, so one row from the original data set was removed
-  to avoid any missing values.{]} After the root node is split, 42
+  70 observations in the root node.\footnote{Classification trees do not
+    like missing data, so one row from the original data set was removed
+    to avoid any missing values.} After the root node is split, 42
   observations are found in daughter node 2 and 28 observations are found
   in daughter node 3. The sum of the two observations is 70. The fourth
   piece of information given by the printout is deviance, which is an
@@ -451,7 +451,7 @@ by the experimental subjects.
   \texttt{mincut} value. Another small note to know, the \texttt{mincut}
   value cannot be more than half of the \texttt{minsize} value. The final
   argument of the function is \texttt{mindev}. The \emph{within-node
-  deviance} must be at least the \texttt{mindev} valude times that of the
+  deviance} must be at least the \texttt{mindev} value times that of the
   root node for the node to be split. This means that for a division to be
   made, the deviance of the node that we are thinking of splitting must be
   at least the value of \texttt{mindev} times the deviance of the root
@@ -486,7 +486,8 @@ by the experimental subjects.
   Now, let's take a closer look into how deviance is found and why it is
   so important.
   
-  The general deviance formula used for the classification trees is:
+  The general deviance formula used for the classification trees
+  is\footnote{\(\ln{x}\) is the natural logarithm of the value x.}:
   
   \[-2 \sum_{k}n_{k}\ln(p_{k})\]
   
@@ -499,12 +500,9 @@ by the experimental subjects.
   \item
     \(n_{k}\) is the number of a certain type in node k\\
   \item
-    \(p_{k}\) is the proportion of a certain type in node k
+    \(p_{k}\) is the proportion of a certain type in node k\footnote{When
+      \(p_{k}\) = 0 the entire term is defined as 0.}
   \end{itemize}
-  
-  \emph{Recall: \(\ln{x}\) is the natural logarithm of the value x}
-  
-  \emph{Note: When \(p_{k}\) = 0 the entire term is defined as 0}
   
   For example, the deviance for any node of this classification tree would
   be found in the following way:
@@ -535,10 +533,11 @@ by the experimental subjects.
   before the split. In fact, the tree will find a split so the sum of the
   two daughter nodes is as small as possible. Now, \texttt{mindev} sets a
   limit on how small the deviance can be. In order to split into daughter
-  nodes, the deviance of the node which will be split must be at least
-  \[\texttt{mindev}\times\textbf{root deviance}\] {[}Recall that the
-  default value for \texttt{mindev} is 0.01, but this can be changed to
-  modify the tree growth.{]}
+  nodes, the deviance of the node which will be split must be at
+  least\footnote{Recall that the default value for \texttt{mindev} is
+    0.01, but this can be changed to modify the tree growth.}
+  
+  \[\texttt{mindev}\times\textbf{root deviance}\]
   
   To show how this would work, let's look at the split of the root node.
   If you look at the printout of the classification tree, you can see that
@@ -611,10 +610,10 @@ by the experimental subjects.
   split would not be made because it would not improve the total deviance
   of the classification tree.
   
-  Of all the possible splits, where both daughter nodes have a larger size
-  than the \texttt{mincut} value, this was the smallest deviance found,
-  which is why the tree made this particular split. The tree made a split
-  because there was a way to make the total deviance smaller.
+  Of all the possible splits, where both daughter nodes have a size at
+  least as large as the mincut value,, this was the smallest deviance
+  found, which is why the tree made this particular split. The tree made a
+  split because there was a way to make the total deviance smaller.
   
   As a final example of the tree making splits, recall that the tree had
   two terminal nodes (from the same split) that are both male.
@@ -693,10 +692,9 @@ by the experimental subjects.
   example, the misclassification error rate is about 11.4\%. This means
   that 8 out of 70 observations were misclassified. However, the tree is
   looking at correct answers that were given. If this classification tree
-  were given new data, the error rate would most likely be much worse.
-  
-  Unfortunately, R has some round-off error. This is why the values
-  calculated are slightly off from the summary.
+  were given new data, the error rate would most likely be much
+  worse.\footnote{Unfortunately, R has some round-off error. This is why
+    the values calculated are slightly off from the summary.}
   
   \section{The Need for Test Sets}\label{the-need-for-test-sets}
   
@@ -809,12 +807,11 @@ by the experimental subjects.
   with nodes that end up being very small- one or two objects in the final
   nodes. One example of the arguments in the \texttt{randomForest} package
   is \texttt{nodesize}. This is the minimum size of terminal nodes. The
-  default for the classification trees in \texttt{randomForest} is 1.
-  
-  {[}Note: There is a \texttt{treesize} package that controls tree size in
-  regular classification trees. There is also a \texttt{randomForest}
-  package argument that controls the tree size in the random forest
-  classification trees- \texttt{nodesize}{]}
+  default for the classification trees in \texttt{randomForest} is
+  1.\footnote{There is a \texttt{treesize} package that controls tree size
+    in regular classification trees. There is also a \texttt{randomForest}
+    package argument that controls the tree size in the random forest
+    classification trees- \texttt{nodesize}.}
   
   Thus, larger trees are grown because the terminal nodes can have a
   minimum of 1 object. This overgrowing of classification trees allows for
@@ -966,10 +963,10 @@ by the experimental subjects.
   proportion of missing data is about 0.3678 or better known as
   \(\frac{1}{e}\). The number \emph{e} is an important mathematical
   constant that is the base of the natural logarithm. It is approximately
-  equal to 2.71828. {[}Note: The history and mathematical importance of
-  the number \emph{e} is not in the scope of this paper, but if you would
-  like to know more I suggest reading ``e: the Story of a Number'' by Eli
-  Maor (1994).{]}
+  equal to 2.71828.\footnote{The history and mathematical importance of
+    the number \emph{e} is not in the scope of this paper, but if you
+    would like to know more I suggest reading ``e: the Story of a Number''
+    by Eli Maor (1994).}
   
   Now let's see what happens when we take a larger sample. Suppose I have
   a list of numbers 1 to 10,000 instead of only 100. Then, looking at the
@@ -1000,6 +997,8 @@ by the experimental subjects.
   the trees and the random sample of data allows for many different
   possibilities, which can help with making predictions. This makes the
   random forest a very effective modeling tool.
+  
+  \newpage
   
   \subsection{Summary of How Random Forests
   Work}\label{summary-of-how-random-forests-work}
@@ -1052,6 +1051,8 @@ by the experimental subjects.
   
   Below is an example of the code for random forests, along with
   explanations for each part.
+  
+  \newpage
   
   The code for implementing a random forest:
   
@@ -1280,6 +1281,8 @@ by the experimental subjects.
   OOB estimate of  error rate: 4.41%
   \end{verbatim}
   
+  \newpage
+  
   The final output of this example is the confusion matrix of the
   out-of-bag error. This tells us how many times the prediction of sex was
   correct or incorrect and gives an error rate for each classification.
@@ -1396,6 +1399,8 @@ by the experimental subjects.
   \KeywordTok{save}\NormalTok{(wl, }\DataTypeTok{file =} \StringTok{"data/CopyOfwl.rda"}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
+  
+  \newpage
   
   \subsection{Elimination of Variables}\label{elimination-of-variables}
   
@@ -1721,15 +1726,15 @@ by the experimental subjects.
   Discussion}\label{conclusion-and-further-discussion}
   \addcontentsline{toc}{chapter}{Conclusion and Further Discussion}
   
-  Recall that Dr.~White devised a random forest model to predict
-  activity-type from the same variables used in my random forest model.
-  The final model he constructed was estimated to be correct about 99.7\%
-  of the time. Dr.~White built the model using observations from the same
-  lifts as the observations for which the activity-type was predicted, and
-  he recognized that this was not an optimal model for predicting lift
-  type for the subjects should they return to the gym and perform new
-  lifts. That is where my research project began; I wanted to build an
-  ``honest'' predictive model to use in realistic circumstances.
+  In a previous project, Dr.~White devised a random forest model to
+  predict activity-type from the same variables used in my random forest
+  model. The final model he constructed was estimated to be correct about
+  99.7\% of the time. Dr.~White built the model using observations from
+  the same lifts as the observations for which the activity-type was
+  predicted, and he recognized that this was not an optimal model for
+  predicting lift type for the subjects should they return to the gym and
+  perform new lifts. That is where my research project began; I wanted to
+  build an ``honest'' predictive model to use in realistic circumstances.
   
   The main goal of this project was to find a model that could test
   accurately on new lifts. In essence, this goal was met. In real life, a
@@ -1858,6 +1863,8 @@ by the experimental subjects.
   variables tried at each split are the same, only the confusion matrices
   will be shown for the rest of the random forests.
   
+  \newpage
+  
   The next random forest uses the data from Carlitos as the test set.
   
   \begin{Shaded}
@@ -1954,8 +1961,6 @@ by the experimental subjects.
   OOB estimate of  error rate: 0.11%
   \end{verbatim}
   
-  \newpage
-  
   \begin{longtable}[c]{@{}lrrrrrr@{}}
   \caption{Confusion matrix for Test Set-Charles}\tabularnewline
   \toprule
@@ -2037,8 +2042,6 @@ by the experimental subjects.
   Test set error rate: 78.7%
   \end{verbatim}
   
-  \newpage
-  
   The next random forest uses the data from Jeremy as the test set.
   
   \begin{Shaded}
@@ -2098,6 +2101,8 @@ by the experimental subjects.
   Test set error rate: 53.62%
   \end{verbatim}
   
+  \newpage
+  
   The final random forest uses the data from Pedro as the test set.
   
   \begin{Shaded}
@@ -2112,8 +2117,6 @@ by the experimental subjects.
                                  \DataTypeTok{ntree =} \DecValTok{500}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
-  
-  \newpage
   
   \begin{longtable}[c]{@{}lrrrrrr@{}}
   \caption{Confusion matrix for Training Set-Pedro}\tabularnewline
@@ -2186,7 +2189,7 @@ by the experimental subjects.
   A simple example may be helpful in demonstrating what PCA accomplishes
   (Hamilton, 2014).
   
-  Suppose we have a data set with only two variables (Figure 2).
+  Suppose we have a data set with only two variables (Figure 2.1).
   
   \begin{figure}[htbp]
   \centering
@@ -2219,17 +2222,16 @@ by the experimental subjects.
   \caption{Finding the second principal component}
   \end{figure}
   
-  As you can see in Figure 4, the two principal components are orthogonal
-  and capture the elements of the data set.
-  
-  \newpage
+  As you can see in Figure 2.3, the two principal components are
+  orthogonal and capture the elements of the data set.
   
   Thus, if PCA was performed on this dataset and the original dataset was
   projected onto the first two principal components, then no information
   would be lost. (A two-dimensional dataset is being transformed to a new
   two-dimensional dataset.) Since there are only two variables in the
-  dataset, there can only be two principal components. Figure 5 shows what
-  the original dataset projected onto the principal components looks like.
+  dataset, there can only be two principal components. Figure 2.4 shows
+  what the original dataset projected onto the principal components looks
+  like.
   
   \begin{figure}[htbp]
   \centering
@@ -2285,8 +2287,8 @@ by the experimental subjects.
   half of the variance in our numerical predictors. The first ten
   principal components contribute about 76\% of the variance.
   
-  Figure 6 shows some of the most important variables plotted against the
-  first two principal components. As seen in the factor map,
+  Figure 2.5 shows some of the most important variables plotted against
+  the first two principal components. As seen in the factor map,
   \texttt{yaw\_belt}, \texttt{roll\_belt}, \texttt{total\_accel\_belt},
   \texttt{accel\_belt\_y}, and \texttt{accel\_belt\_z} would be the best
   at spreading out the data. It would be interesting to see what a
@@ -2327,8 +2329,8 @@ by the experimental subjects.
   \newpage
   
   We can also look at the first three principal components and get a
-  3-dimensional cloud for each subject. (One outlier was removed in order
-  to give a better depiction of the clouds.)
+  3-dimensional cloud for each subject (Figure 2.6).\footnote{One outlier
+    was removed in order to give a better depiction of the clouds.}
   
   \begin{Shaded}
   \begin{Highlighting}[]
@@ -2389,6 +2391,8 @@ by the experimental subjects.
   \KeywordTok{text}\NormalTok{(m111s.tr)}
   \end{Highlighting}
   \end{Shaded}
+  
+  \newpage
   
   \begin{Shaded}
   \begin{Highlighting}[]
@@ -2451,6 +2455,8 @@ by the experimental subjects.
   \end{Highlighting}
   \end{Shaded}
   
+  \newpage
+  
   \begin{Shaded}
   \begin{Highlighting}[]
   \CommentTok{# A random sample of the numbers 1-10000. As well as how many numbers }
@@ -2510,6 +2516,8 @@ by the experimental subjects.
   \KeywordTok{load}\NormalTok{(}\DataTypeTok{file =} \StringTok{"data/wl.rda"}\NormalTok{)}
   \end{Highlighting}
   \end{Shaded}
+  
+  \newpage
   
   \begin{Shaded}
   \begin{Highlighting}[]

@@ -34,6 +34,7 @@ load(file = "data/CopyOfwl.rda")
 ```
 
 
+\newpage
 
 ### Elimination of Variables
 
@@ -110,6 +111,7 @@ Below is a function that has been written for easy separation. The arguments of 
    
 
 ```{r}
+
 # Function for separation by variable.
 
 partition_var <- function(data, var){
